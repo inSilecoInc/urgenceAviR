@@ -1,1 +1,5 @@
 ^\.github$
+^docs$
+^_pkgdown\.yml$
+^pkgdown$
+^LICENSE\.md$
