@@ -8,6 +8,7 @@ Authors@R: c(
     )
 Description: What the package does (one paragraph).
 Imports:
+    glue,
     terra,
     sf
 License: MIT + file LICENSE

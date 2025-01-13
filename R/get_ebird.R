@@ -8,10 +8,13 @@
 #' @param year Integer vector of years to filter (e.g., `2012:2014`).
 #' @param month Integer vector of months to filter (e.g., `4:5`). If `NULL`, the query
 #'   will filter by year only.
+#' @param ... Additional arguments passed to `terra::query()`, such as `select` for selecting specific columns
+#'   or `limit` to limit the number of rows returned.
 #'
 #' @return A `SpatVector` object containing the filtered eBird data.
 #'
 #' @examples
+#'\dontrun{
 #' # Example: Retrieve data for Snow Goose in April and May of 2012-2014
 #' get_ebird(
 #'   path = "path/to/ebird.gdb",
@@ -19,11 +22,19 @@
 #'   year = 2012:2014,
 #'   month = 4:5
 #' )
+#'
+#' # Example: Retrieve only specific columns
+#' get_ebird(
+#'   path = "path/to/ebird.gdb",
+#'   species = "Snow Goose",
+#'   year = 2012,
+#'   select = c("COMMON_NAME", "OBSERVATION_DATE")
+#' )}
 #' @export
-get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL) {
+get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL, ...) {
   gdb_prox <- terra::vect(path, proxy = TRUE)
   q <- compose_query(species, year, month)
-  terra::query(gdb_prox, where = q)
+  terra::query(gdb_prox, where = q, ...)
 }
 
 # Internal function: Compose SQL Query
@@ -41,7 +52,7 @@ compose_query <- function(species = NULL, year = NULL, month = NULL, var_time = 
   )
 
   if (!is.null(species)) {
-		species <- paste0("'", species, "'", collapse = ", ")
+    species <- paste0("'", species, "'", collapse = ", ")
     query <- glue::glue("({query}) AND {var_species} IN ({ species })")
   }
 
