@@ -9,10 +9,16 @@ mock_year <- 2012:2013
 mock_month <- 4:5
 
 # Mock GeoDatabase creation
-mock_gdb <- vect()
+longitude <- c(-116.7, -120.4, -116.7, -113.5)
+latitude <- c(45.3, 42.6, 38.9, 42.1)
+lonlat <- cbind(longitude, latitude)
+mock_gdb <- vect(lonlat, crs = "+proj=longlat +datum=WGS84")
 mock_gdb$OBSERVATION_DATE <- c("2012-04-01", "2012-05-01", "2013-04-01", "2013-05-01")
 mock_gdb$COMMON_NAME <- c("Snow Goose", "Mallard", "Snow Goose", "Mallard")
-writeVector(mock_gdb, mock_path, filetype = "GPKG", overwrite = TRUE)
+
+suppressWarnings(
+  writeVector(mock_gdb, mock_path, filetype = "GPKG", overwrite = TRUE)
+)
 
 ### Tests for compose_query (internal function)
 test_that("compose_query generates correct SQL query", {
@@ -43,5 +49,5 @@ test_that("get_ebird retrieves filtered data from a GeoDatabase", {
 
   # Test without species filter
   result_no_species <- get_ebird(path = mock_path, species = NULL, year = 2012:2013, month = 4)
-  expect_gt(nrow(result_no_species), nrow(result))
+  expect_equal(nrow(result_no_species), 2)
 })
