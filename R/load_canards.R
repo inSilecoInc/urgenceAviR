@@ -1,0 +1,79 @@
+
+#' Load and process the Canards de Mer canards
+#'
+#' This function loads and processes the "Canards de Mer" canards from a predefined external source.
+#' It standardizes column names, performs transformations, and integrates species codes using a reference table.
+#'
+#' @return A processed `data.frame` with standardized columns and integrated species codes.
+#' @examples
+#' \dontrun{
+#' processed_canards <- load_canards()
+#' }
+#' @export
+load_canards <- function() {
+
+    cli::cli_h1("Canards de mer")
+    cli::cli_alert_info("Starting integration procedure on { external_files$canards_de_mer$path }")
+
+    # assert file exists
+    if(!file.exists(external_files$canards_de_mer$path)) {
+        cli::cli_abort("Could not find file { external_files$canards_de_mer$path }")
+    }
+
+    # Read file
+    canards <- read.csv2(external_files$canards_de_mer$path) |> tibble::as_tibble()
+
+    # assert columns exist
+    if (!all(external_files$canards_de_mer$check_columns %in% names(canards))) {
+        chk_cols <- external_files$canards_de_mer$check_columns
+        missing_cols <- chk_cols[!chk_cols %in% names(canards)]
+        cli::cli_abort(c(
+            "Missing required columns in canards:",
+            paste(missing_cols, collapse = ", ")
+        ))
+    }
+    
+    cli::cli_alert_info("Applying transformation on { nrow(canards) } rows")
+
+    canards <- canards |>
+        dplyr::mutate(date_obs = lubridate::make_date(Annee, Mois, Jour)) |>
+        dplyr::select(
+            latitude = "LATITUDE",
+            longitude = "LONGITUDE",
+            locality = "NomLieu",
+            date = "date_obs",
+            abondance = "NombreTotal",
+            obs = "NomObservateur",
+            inv_type = "Signification.1",
+            nom_fr = "Nom_FR"
+        ) |>
+        dplyr::mutate(
+            latitude = as.numeric(latitude),
+            longitude = as.numeric(longitude),
+            nom_fr = gsub("sp", "sp\\.", nom_fr, ignore.case = TRUE),
+            source = "Canards de mer",
+            colony = FALSE,
+            link = external_files$canards_de_mer$path
+        )
+
+    # Join TAXO - Match code_id using nom_fr
+    canards <- canards |>
+        tidyr::drop_na(nom_fr) |>
+        dplyr::left_join(
+            dplyr::select(get_species_codes(), code_id, nom_fr) |> dplyr::distinct(),
+            by = "nom_fr"
+        ) |>
+        dplyr::mutate(
+            code_id = ifelse(
+                nom_fr %in% names(equivalences),
+                equivalences[nom_fr],
+                code_id
+            )
+        ) |>
+        dplyr::select(-nom_fr)
+
+    cli::cli_alert_info("Returning { nrow(canards) } rows")
+
+    return(canards)
+    
+}
