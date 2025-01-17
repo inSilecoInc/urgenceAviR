@@ -12,12 +12,23 @@
 #'
 #' @return A cleaned data frame of species codes with optional subspecies filtered out.
 #' @examples
-#' species_ref <- get_species_codes("./data/CodesEspeces.dbf", "data/metadata_species.csv", drop_subspecies = TRUE)
+#' species_ref <- get_species_codes("data/CodesEspeces.dbf", "data/metadata_species.csv", drop_subspecies = TRUE)
 #'
-get_species_codes <- function(species_path, metadata_path, drop_subspecies = TRUE) {
+get_species_codes <- function(species_path = external_files$species_codes$path, metadata_path = external_files$species_metadata$path, drop_subspecies = TRUE) {
+
+  cli::cli_h1("Create species reference table")
+
+  # assert file exists
+  if (!file.exists(species_path)) {
+    cli::cli_abort("Could not find file { species_path }")
+  }
+  
+  if(!file.exists(metadata_path)) {
+      cli::cli_abort("Could not find file { metadata_path }")
+  }
 
   # Load species codes
-  species_code <- foreign::read.dbf(species_path, as.is = TRUE)
+  species_code <- foreign::read.dbf(species_path, as.is = TRUE) |> tibble::as_tibble()
 
   # Filter species for birds and prepare columns
   species_code <- species_code |>
@@ -38,22 +49,25 @@ get_species_codes <- function(species_path, metadata_path, drop_subspecies = TRU
   species_ref <- species_code |>
     dplyr::mutate(
       # Create CODE_ID column
-      CODE_ID = case_when(
+      CODE_ID = dplyr::case_when(
         !is.na(Code4_EN) ~ Code4_EN,
         !is.na(Species_ID) ~ Species_ID,
-        TRUE ~ NA_character_  # Explicitly handle NA cases
+        TRUE ~ NA_character_ # Explicitly handle NA cases
       ),
       # Rank species
       category = sapply(Nom_Scient, get_species_rank),
       Nom_FR = stringr::str_replace(Nom_FR, "non identifié|non identifé|sp\\.e", "sp.")
-    ) |> 
-    dplyr::select(CODE_ID, Nom_Scient, STATUT_COS, Nom_FR, Code4_FR, Code4_EN, Alpha_Code, category)
+    ) |>
+    dplyr::select(CODE_ID, Nom_Scient, STATUT_COS, Nom_FR, Code4_FR, Code4_EN, Alpha_Code, category) |>
+    janitor::clean_names()
 
   # Optionally drop subspecies
   if (isTRUE(drop_subspecies)) {
     species_ref <- species_ref |> dplyr::filter(category != "subspecies")
   }
 
+
+  cli::cli_alert_info("returning { nrow(species_ref) } rows")
   return(species_ref)
 }
 
