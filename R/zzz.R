@@ -117,3 +117,51 @@ equivalences_garrots <- c(
   "STSP" = "UNTE",
   "BUSE" = "HAWK"
 )
+
+# List of external files with paths and required column names
+external_files <- list(
+  ebird_data = list(
+    path = "eBirdQC_juin2024_Extraction2024-11-04/eBirdQC_juin2024_Extraction2024-11-04.gdb",
+    check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
+  ),
+  species_codes = list(
+    path = "data/CodesEspeces.dbf",
+    check_columns = c("Nom_FR", "Nom_Scient", "Name_EN", "Code4_EN", "Code4_FR", "Alpha_Code", "SousGroupe", "STATUT_COS")
+  ),
+  species_metadata = list(
+    path = "data/metadata_species.csv",
+    check_columns = c("Name_SC", "Species_ID")
+  ),
+  canards_de_mer = list(
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/CanardsDeMer_EstuaireStL/ConsultationCanardsDeMer.csv",
+    check_columns = c("NomLieu", "LATITUDE", "LONGITUDE", "Annee", "Mois", "Jour", "NombreTotal", "Nom_FR")
+  ),
+  eider_hiver = list(
+    path = "DonneesSCF/Eiders_Hiver/ConsultationEiderHiver.csv",
+    check_columns = c("Region", "An", "Mois", "Jour", "Species", "visuelblancs", "visuelbruns", "inconnus", "LatDec", "LongDec")
+  ),
+  garrot = list(
+    path = "DonneesSCF/GarrotIslande_Hiver/ConsultationGarrot.csv",
+    check_columns = c("annee", "mois", "jour", "CodeSp", "N", "Observateurs", "Lat", "Long", "loc_ID")
+  ),
+  macreuse = list(
+    path = "DonneesSCF/Macreuses_EstuaireStL/ConsultationMacreuse.csv",
+    check_columns = c("Date", "Observateur", "Espece", "Nombre", "Longitude", "Latitude")
+  ),
+  oies = list(
+    path = "DonneesSCF/OieDesNeiges_Printemps/ConsultationOieDesNeigesPrintemps.csv",
+    check_columns = c("Date", "Observateur", "Code", "Count", "Longitude", "Latitude")
+  ),
+  sauvagine_fleuve = list(
+    path = "DonneesSCF/Sauvagine_Fleuve/ConsultationSauvagineFleuve.csv",
+    check_columns = c("Date", "Latitude", "Longitude", "Nombre", "Observateur")
+  ),
+  sriv = list(
+    path = "DonneesSCF/Sauvagine_Est/ConsultationSRIV.csv",
+    check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
+  ),
+  somec = list(
+    path = "DonneesSCF/SOMEC/ConsultationSOMEC.csv",
+    check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
+  )
+)
