@@ -20,7 +20,8 @@ load_all_datasets <- function(combine = TRUE) {
         garrot = load_garrot,
         macreuse = load_macreuse,
         oies = load_oies,
-        sauvagine_fleuve = load_sauvagine_fleuve
+        sauvagine_fleuve = load_sauvagine_fleuve,
+        biomq = load_biomq
     )
     
     cli::cli_h1("Loading all datasets")

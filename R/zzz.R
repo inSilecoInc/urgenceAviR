@@ -163,6 +163,14 @@ external_files <- list(
   somec = list(
     path = "DonneesSCF/SOMEC/ConsultationSOMEC.csv",
     check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
+  ),
+  biomq = list(
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Biomq/consultationBIOMQ.xlsx", # Replace with the actual path to your BIOMQ file
+    check_columns = c(
+      "NomCol", "CentroideX", "CentroideY", "NomFR",
+      "nb_nicheur", "methode", "nomRef", "AnneeDebut",
+      "MoisDebut", "JourDebut"
+    )
   )
 )
 

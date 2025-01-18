@@ -17,6 +17,7 @@ Imports:
     glue,
     janitor,
     lubridate,
+    readxl,
     stringr,
     tibble,
     tidyr,
