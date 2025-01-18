@@ -52,6 +52,9 @@ load_eider_hiver <- function() {
             code_id = Species
         )
 
+    # Re-order cols
+    eiderhiver <- dplyr::select(eiderhiver, dplyr::all_of(final_cols))
+
     cli::cli_alert_success("Returning {nrow(eiderhiver)} rows")
     return(eiderhiver)
 }

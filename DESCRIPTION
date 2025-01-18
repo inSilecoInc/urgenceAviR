@@ -6,11 +6,21 @@ Authors@R: c(
         person("Matthieu", "Beaumont", email = "matthieu.beaumont@ec.gc.ca", role = c("aut", "cre", "cph")),
         person("Steve", "Vissault", email = "steve.vissault@insileco.io", role = "aut")
     )
-Description: What the package does (one paragraph).
+Description: A package designed to facilitate avian emergency management 
+    workflows in environmental studies. It includes tools for loading, 
+    processing, and analyzing spatial datasets, as well as integration with 
+    various taxonomic reference systems.
 Imports:
+    cli,
+    dplyr,
+    foreign,
     glue,
-    terra,
-    sf
+    janitor,
+    lubridate,
+    stringr,
+    tibble,
+    tidyr,
+    terra
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

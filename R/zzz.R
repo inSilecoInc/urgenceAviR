@@ -165,3 +165,17 @@ external_files <- list(
     check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
   )
 )
+
+final_cols <- c(
+  "latitude",
+  "longitude",
+  "locality",
+  "date",
+  "code_id",
+  "abondance",
+  "obs",
+  "inv_type",
+  "source",
+  "colony",
+  "link"
+)

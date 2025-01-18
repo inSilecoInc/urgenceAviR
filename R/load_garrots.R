@@ -19,7 +19,7 @@ load_garrot <- function() {
         cli::cli_abort("Could not find file: {external_files$garrot$path}")
     }
 
-    garrot <- read.csv(external_files$garrot$path, sep = ';') |> tibble::as_tibble()
+    garrot <- read.csv2(external_files$garrot$path) |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files$garrot$check_columns, names(garrot))
@@ -73,6 +73,8 @@ load_garrot <- function() {
         ) |>
         dplyr::select(-code_sp)
     
+    # Re-order cols
+    garrot <- dplyr::select(garrot, dplyr::all_of(final_cols))
 
     cli::cli_alert_success("Returning {nrow(garrot)} rows")
 

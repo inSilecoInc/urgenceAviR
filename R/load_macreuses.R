@@ -19,7 +19,7 @@ load_macreuse <- function() {
         cli::cli_abort("Could not find file: {external_files$macreuse$path}")
     }
 
-    macreuse <- read.csv(external_files$macreuse$path, sep = ";") |> tibble::as_tibble()
+    macreuse <- read.csv2(external_files$macreuse$path) |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files$macreuse$check_columns, names(macreuse))
@@ -72,7 +72,8 @@ load_macreuse <- function() {
         ) |>
         dplyr::select(-code_sp)
     
-
+    # Re-order cols
+    macreuse <- dplyr::select(macreuse, dplyr::all_of(final_cols))
 
     cli::cli_alert_success("Returning {nrow(macreuse)} rows")
 

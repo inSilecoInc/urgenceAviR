@@ -24,11 +24,10 @@ load_canards <- function() {
     canards <- read.csv2(external_files$canards_de_mer$path) |> tibble::as_tibble()
 
     # assert columns exist
-    if (!all(external_files$canards_de_mer$check_columns %in% names(canards))) {
-        chk_cols <- external_files$canards_de_mer$check_columns
-        missing_cols <- chk_cols[!chk_cols %in% names(canards)]
+    missing_cols <- setdiff(external_files$canards_de_mer$check_columns, names(canards))
+    if (length(missing_cols) > 0) {
         cli::cli_abort(c(
-            "Missing required columns in canards:",
+            "Missing required columns in dataset:",
             paste(missing_cols, collapse = ", ")
         ))
     }
@@ -71,6 +70,9 @@ load_canards <- function() {
             )
         ) |>
         dplyr::select(-nom_fr)
+
+    # Re-order cols
+    canards <- dplyr::select(canards, dplyr::all_of(final_cols))
 
     cli::cli_alert_info("Returning { nrow(canards) } rows")
 
