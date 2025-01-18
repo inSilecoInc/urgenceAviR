@@ -12,7 +12,7 @@
 #' @export
 load_canards <- function() {
 
-    cli::cli_h1("Canards de mer")
+    cli::cli_h2("Canards de mer")
     cli::cli_alert_info("Starting integration procedure on { external_files$canards_de_mer$path }")
 
     # assert file exists
@@ -74,7 +74,7 @@ load_canards <- function() {
     # Re-order cols
     canards <- dplyr::select(canards, dplyr::all_of(final_cols))
 
-    cli::cli_alert_info("Returning { nrow(canards) } rows")
+    cli::cli_alert_success("Returning { nrow(canards) } rows")
 
     return(canards)
     

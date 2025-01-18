@@ -11,7 +11,7 @@
 #' @export
 load_macreuse <- function() {
 
-    cli::cli_h1("Macreuse")
+    cli::cli_h2("Macreuse")
     cli::cli_alert_info("Starting integration procedure on {external_files$macreuse$path}")
 
     # Assert file exists
@@ -43,6 +43,9 @@ load_macreuse <- function() {
             code_sp = Espece
         ) |>
         dplyr::mutate(
+            date = lubridate::ymd(date),
+            latitude = as.numeric(latitude),
+            longitude = as.numeric(longitude),
             link = external_files$macreuse$path,
             source = "Macreuse",
             inv_type = NA,  # Quel type d'inventaire

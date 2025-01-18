@@ -11,7 +11,7 @@
 #' @export
 load_garrot <- function() {
 
-    cli::cli_h1("Garrot")
+    cli::cli_h2("Garrot")
     cli::cli_alert_info("Starting integration procedure on {external_files$garrot$path}")
 
     # Assert file exists
@@ -35,6 +35,8 @@ load_garrot <- function() {
     garrot <- garrot |>
         dplyr::select(annee, no_seance, mois, jour, CodeSp, N, Observateurs, Lat, Long, loc_ID, CodeSp) |>
         dplyr::mutate(
+            latitude = as.numeric(Lat),
+            longitude = as.numeric(Long),            
             date = lubridate::make_date(annee, mois, jour),
             link = external_files$garrot$path,
             source = "Garrot",
@@ -43,8 +45,6 @@ load_garrot <- function() {
         ) |>
         dplyr::select(!c(annee, mois, jour)) |>
         dplyr::rename(
-            longitude = Long,
-            latitude = Lat,
             abondance = N,
             obs = Observateurs,
             inv_type = no_seance,

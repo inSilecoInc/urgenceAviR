@@ -11,7 +11,7 @@
 #' @export
 load_sauvagine_fleuve <- function() {
 
-    cli::cli_h1("Sauvagine Fleuve")
+    cli::cli_h2("Sauvagine Fleuve")
     cli::cli_alert_info("Starting integration procedure on {external_files$sauvagine_fleuve$path}")
 
     # Assert file exists
@@ -41,6 +41,9 @@ load_sauvagine_fleuve <- function() {
             obs = Observateur
         ) |>
         dplyr::mutate(
+            date = lubridate::ymd(date),
+            latitude = as.numeric(latitude),
+            longitude = as.numeric(longitude),
             inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
             link = external_files$sauvagine_fleuve$path,
             source = "Sauvagine Fleuve",

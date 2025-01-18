@@ -11,7 +11,7 @@
 #' @export
 load_eider_hiver <- function() {
 
-    cli::cli_h1("Eider Hiver")
+    cli::cli_h2("Eider Hiver")
     cli::cli_alert_info("Starting integration procedure on {external_files$eider_hiver$path}")
 
     # Assert file exists
@@ -35,6 +35,8 @@ load_eider_hiver <- function() {
     eiderhiver <- eiderhiver |>
         dplyr::select(Region, An, Mois, Jour, Species, visuelblancs, visuelbruns, inconnus, LatDec, LongDec) |>
         dplyr::mutate(
+            latitude = as.numeric(LatDec),
+            longitude = as.numeric(LongDec),
             n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
             date = lubridate::make_date(An, Mois, Jour),
             link = external_files$eider_hiver$path,
@@ -46,8 +48,6 @@ load_eider_hiver <- function() {
         ) |>
         dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour)) |>
         dplyr::rename(
-            longitude = LongDec,
-            latitude = LatDec,
             abondance = n_obs,
             code_id = Species
         )
