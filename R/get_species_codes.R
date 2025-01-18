@@ -12,11 +12,14 @@
 #'
 #' @return A cleaned data frame of species codes with optional subspecies filtered out.
 #' @examples
-#' species_ref <- get_species_codes("data/CodesEspeces.dbf", "data/metadata_species.csv", drop_subspecies = TRUE)
-#'
+#' \dontrun{
+#' species_ref <- get_species_codes(
+#'  species_path = "data/CodesEspeces.dbf", 
+#'  metadata_path = "data/metadata_species.csv", 
+#'  drop_subspecies = TRUE
+#' )
+#' }
 get_species_codes <- function(species_path = external_files$species_codes$path, metadata_path = external_files$species_metadata$path, drop_subspecies = TRUE) {
-
-  cli::cli_h1("Create species reference table")
 
   # assert file exists
   if (!file.exists(species_path)) {
@@ -66,8 +69,8 @@ get_species_codes <- function(species_path = external_files$species_codes$path, 
     species_ref <- species_ref |> dplyr::filter(category != "subspecies")
   }
 
+  cli::cli_alert_info("Load { nrow(species_ref) } species from species reference table")
 
-  cli::cli_alert_info("returning { nrow(species_ref) } rows")
   return(species_ref)
 }
 
