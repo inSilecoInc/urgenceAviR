@@ -4,7 +4,7 @@
   [![R-CMD-check](https://github.com/inSilecoInc/urgenceAviR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/inSilecoInc/urgenceAviR/actions/workflows/R-CMD-check.yaml)
   <!-- badges: end -->
 
-The `urgenceAviR` package is designed to facilitate avian emergency management workflows in environmental studies. It provides tools for loading, processing, and analyzing spatial datasets, as well as integrating taxonomic reference systems. 
+A package designed to gather bird surveys and integrate them. The newly created database is used to assess environmental threat levels. 
 
 ## Getting started 
 
