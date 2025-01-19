@@ -53,16 +53,14 @@ load_sauvagine_fleuve <- function() {
 
     # Join TAXO - Match CODE_ID using Code4_FR via left_join
     sauvagine_fleuve <- sauvagine_fleuve |>
-        tidyr::drop_na(Espece) |>
         dplyr::left_join(
             dplyr::select(
                 get_species_codes(),
                 code_id,
                 code4_fr
-            ) |>
-                tidyr::drop_na() |>
-                dplyr::distinct(),
-            by = c("Espece" = "code4_fr")
+            ) |> dplyr::distinct(),
+            by = c("Espece" = "code4_fr"),
+            na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(

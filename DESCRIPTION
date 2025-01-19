@@ -1,13 +1,12 @@
 Package: urgenceAviR
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Integrate birds abundances data 
+Version: 0.0.1
 Authors@R: c( 
         person("Clara", "Casabona", role = "ctb"),
         person("Matthieu", "Beaumont", email = "matthieu.beaumont@ec.gc.ca", role = c("aut", "cre", "cph")),
         person("Steve", "Vissault", email = "steve.vissault@insileco.io", role = "aut")
     )
-Description: A package designed to facilitate avian emergency management 
-    workflows in environmental studies. It includes tools for loading, 
+Description: A package designed to gather bird surveys and integrate them. The newly created database is used to assess environmental threat levels. It includes tools for loading, 
     processing, and analyzing spatial datasets, as well as integration with 
     various taxonomic reference systems.
 Imports:
@@ -19,8 +18,8 @@ Imports:
     lubridate,
     readxl,
     stringr,
+    stringi,
     tibble,
-    tidyr,
     terra
 License: MIT + file LICENSE
 Encoding: UTF-8

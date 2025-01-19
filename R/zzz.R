@@ -1,3 +1,16 @@
+globalVariables(c(
+  "Alpha", "Alpha_Code", "An", "Annee", "AnneeDebut", "CODE_ID", "CentroideX", "CentroideY",
+  "Code", "Code4_EN", "Code4_FR", "CodeSp", "Count", "Date", "Espece", "Groupe_FR", "Jour",
+  "JourDebut", "Lat", "LatDec", "LatStart", "Latin", "Latitude", "Long", "LongDec", "LongStart",
+  "Longitude", "Mois", "MoisDebut", "N", "Name_EN", "Name_SC", "NomCol", "NomFR", "Nom_FR",
+  "Nom_Scient", "Nombre", "Observateur", "Observateurs", "ObserverName", "Region",
+  "STATUT_COS", "SousGroupe", "Species", "Species_ID", "abondance", "alpha_code", "annee",
+  "category", "code4_fr", "code_id", "code_sp", "day", "inconnus", "jour", "latitude", "loc_ID",
+  "longitude", "methode", "mois", "month", "n_obs", "nb_nicheur", "no_seance", "nomRef", "nom_fr",
+  "obs", "read.csv", "read.csv2", "setNames", "species_id", "visuelblancs", "visuelbruns", "year"
+))
+
+
 alpha_to_species_id <- c(
   "UNPH" = "PHAL_UNI",
   "HARD" = "HADU",
@@ -54,16 +67,16 @@ alpha_to_species_id <- c(
 )
 
 equivalences <- c(
-  "Canard sp." = "DUCK_UNI",
-  "Canard de mer sp." = "SEAD_UNI",
-  "Garrot sp." = "GOLD_UNI",
-  "Canard barboteur sp." = "GOLD_UNI",
-  "Goéland sp." = "UNLG_UNI",
-  "Harle sp." = "MERG_UNI",
-  "Plongeon sp." = "LOON_UNI",
-  "Macreuse sp." = "SCOT_UNI",
-  "Fuligule sp." = "SCAU_UNI",
-  "Sterne sp." = "TERN_UNI",
+  "canard sp." = "DUCK_UNI",
+  "canard de mer sp." = "SEAD_UNI",
+  "garrot sp." = "GOLD_UNI",
+  "canard barboteur sp." = "GOLD_UNI",
+  "goeland sp." = "UNLG_UNI",
+  "harle sp." = "MERG_UNI",
+  "plongeon sp." = "LOON_UNI",
+  "macreuse sp." = "SCOT_UNI",
+  "fuligule sp." = "SCAU_UNI",
+  "sterne sp." = "TERN_UNI",
   "cormoran sp." = "CORM_UNI"
 )
 

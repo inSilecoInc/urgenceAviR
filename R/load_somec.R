@@ -54,15 +54,12 @@ load_somec <- function() {
 
     # Join TAXO - Match CODE_ID using Alpha_Code
     somec <- somec |>
-        tidyr::drop_na(Alpha) |>
         dplyr::left_join(
             dplyr::select(
                 get_species_codes(),
                 code_id,
                 alpha_code
-            ) |>
-                tidyr::drop_na() |>
-                dplyr::distinct(),
+            ) |> dplyr::distinct(),
             by = c("Alpha" = "alpha_code")
         ) |>
         dplyr::mutate(
@@ -75,6 +72,7 @@ load_somec <- function() {
         dplyr::select(-Alpha)
 
 
-    cli::cli_alert_success("Returning {nrow(somec_working)} rows")
-    return(somec_working)
+    cli::cli_alert_success("Returning {nrow(somec)} rows")
+
+    return(somec)
 }

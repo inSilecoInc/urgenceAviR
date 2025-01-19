@@ -55,16 +55,14 @@ load_oies <- function() {
 
     # Join TAXO - Match CODE_ID using Code4_FR via right_join
     oies <- oies |>
-        tidyr::drop_na(Code) |>
         dplyr::left_join(
             dplyr::select(
                 get_species_codes(),
                 code_id,
                 code4_fr
-            ) |>
-                tidyr::drop_na() |>
-                dplyr::distinct(),
-            by = c("Code" = "code4_fr")
+            ) |> dplyr::distinct(),
+            by = c("Code" = "code4_fr"),
+            na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
@@ -72,8 +70,7 @@ load_oies <- function() {
                 equivalences_garrots[Code],
                 code_id
             )
-        ) |>
-        dplyr::select(-Code)
+        )
 
     # Correct longitudes
     oies <- oies |>

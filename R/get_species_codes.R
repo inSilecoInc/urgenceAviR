@@ -37,13 +37,12 @@ get_species_codes <- function(species_path = external_files$species_codes$path, 
   species_code <- species_code |>
     dplyr::filter(Groupe_FR == "Oiseaux") |>  # Only keep birds
     dplyr::select(Nom_FR, Nom_Scient, Name_EN, Code4_EN, Code4_FR, Alpha_Code, SousGroupe, STATUT_COS) |>
-    tidyr::drop_na(SousGroupe) |>
+    dplyr::filter(!is.na(SousGroupe)) |>
     dplyr::distinct()
 
   # Read metadata and select columns
   metadata_sp <- read.csv(metadata_path, encoding = "UTF-8") |>
-    dplyr::select(Name_SC, Species_ID) |>
-    tidyr::drop_na()
+    dplyr::select(Name_SC, Species_ID)
 
   # Add species ID to species codes
   species_code <- dplyr::left_join(species_code, metadata_sp, by = c("Nom_Scient" = "Name_SC"))
@@ -59,7 +58,10 @@ get_species_codes <- function(species_path = external_files$species_codes$path, 
       ),
       # Rank species
       category = sapply(Nom_Scient, get_species_rank),
-      Nom_FR = stringr::str_replace(Nom_FR, "non identifié|non identifé|sp\\.e", "sp.")
+      Nom_FR = stringr::str_replace(
+        stringi::stri_trans_general(Nom_FR, "latin-ascii"),
+        "non identifie|non identife|sp\\.e", "sp."
+      ) |> tolower()
     ) |>
     dplyr::select(CODE_ID, Nom_Scient, STATUT_COS, Nom_FR, Code4_FR, Code4_EN, Alpha_Code, category) |>
     janitor::clean_names()

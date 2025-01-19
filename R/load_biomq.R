@@ -62,21 +62,23 @@ load_biomq <- function() {
     # Enforce sp. 
     biomq <- biomq |>
         dplyr::mutate(
-            nom_fr = stringr::str_replace_all(nom_fr, c(
-                "Goélands" = "Goéland sp.",
-                "Sternes" = "Sterne sp.",
-                "Cormorans" = "cormoran sp."
-            ))
+            nom_fr = stringr::str_replace_all(
+             stringi::stri_trans_general(nom_fr, "latin-ascii") |> tolower(), 
+                c(
+                    "goelands" = "goeland sp.",
+                    "sternes" = "sterne sp.",
+                    "cormorans" = "cormoran sp."
+                ))
         )
 
     # Join TAXO - Match CODE_ID using Nom_FR
     biomq <- biomq |>
-        tidyr::drop_na(nom_fr) |>
         dplyr::left_join(
             dplyr::select(get_species_codes(), code_id, nom_fr) |> 
             dplyr::mutate(nom_fr = tolower(nom_fr)) |>
             dplyr::distinct(),
-            by = "nom_fr"
+            by = "nom_fr",
+            na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
