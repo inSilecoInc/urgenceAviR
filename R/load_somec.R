@@ -60,7 +60,8 @@ load_somec <- function() {
                 code_id,
                 alpha_code
             ) |> dplyr::distinct(),
-            by = c("Alpha" = "alpha_code")
+            by = c("Alpha" = "alpha_code"),
+            na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
@@ -68,8 +69,7 @@ load_somec <- function() {
                 alpha_to_species_id[Alpha],
                 code_id
             )
-        ) |>
-        dplyr::select(-Alpha)
+        )
 
 
     cli::cli_alert_success("Returning {nrow(somec)} rows")
