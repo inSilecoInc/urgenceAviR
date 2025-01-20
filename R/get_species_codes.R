@@ -42,10 +42,14 @@ get_species_codes <- function(species_path = external_files$species_codes$path, 
 
   # Read metadata and select columns
   metadata_sp <- read.csv(metadata_path, encoding = "UTF-8") |>
-    dplyr::select(Name_SC, Species_ID)
+    dplyr::select(Name_SC, Species_ID, group = Taxo_EN)
 
   # Add species ID to species codes
-  species_code <- dplyr::left_join(species_code, metadata_sp, by = c("Nom_Scient" = "Name_SC"))
+  species_code <- dplyr::left_join(
+    species_code, metadata_sp,
+    by = c("Nom_Scient" = "Name_SC"),
+    na_matches = "never"
+  )
 
   # Create reference table
   species_ref <- species_code |>
@@ -57,18 +61,18 @@ get_species_codes <- function(species_path = external_files$species_codes$path, 
         TRUE ~ NA_character_ # Explicitly handle NA cases
       ),
       # Rank species
-      category = sapply(Nom_Scient, get_species_rank),
+      rank = sapply(Nom_Scient, get_species_rank),
       Nom_FR = stringr::str_replace(
         stringi::stri_trans_general(Nom_FR, "latin-ascii"),
         "non identifie|non identife|sp\\.e", "sp."
       ) |> tolower()
     ) |>
-    dplyr::select(CODE_ID, Nom_Scient, STATUT_COS, Nom_FR, Code4_FR, Code4_EN, Alpha_Code, category) |>
+    dplyr::select(CODE_ID, Nom_Scient, STATUT_COS, Nom_FR, Name_EN, Code4_FR, Code4_EN, Alpha_Code, rank, group) |>
     janitor::clean_names()
 
   # Optionally drop subspecies
   if (isTRUE(drop_subspecies)) {
-    species_ref <- species_ref |> dplyr::filter(category != "subspecies")
+    species_ref <- species_ref |> dplyr::filter(rank != "subspecies")
   }
 
   cli::cli_alert_info("Load { nrow(species_ref) } species from species reference table")
