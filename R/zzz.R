@@ -7,7 +7,10 @@ globalVariables(c(
   "STATUT_COS", "SousGroupe", "Species", "Species_ID", "abondance", "alpha_code", "annee",
   "category", "code4_fr", "code_id", "code_sp", "day", "inconnus", "jour", "latitude", "loc_ID",
   "longitude", "methode", "mois", "month", "n_obs", "nb_nicheur", "no_seance", "nomRef", "nom_fr",
-  "obs", "read.csv", "read.csv2", "setNames", "species_id", "visuelblancs", "visuelbruns", "year"
+  "obs", "read.csv", "read.csv2", "setNames", "species_id", "visuelblancs", "visuelbruns", "year",
+  "ColonyID", "ColonyId", "Colony_size", "Data_location", "Latdec", 
+  "Londec", "ObsLat", "ObsLong", "Observer", "Observer1", "Observer2", 
+  "Platform", "Source", "Species_code", "Taxo_EN", "alpha", "group", "locality"
 ))
 
 
@@ -134,15 +137,15 @@ equivalences_garrots <- c(
 # List of external files with paths and required column names
 external_files <- list(
   ebird_data = list(
-    path = "eBirdQC_juin2024_Extraction2024-11-04/eBirdQC_juin2024_Extraction2024-11-04.gdb",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/eBirdQC_juin2024_Extraction2024-11-04/eBirdQC_juin2024_Extraction2024-11-04.gdb",
     check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
   ),
   species_codes = list(
-    path = "data/CodesEspeces.dbf",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/data/CodesEspeces.dbf",
     check_columns = c("Nom_FR", "Nom_Scient", "Name_EN", "Code4_EN", "Code4_FR", "Alpha_Code", "SousGroupe", "STATUT_COS")
   ),
   species_metadata = list(
-    path = "data/metadata_species.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/data/metadata_species.csv",
     check_columns = c("Name_SC", "Species_ID")
   ),
   canards_de_mer = list(
@@ -150,32 +153,37 @@ external_files <- list(
     check_columns = c("NomLieu", "LATITUDE", "LONGITUDE", "Annee", "Mois", "Jour", "NombreTotal", "Nom_FR")
   ),
   eider_hiver = list(
-    path = "DonneesSCF/Eiders_Hiver/ConsultationEiderHiver.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Eiders_Hiver/ConsultationEiderHiver.csv",
     check_columns = c("Region", "An", "Mois", "Jour", "Species", "visuelblancs", "visuelbruns", "inconnus", "LatDec", "LongDec")
   ),
   garrot = list(
-    path = "DonneesSCF/GarrotIslande_Hiver/ConsultationGarrot.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/GarrotIslande_Hiver/ConsultationGarrot.csv",
     check_columns = c("annee", "mois", "jour", "CodeSp", "N", "Observateurs", "Lat", "Long", "loc_ID")
   ),
   macreuse = list(
-    path = "DonneesSCF/Macreuses_EstuaireStL/ConsultationMacreuse.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Macreuses_EstuaireStL/ConsultationMacreuse.csv",
     check_columns = c("Date", "Observateur", "Espece", "Nombre", "Longitude", "Latitude")
   ),
   oies = list(
-    path = "DonneesSCF/OieDesNeiges_Printemps/ConsultationOieDesNeigesPrintemps.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/OieDesNeiges_Printemps/ConsultationOieDesNeigesPrintemps.csv",
     check_columns = c("Date", "Observateur", "Code", "Count", "Longitude", "Latitude")
   ),
   sauvagine_fleuve = list(
-    path = "DonneesSCF/Sauvagine_Fleuve/ConsultationSauvagineFleuve.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Sauvagine_Fleuve/ConsultationSauvagineFleuve.csv",
     check_columns = c("Date", "Latitude", "Longitude", "Nombre", "Observateur")
   ),
   sriv = list(
-    path = "DonneesSCF/Sauvagine_Est/ConsultationSRIV.csv",
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Sauvagine_Est/ConsultationSRIV.csv",
     check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
   ),
   somec = list(
-    path = "DonneesSCF/SOMEC/ConsultationSOMEC.csv",
-    check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/SOMEC/ConsultationSomec.csv",
+    check_columns = c("Alpha", "ObsLat", "ObsLong", "Date", "Count", "Observer")
+  ),
+  atlantic_colonies = list(
+    path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/AtlanticColonialSeabirds/Colonies.gdb",
+    check_columns = c("Latdec", "Londec", "ColonyID", "Date", "Platform", "Colony_size", 
+                          "Data_location", "Species_code", "Observer1", "Observer2", "Source")
   ),
   biomq = list(
     path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/DonneesSCF/Biomq/consultationBIOMQ.xlsx", # Replace with the actual path to your BIOMQ file
