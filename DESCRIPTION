@@ -20,7 +20,9 @@ Imports:
     stringr,
     stringi,
     tibble,
-    terra
+    tidyr,
+    terra,
+    sf
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
