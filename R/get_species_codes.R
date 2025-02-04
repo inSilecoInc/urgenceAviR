@@ -19,6 +19,7 @@
 #'  drop_subspecies = TRUE
 #' )
 #' }
+#' @export
 get_species_codes <- function(species_path = external_files$species_codes$path, metadata_path = external_files$species_metadata$path, drop_subspecies = TRUE) {
 
   # assert file exists

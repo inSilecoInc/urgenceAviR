@@ -6,8 +6,13 @@
 #' @param species Character vector of species names to filter (e.g., "Snow Goose").
 #'   If `NULL`, the query will not filter by species.
 #' @param year Integer vector of years to filter (e.g., `2012:2014`).
+#'   If `NULL`, the query will not filter by year.
 #' @param month Integer vector of months to filter (e.g., `4:5`). If `NULL`, the query
 #'   will filter by year only.
+#' @param extent An `sf` or `terra` spatial object defining the spatial extent to filter data.
+#'   If `NULL`, the query will not apply spatial filtering.
+#' @param ... Additional arguments passed to the SQL query construction function
+#'   (`compose_query`). This allows for further customization of query conditions.
 #'
 #' @return A `SpatVector` object containing the filtered eBird data.
 #'
@@ -19,17 +24,17 @@
 #'   species = "Snow Goose",
 #'   year = 2012:2014,
 #'   month = 4:5
-#' )
+#' )}
 #'
 #' @export
-get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL, ...) {
+get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL, extent = NULL, ...) {
   gdb_prox <- terra::vect(path, proxy = TRUE)
   q <- compose_query(species, year, month, ...)
-  terra::query(gdb_prox, where = q)
+  terra::query(gdb_prox, where = q, extent = extent)
 }
 
 # Internal function: Compose SQL Query  
-compose_query <- function(species = NULL, year = NULL, month = NULL, var_time = "OBSERVATION_DATE", var_species = "COMMON_NAME") {
+compose_query <- function(species = NULL, year = NULL, month = NULL, var_time = "OBSERVATION_DATE", var_species = "COMMON_NAME", extent = NULL) {
   time_q <- NULL
 
   # Generate time query if year or month is provided

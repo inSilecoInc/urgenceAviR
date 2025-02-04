@@ -11,7 +11,7 @@
 #' @export
 load_biomq <- function() {
 
-    cli::cli_h1("BIOMQ")
+    cli::cli_h2("BIOMQ")
     cli::cli_alert_info("Starting integration procedure on {external_files$biomq$path}")
 
     # Assert file exists

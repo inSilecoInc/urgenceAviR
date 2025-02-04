@@ -1,0 +1,145 @@
+---
+title: "Assess environmental threaths"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{assessThreath}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(urgenceAviR)
+```
+
+## Load area of interest
+
+```{R}
+area <- sf::st_read(system.file("exdata/threat_example.kml", package = "urgenceAviR"), quiet = TRUE) |>
+  sf::st_transform(crs = sf::st_crs(32198))
+
+mapview::mapviewOptions(fgb = FALSE)
+mapview::mapview(area)
+
+extent <- terra::ext(area)
+```
+
+## Load species reference backbone
+
+```{R}
+species_ref <- urgenceAviR::get_species_codes(drop_subspecies = TRUE)
+```
+
+## SCF Data
+
+Load SCF occurences data and transform to sf object
+
+```{R}
+scf_occs <- urgenceAviR::load_all_datasets() |>
+  dplyr::filter(!is.na(latitude) & !is.na(longitude) & !is.na(abondance) & !is.na(date)) |>
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = sf::st_crs(4326)) |>
+  sf::st_transform(scf_occs, crs = sf::st_crs(32198))
+```
+
+Get occurences in area
+
+```{R}
+sscf_occs_area <- sf::st_intersection(scf_occs, area)
+mapview::mapview(sscf_occs_area)
+```
+
+## Create one kernel by season and group of species
+
+Split by season
+
+```{R}
+sscf_occs_area <- sscf_occs_area |> dplyr::mutate(
+  season = dplyr::case_when(
+    lubridate::month(date) %in% 4:7 ~ "04050607",
+    lubridate::month(date) %in% 8:11 ~ "08091011",
+    lubridate::month(date) %in% c(12,1,2,3) ~ "12010203"
+  )
+) 
+```
+
+Subset ducks group
+
+```{R}
+ducks <- dplyr::filter(sscf_occs_area, code_id %in% (species_ref |>
+  dplyr::filter(stringr::str_detect(group, "duck")) |>
+  dplyr::pull(code_id) |>
+  unique())) |> dplyr::distinct()
+```
+
+Rasterize abundances by species group with 95th quantile  
+
+```{R}
+library(stars)
+# Create reference grid
+grid <- terra::rast(area, resolution = 200)
+q95 <- terra::rasterize(terra::vect(ducks), grid, field = "abondance", fun = quantile, probs = c(0.95), by = "season")
+```
+
+Plot raster values 
+
+```{R}
+tmap::tmap_mode("view")
+tmap::tm_basemap(tmap::providers$CartoDB.DarkMatter) +
+  tmap::tm_shape(log10(q95)) +
+  tmap::tm_raster() +
+  tmap::tm_facets(ncol = 2) +
+  tmap::tm_layout(title = c("Printemps-Été", "Été-Automne", "Hiver")) 
+```
+
+Run kernel for each season based on observation points
+Reference: https://r-spatial.org/book/11-PointPattern.html
+https://www.paulamoraga.com/book-spatial/intensity-estimation.html
+
+```{R}
+duck_seasons <- ducks |>
+  dplyr::group_split(season)
+
+densities_rs <- duck_seasons |> purrr::map(\(df){
+  df_ppp <- spatstat.geom::as.ppp(df)
+  density <- spatstat.explore::density.ppp(df_ppp, sigma = 1)
+
+  # Go back to terra::rast
+  density <- terra::rast(density)
+  terra::crs(density) <- "epsg:32198"
+
+  # Resample on based grid
+  terra::resample(density, grid, method = "near")
+})
+
+# Remove negative densities and mask values
+densities_rs <- purrr::map(densities_rs, \(r){
+  # r <- terra::clamp(r, lower = 0, upper = Inf, values = FALSE)
+  r <- terra::mask(r, area)
+  r
+}) |>
+  terra::rast() |>
+  setNames(c("Printemps-Été", "Été-Automne", "Hiver"))
+
+tmap::tmap_mode("view")
+tmap::tm_basemap(tmap::providers$CartoDB.DarkMatter) +
+  tmap::tm_shape(densities_rs) +
+  tmap::tm_raster(title = "Kernel density estimation", palette = viridis::viridis(12)) +
+  tmap::tm_facets(ncol = 2, free.scales = TRUE) +
+  tmap::tm_layout(title = c("Printemps-Été", "Été-Automne", "Hiver"))
+```
+
+## eBirds
+
+```{R}
+ebird <- get_ebird(
+  path = "/home/steve/Documents/UrgenceAviR_EmeRgencyApp/eBirdQC_juin2024_Extraction2024-11-04/eBirdQC_juin2024_Extraction2024-11-04.gdb",
+  species = unique(species_ref$nom_scient), var_species = "SCIENTIFIC_NAME", extent = extent
+)
+```
+

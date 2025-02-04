@@ -11,7 +11,7 @@
 #' @export
 load_somec <- function() {
 
-    cli::cli_h1("SOMEC")
+    cli::cli_h2("SOMEC")
     cli::cli_alert_info("Starting integration procedure on {external_files$somec$path}")
 
     # Assert file exists
@@ -19,7 +19,7 @@ load_somec <- function() {
         cli::cli_abort("Could not find file: {external_files$somec$path}")
     }
 
-    somec <- read.csv(external_files$somec$path) |> tibble::as_tibble()
+    somec <- read.csv2(external_files$somec$path) |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files$somec$check_columns, names(somec))
@@ -34,15 +34,15 @@ load_somec <- function() {
 
     somec <- somec |>
         dplyr::rename(
-            latitude = LatStart,
-            longitude = LongStart,
-            species_id = Latin,
+            latitude = ObsLat,
+            longitude = ObsLong,
             date = Date,
             abondance = Count,
-            obs = ObserverName
+            obs = Observer
         ) |>
-        dplyr::select(latitude, longitude, date, abondance, species_id, obs, Alpha) |>
+        dplyr::select(latitude, longitude, date, abondance, obs, alpha = Alpha) |>
         dplyr::mutate(
+            date = as.Date(date),
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
             source = "somec",
@@ -60,17 +60,18 @@ load_somec <- function() {
                 code_id,
                 alpha_code
             ) |> dplyr::distinct(),
-            by = c("Alpha" = "alpha_code"),
+            by = c("alpha" = "alpha_code"),
             na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                Alpha %in% names(alpha_to_species_id),
-                alpha_to_species_id[Alpha],
+                alpha %in% names(alpha_to_species_id),
+                alpha_to_species_id[alpha],
                 code_id
             )
         )
-
+    # Re-order cols
+    somec <- dplyr::select(somec, dplyr::all_of(final_cols))
 
     cli::cli_alert_success("Returning {nrow(somec)} rows")
 
