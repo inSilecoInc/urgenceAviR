@@ -19,7 +19,7 @@ load_somec <- function() {
         cli::cli_abort("Could not find file: {external_files$somec$path}")
     }
 
-    somec <- read.csv2(external_files$somec$path) |> tibble::as_tibble()
+    somec <- read.csv(external_files$somec$path) |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files$somec$check_columns, names(somec))

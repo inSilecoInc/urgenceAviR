@@ -134,54 +134,57 @@ equivalences_garrots <- c(
   "BUSE" = "HAWK"
 )
 
+# Base path for datasets folder - must be set before using load_all_datasets()
+datasets_folder <- NULL
+
 # List of external files with paths and required column names
 external_files <- list(
   ebird_data = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/eBird.gdb",
+    path = paste0(datasets_folder, "eBird.gdb"),
     check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
   ),
   species_codes = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/CodesEspeces.dbf",
+    path = paste0(datasets_folder, "CodesEspeces.dbf"),
     check_columns = c("Nom_FR", "Nom_Scient", "Name_EN", "Code4_EN", "Code4_FR", "Alpha_Code", "SousGroupe", "STATUT_COS")
   ),
   species_metadata = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/metadata_species.csv",
+    path = paste0(datasets_folder, "metadata_species.csv"),
     check_columns = c("Name_SC", "Species_ID")
   ),
   canards_de_mer = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationCanardsDeMer.csv",
+    path = paste0(datasets_folder, "ConsultationCanardsDeMer.csv"),
     check_columns = c("NomLieu", "LATITUDE", "LONGITUDE", "Annee", "Mois", "Jour", "NombreTotal", "Nom_FR")
   ),
   eider_hiver = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationEiderHiver.csv",
+    path = paste0(datasets_folder, "ConsultationEiderHiver.csv"),
     check_columns = c("Region", "An", "Mois", "Jour", "Species", "visuelblancs", "visuelbruns", "inconnus", "LatDec", "LongDec")
   ),
   garrot = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationGarrot.csv",
+    path = paste0(datasets_folder, "ConsultationGarrot.csv"),
     check_columns = c("annee", "mois", "jour", "CodeSp", "N", "Observateurs", "Lat", "Long", "loc_ID")
   ),
   macreuse = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationMacreuses.csv",
+    path = paste0(datasets_folder, "ConsultationMacreuses.csv"),
     check_columns = c("Date", "Observateur", "Espece", "Nombre", "Longitude", "Latitude")
   ),
   oies = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationOieDesNeigesPrintemps.csv",
+    path = paste0(datasets_folder, "ConsultationOieDesNeigesPrintemps.csv"),
     check_columns = c("Date", "Observateur", "Code", "Count", "Longitude", "Latitude")
   ),
   sauvagine_fleuve = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationSauvagineFleuve.csv",
+    path = paste0(datasets_folder, "ConsultationSauvagineFleuve.csv"),
     check_columns = c("Date", "Latitude", "Longitude", "Nombre", "Observateur")
   ),
   sriv = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationSRIV.csv",
+    path = paste0(datasets_folder, "ConsultationSRIV.csv"),
     check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
   ),
   somec = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/ConsultationSOMEC.csv",
+    path = paste0(datasets_folder, "ConsultationSOMEC.csv"),
     check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
   ),
   biomq = list(
-    path = "/Users/steve/inSileco Dropbox/Steve Vissault/UrgenceAviR/consultationBIOMQ.xlsx", # Replace with the actual path to your BIOMQ file
+    path = paste0(datasets_folder, "consultationBIOMQ.xlsx"),
     check_columns = c(
       "NomCol", "CentroideX", "CentroideY", "NomFR",
       "nb_nicheur", "methode", "nomRef", "AnneeDebut",
@@ -189,6 +192,22 @@ external_files <- list(
     )
   )
 )
+
+#' Set datasets folder path
+#'
+#' @param path Path to the datasets folder (must end with "/")
+#' @export
+set_datasets_folder <- function(path) {
+  if (!endsWith(path, "/")) {
+    path <- paste0(path, "/")
+  }
+  datasets_folder <<- path
+  # Update all file paths with new base path
+  for (i in names(external_files)) {
+    filename <- basename(external_files[[i]]$path)
+    external_files[[i]]$path <<- paste0(path, filename)
+  }
+}
 
 final_cols <- c(
   "latitude",
