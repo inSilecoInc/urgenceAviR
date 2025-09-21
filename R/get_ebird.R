@@ -3,6 +3,7 @@
 #' Filters and retrieves data from an eBird GeoDatabase file (.gdb) using a SQL query.
 #'
 #' @param path Character string specifying the file path to the eBird GeoDatabase file (.gdb).
+#'   If `NULL`, uses the default path from `external_files$ebird_data$path`.
 #' @param species Character vector of species names to filter (e.g., "Snow Goose").
 #'   If `NULL`, the query will not filter by species.
 #' @param year Integer vector of years to filter (e.g., `2012:2014`).
@@ -24,10 +25,23 @@
 #'   species = "Snow Goose",
 #'   year = 2012:2014,
 #'   month = 4:5
-#' )}
+#' )
+#' 
+#' # Using default path from external_files
+#' get_ebird(species = "Snow Goose", year = 2020)
+#' }
 #'
 #' @export
 get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL, extent = NULL, ...) {
+  
+  if (is.null(path)) {
+    path <- external_files$ebird_data$path
+  }
+  
+  if (!file.exists(path)) {
+    stop("eBird file not found at: ", path)
+  }
+  
   gdb_prox <- terra::vect(path, proxy = TRUE)
   q <- compose_query(species, year, month, ...)
   terra::query(gdb_prox, where = q, extent = extent)
