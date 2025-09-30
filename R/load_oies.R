@@ -19,7 +19,7 @@ load_oies <- function() {
         cli::cli_abort("Could not find file: {external_files()$oies$path}")
     }
 
-    oies <- read.csv2(external_files()$oies$path) |> tibble::as_tibble()
+    oies <- data.table::fread(external_files()$oies$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files()$oies$check_columns, names(oies))

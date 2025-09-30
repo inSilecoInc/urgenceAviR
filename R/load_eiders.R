@@ -19,7 +19,7 @@ load_eider_hiver <- function() {
         cli::cli_abort("Could not find file: {external_files()$eider_hiver$path}")
     }
 
-    eiderhiver <- read.csv2(external_files()$eider_hiver$path) |> tibble::as_tibble()
+    eiderhiver <- data.table::fread(external_files()$eider_hiver$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files()$eider_hiver$check_columns, names(eiderhiver))

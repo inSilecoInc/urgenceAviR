@@ -19,7 +19,7 @@ load_garrot <- function() {
         cli::cli_abort("Could not find file: {external_files()$garrot$path}")
     }
 
-    garrot <- read.csv2(external_files()$garrot$path) |> tibble::as_tibble()
+    garrot <- data.table::fread(external_files()$garrot$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files()$garrot$check_columns, names(garrot))
