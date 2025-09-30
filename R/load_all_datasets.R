@@ -13,6 +13,11 @@
 #' @export
 load_all_datasets <- function(combine = TRUE) {
     
+    # Check if datasets folder is set
+    if (is.null(datasets_folder)) {
+        stop("Datasets folder not set. Please run set_datasets_folder() first.")
+    }
+    
     # List of dataset functions
     dataset_functions <- list(
         canards_de_mer = load_canards,
@@ -21,7 +26,9 @@ load_all_datasets <- function(combine = TRUE) {
         macreuse = load_macreuse,
         oies = load_oies,
         sauvagine_fleuve = load_sauvagine_fleuve,
-        biomq = load_biomq
+        biomq = load_biomq,
+        somec = load_somec
+        #load_atlantic_colonies = load_atlantic_colonies
     )
     
     cli::cli_h1("Loading all datasets")
