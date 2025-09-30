@@ -12,17 +12,17 @@
 load_garrot <- function() {
 
     cli::cli_h2("Garrot")
-    cli::cli_alert_info("Starting integration procedure on {external_files$garrot$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$garrot$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$garrot$path)) {
-        cli::cli_abort("Could not find file: {external_files$garrot$path}")
+    if (!file.exists(external_files()$garrot$path)) {
+        cli::cli_abort("Could not find file: {external_files()$garrot$path}")
     }
 
-    garrot <- read.csv2(external_files$garrot$path) |> tibble::as_tibble()
+    garrot <- read.csv2(external_files()$garrot$path) |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$garrot$check_columns, names(garrot))
+    missing_cols <- setdiff(external_files()$garrot$check_columns, names(garrot))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -38,7 +38,7 @@ load_garrot <- function() {
             latitude = as.numeric(Lat),
             longitude = as.numeric(Long),            
             date = lubridate::make_date(annee, mois, jour),
-            link = external_files$garrot$path,
+            link = external_files()$garrot$path,
             source = "Garrot",
             locality = NA,
             colony = FALSE

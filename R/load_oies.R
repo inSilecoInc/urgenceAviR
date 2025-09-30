@@ -12,17 +12,17 @@
 load_oies <- function() {
 
     cli::cli_h2("Oies")
-    cli::cli_alert_info("Starting integration procedure on {external_files$oies$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$oies$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$oies$path)) {
-        cli::cli_abort("Could not find file: {external_files$oies$path}")
+    if (!file.exists(external_files()$oies$path)) {
+        cli::cli_abort("Could not find file: {external_files()$oies$path}")
     }
 
-    oies <- read.csv2(external_files$oies$path) |> tibble::as_tibble()
+    oies <- read.csv2(external_files()$oies$path) |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$oies$check_columns, names(oies))
+    missing_cols <- setdiff(external_files()$oies$check_columns, names(oies))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -46,7 +46,7 @@ load_oies <- function() {
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
             inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
-            link = external_files$oies$path,
+            link = external_files()$oies$path,
             source = "oies",
             locality = NA,
             abondance = as.numeric(abondance),

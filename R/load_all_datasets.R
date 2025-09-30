@@ -14,7 +14,7 @@
 load_all_datasets <- function(combine = TRUE) {
     
     # Check if datasets folder is set
-    if (is.null(datasets_folder)) {
+    if (is.null(datasets_folder())) {
         stop("Datasets folder not set. Please run set_datasets_folder() first.")
     }
     
@@ -52,6 +52,7 @@ load_all_datasets <- function(combine = TRUE) {
     if (combine) {
         cli::cli_h1("Combining datasets")
         combined_data <- dplyr::bind_rows(datasets, .id = "dataset")
+        
         cli::cli_alert_success("Successfully combined datasets")
         return(combined_data)
     }
