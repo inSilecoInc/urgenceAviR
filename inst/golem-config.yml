@@ -1,0 +1,13 @@
+default:
+  golem_name: urgenceAviR
+  golem_version: 0.0.1
+  app_prod: false
+  datasets_folder: null
+
+production:
+  app_prod: true
+  datasets_folder: null
+
+dev:
+  golem_wd: !expr golem::pkg_path()
+  datasets_folder: "/home/steve/Documents/inSileco/UrgenceAviR/"
