@@ -19,7 +19,7 @@ load_sauvagine_fleuve <- function() {
         cli::cli_abort("Could not find file: {external_files()$sauvagine_fleuve$path}")
     }
 
-    sauvagine_fleuve <- read.csv2(external_files()$sauvagine_fleuve$path) |> tibble::as_tibble()
+    sauvagine_fleuve <- data.table::fread(external_files()$sauvagine_fleuve$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files()$sauvagine_fleuve$check_columns, names(sauvagine_fleuve))
