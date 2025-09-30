@@ -12,18 +12,18 @@
 load_biomq <- function() {
 
     cli::cli_h2("BIOMQ")
-    cli::cli_alert_info("Starting integration procedure on {external_files$biomq$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$biomq$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$biomq$path)) {
-        cli::cli_abort("Could not find file: {external_files$biomq$path}")
+    if (!file.exists(external_files()$biomq$path)) {
+        cli::cli_abort("Could not find file: {external_files()$biomq$path}")
     }
 
     # Load data from the second sheet
-    biomq <- readxl::read_excel(path = external_files$biomq$path, sheet = 2) |> tibble::as_tibble()
+    biomq <- readxl::read_excel(path = external_files()$biomq$path, sheet = 2) |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$biomq$check_columns, names(biomq))
+    missing_cols <- setdiff(external_files()$biomq$check_columns, names(biomq))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -55,7 +55,7 @@ load_biomq <- function() {
             date = lubridate::make_date(year, month, day),
             source = "BIOMQ",
             nom_fr = tolower(NomFR),
-            link = external_files$biomq$path,
+            link = external_files()$biomq$path,
             colony = TRUE
         )
 

@@ -12,17 +12,17 @@
 load_eider_hiver <- function() {
 
     cli::cli_h2("Eider Hiver")
-    cli::cli_alert_info("Starting integration procedure on {external_files$eider_hiver$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$eider_hiver$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$eider_hiver$path)) {
-        cli::cli_abort("Could not find file: {external_files$eider_hiver$path}")
+    if (!file.exists(external_files()$eider_hiver$path)) {
+        cli::cli_abort("Could not find file: {external_files()$eider_hiver$path}")
     }
 
-    eiderhiver <- read.csv2(external_files$eider_hiver$path) |> tibble::as_tibble()
+    eiderhiver <- read.csv2(external_files()$eider_hiver$path) |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$eider_hiver$check_columns, names(eiderhiver))
+    missing_cols <- setdiff(external_files()$eider_hiver$check_columns, names(eiderhiver))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -39,7 +39,7 @@ load_eider_hiver <- function() {
             longitude = as.numeric(LongDec),
             n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
             date = lubridate::make_date(An, Mois, Jour),
-            link = external_files$eider_hiver$path,
+            link = external_files()$eider_hiver$path,
             source = "Eider Hiver",
             inv_type = NA, # Helicopter bateau ?
             locality = Region,

@@ -3,7 +3,7 @@
 #' Filters and retrieves data from an eBird GeoDatabase file (.gdb) using a SQL query.
 #'
 #' @param path Character string specifying the file path to the eBird GeoDatabase file (.gdb).
-#'   If `NULL`, uses the default path from `external_files$ebird_data$path`.
+#'   If `NULL`, uses the default path from `external_files()$ebird_data$path`.
 #' @param species Character vector of species names to filter (e.g., "Snow Goose").
 #'   If `NULL`, the query will not filter by species.
 #' @param year Integer vector of years to filter (e.g., `2012:2014`).
@@ -35,7 +35,7 @@
 get_ebird <- function(path = NULL, species = NULL, year = NULL, month = NULL, extent = NULL, ...) {
   
   if (is.null(path)) {
-    path <- external_files$ebird_data$path
+    path <- external_files()$ebird_data$path
   }
   
   if (!file.exists(path)) {
