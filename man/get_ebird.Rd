@@ -14,7 +14,8 @@ get_ebird(
 )
 }
 \arguments{
-\item{path}{Character string specifying the file path to the eBird GeoDatabase file (.gdb).}
+\item{path}{Character string specifying the file path to the eBird GeoDatabase file (.gdb).
+If \code{NULL}, uses the default path from \code{external_files()$ebird_data$path}.}
 
 \item{species}{Character vector of species names to filter (e.g., "Snow Goose").
 If \code{NULL}, the query will not filter by species.}
@@ -45,6 +46,10 @@ get_ebird(
   species = "Snow Goose",
   year = 2012:2014,
   month = 4:5
-)}
+)
+
+# Using default path from external_files
+get_ebird(species = "Snow Goose", year = 2020)
+}
 
 }
