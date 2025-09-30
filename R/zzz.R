@@ -134,57 +134,65 @@ equivalences_garrots <- c(
   "BUSE" = "HAWK"
 )
 
-# Base path for datasets folder - must be set before using load_all_datasets()
-datasets_folder <- NULL
+# Create an environment to store mutable package variables
+.pkg_env <- new.env()
 
-# List of external files with paths and required column names
-external_files <- list(
+# Base path for datasets folder - must be set before using load_all_datasets()
+.pkg_env$datasets_folder <- NULL
+
+# Accessor function for datasets_folder
+datasets_folder <- function() {
+  .pkg_env$datasets_folder
+}
+
+# Initialize external files in the environment
+.pkg_env$external_files <- list(
   ebird_data = list(
-    path = paste0(datasets_folder, "eBird.gdb"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
   ),
   species_codes = list(
-    path = paste0(datasets_folder, "CodesEspeces.dbf"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Nom_FR", "Nom_Scient", "Name_EN", "Code4_EN", "Code4_FR", "Alpha_Code", "SousGroupe", "STATUT_COS")
   ),
   species_metadata = list(
-    path = paste0(datasets_folder, "metadata_species.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Name_SC", "Species_ID")
   ),
   canards_de_mer = list(
-    path = paste0(datasets_folder, "ConsultationCanardsDeMer.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("NomLieu", "LATITUDE", "LONGITUDE", "Annee", "Mois", "Jour", "NombreTotal", "Nom_FR")
   ),
   eider_hiver = list(
-    path = paste0(datasets_folder, "ConsultationEiderHiver.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Region", "An", "Mois", "Jour", "Species", "visuelblancs", "visuelbruns", "inconnus", "LatDec", "LongDec")
   ),
   garrot = list(
-    path = paste0(datasets_folder, "ConsultationGarrot.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("annee", "mois", "jour", "CodeSp", "N", "Observateurs", "Lat", "Long", "loc_ID")
   ),
   macreuse = list(
-    path = paste0(datasets_folder, "ConsultationMacreuses.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Date", "Observateur", "Espece", "Nombre", "Longitude", "Latitude")
   ),
   oies = list(
-    path = paste0(datasets_folder, "ConsultationOieDesNeigesPrintemps.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Date", "Observateur", "Code", "Count", "Longitude", "Latitude")
   ),
   sauvagine_fleuve = list(
-    path = paste0(datasets_folder, "ConsultationSauvagineFleuve.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Date", "Latitude", "Longitude", "Nombre", "Observateur")
   ),
   sriv = list(
-    path = paste0(datasets_folder, "ConsultationSRIV.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
   ),
   somec = list(
-    path = paste0(datasets_folder, "ConsultationSOMEC.csv"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c("Alpha", "LatStart", "LongStart", "Latin", "Date", "Count", "ObserverName")
   ),
   biomq = list(
-    path = paste0(datasets_folder, "consultationBIOMQ.xlsx"),
+    path = NULL,  # Will be set by set_datasets_folder()
     check_columns = c(
       "NomCol", "CentroideX", "CentroideY", "NomFR",
       "nb_nicheur", "methode", "nomRef", "AnneeDebut",
@@ -192,6 +200,11 @@ external_files <- list(
     )
   )
 )
+
+# Accessor function for external_files
+external_files <- function() {
+  .pkg_env$external_files
+}
 
 #' Set datasets folder path
 #'
@@ -201,11 +214,26 @@ set_datasets_folder <- function(path) {
   if (!endsWith(path, "/")) {
     path <- paste0(path, "/")
   }
-  datasets_folder <<- path
+  .pkg_env$datasets_folder <- path
+  
   # Update all file paths with new base path
-  for (i in names(external_files)) {
-    filename <- basename(external_files[[i]]$path)
-    external_files[[i]]$path <<- paste0(path, filename)
+  file_names <- list(
+    ebird_data = "eBird.gdb",
+    species_codes = "CodesEspeces.dbf",
+    species_metadata = "metadata_species.csv",
+    canards_de_mer = "ConsultationCanardsDeMer.csv",
+    eider_hiver = "ConsultationEiderHiver.csv",
+    garrot = "ConsultationGarrot.csv",
+    macreuse = "ConsultationMacreuses.csv",
+    oies = "ConsultationOieDesNeigesPrintemps.csv",
+    sauvagine_fleuve = "ConsultationSauvagineFleuve.csv",
+    sriv = "ConsultationSRIV.csv",
+    somec = "ConsultationSOMEC.csv",
+    biomq = "consultationBIOMQ.xlsx"
+  )
+  
+  for (i in names(.pkg_env$external_files)) {
+    .pkg_env$external_files[[i]]$path <- paste0(path, file_names[[i]])
   }
 }
 
