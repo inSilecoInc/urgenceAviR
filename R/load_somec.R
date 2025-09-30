@@ -12,17 +12,17 @@
 load_somec <- function() {
 
     cli::cli_h2("SOMEC")
-    cli::cli_alert_info("Starting integration procedure on {external_files$somec$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$somec$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$somec$path)) {
-        cli::cli_abort("Could not find file: {external_files$somec$path}")
+    if (!file.exists(external_files()$somec$path)) {
+        cli::cli_abort("Could not find file: {external_files()$somec$path}")
     }
 
-    somec <- read.csv(external_files$somec$path) |> tibble::as_tibble()
+    somec <- read.csv(external_files()$somec$path) |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$somec$check_columns, names(somec))
+    missing_cols <- setdiff(external_files()$somec$check_columns, names(somec))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",

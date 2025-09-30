@@ -12,16 +12,16 @@
 load_atlantic_colonies <- function() {
 
     cli::cli_h2("Atlantic Colonies")
-    cli::cli_alert_info("Starting integration procedure on {external_files$atlantic_colonies$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$atlantic_colonies$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$atlantic_colonies$path)) {
-        cli::cli_abort("Could not find file: {external_files$atlantic_colonies$path}")
+    if (!file.exists(external_files()$atlantic_colonies$path)) {
+        cli::cli_abort("Could not find file: {external_files()$atlantic_colonies$path}")
     }
 
     # Read layers
-    atlantic_colonies_coords <- sf::st_read(dsn = external_files$atlantic_colonies$path, layer = "Colonies", quiet = TRUE)
-    atlantic_colonies_census <- sf::st_read(dsn = external_files$atlantic_colonies$path, layer = "Censuses", quiet = TRUE)
+    atlantic_colonies_coords <- sf::st_read(dsn = external_files()$atlantic_colonies$path, layer = "Colonies", quiet = TRUE)
+    atlantic_colonies_census <- sf::st_read(dsn = external_files()$atlantic_colonies$path, layer = "Censuses", quiet = TRUE)
 
     # Process coordinates
     atlantic_colonies_coords <- atlantic_colonies_coords |>
@@ -46,7 +46,7 @@ load_atlantic_colonies <- function() {
         ) |>
         dplyr::mutate(
             locality = as.character(locality),
-            link = external_files$atlantic_colonies$path,
+            link = external_files()$atlantic_colonies$path,
             colony = TRUE
         ) |>
         tidyr::unite("obs", Observer1, Observer2, sep = ", ", na.rm=TRUE)
