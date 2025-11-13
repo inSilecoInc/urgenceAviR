@@ -1,0 +1,14 @@
+# urgenceAviR
+
+A package designed to gather bird surveys and integrate them. The newly
+created database is used to assess environmental threat levels.
+
+## Getting started
+
+``` r
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Install urgenceAviR from GitHub
+devtools::install_github("insileco/urgenceAviR")
+```
