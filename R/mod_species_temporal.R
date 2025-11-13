@@ -14,8 +14,7 @@ mod_species_temporal_ui <- function(id){
       column(
         width = 12,
         h3("Étape 2 : Sélection des espèces et des périodes temporelles", class = "text-primary"),
-        p("Sélectionnez les espèces cibles, définissez les filtres temporels et configurez les paramètres de grille pour l'analyse."),
-        hr()
+        p("Sélectionnez les espèces cibles, définissez les filtres temporels et les sources de données")
       )
     ),
     
@@ -49,7 +48,7 @@ mod_species_temporal_ui <- function(id){
                 multiple = TRUE,
                 options = list(
                   placeholder = "Tapez pour rechercher des espèces...",
-                  maxItems = 20
+                  plugins = list('remove_button')
                 )
               )
             )
@@ -104,7 +103,7 @@ mod_species_temporal_ui <- function(id){
           h5("Période annuelle"),
           dateRangeInput(
             ns("yearly_period"),
-            "Sélectionnez la période dans chaque année :",
+            "Sélectionnez la période annuelle :",
             start = "2024-01-01",
             end = "2024-12-31",
             format = "mm-dd",
@@ -121,22 +120,19 @@ mod_species_temporal_ui <- function(id){
         bslib::card(
           bslib::card_header("Source des données"),
           bslib::card_body(
-          
-          div(
-            style = "position: relative; z-index: 999;",
-            selectizeInput(
-              ns("selected_sources"),
-              "Sélectionnez les sources de données :",
-              choices = NULL,
-              multiple = TRUE,
-              options = list(
-                placeholder = "Toutes les sources sélectionnées par défaut...",
-                plugins = list('remove_button')
+            div(
+              style = "position: relative; z-index:1000;",
+              selectizeInput(
+                ns("selected_sources"),
+                "Sélectionnez les sources de données :",
+                choices = NULL,
+                multiple = TRUE,
+                options = list(
+                  placeholder = "Toutes les sources sélectionnées par défaut...",
+                  plugins = list('remove_button')
+                )
               )
             )
-          ),
-          
-          helpText("Filtrez par source de données (laissez vide pour inclure toutes les sources).")
           )
         )
       )
@@ -160,213 +156,169 @@ mod_species_temporal_ui <- function(id){
 #' species_temporal Server Functions
 #'
 #' @noRd 
-mod_species_temporal_server <- function(id, target_area, app_values){
+mod_species_temporal_server <- function(id, app_values){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
-    # Reactive values
-    values <- reactiveValues(
-      available_species = NULL,
-      available_years = NULL,
-      available_sources = NULL,
-      preview_data = NULL,
-      preview_loaded = FALSE
-    )
-    
-    # Update UI choices when datasets are loaded
+
+    # Initialize filtered_df when datasets are loaded
     observe({
-      req(app_values$datasets_loaded)
-      
-      cli::cli_alert_info("Using pre-loaded species and years data")
-      
-      # Get species data from app_values
-      species_list <- app_values$available_species
-      species_choices <- setNames(species_list, species_list)
-      years <- app_values$available_years
-      
-      # Get available data sources
-      if (!is.null(app_values$all_data) && "source" %in% names(app_values$all_data)) {
-        sources <- unique(app_values$all_data$source)
-        sources <- sources[!is.na(sources)]
-        source_choices <- setNames(sources, sources)
-      } else {
-        source_choices <- NULL
-      }
-      
-      values$available_species <- species_choices
-      values$available_years <- years
-      values$available_sources <- source_choices
-      
+      req(app_values$all_df)
+
+      cli::cli_alert_info("Initializing filtered df from app_values")
+
+      # Initialize filtered_df with all available df
+      app_values$filtered_df <- app_values$all_df
+
+      # Get metadata for UI updates
+      all_df <- app_values$all_df
+      species <- sort(unique(all_df$code_id))
+      years <- sort(unique(as.numeric(format(as.Date(all_df$date), "%Y")), na.rm = TRUE))
+      sources <- sort(unique(all_df$source))
+
       # Update UI choices
       updateSelectizeInput(
         session, "selected_species",
-        choices = species_choices,
+        choices = species,
         server = TRUE
       )
-      
-      if (!is.null(years)) {
-        updateSliderInput(
-          session, "selected_years",
-          min = min(years),
-          max = max(years),
-          value = c(min(years), max(years))  # Select all years by default
+
+      updateSliderInput(
+        session, "selected_years",
+        min = min(years),
+        max = max(years),
+        value = c(min(years), max(years))
+      )
+
+      updateSelectizeInput(
+        session, "selected_sources",
+        choices = sources,
+        selected = sources,
+        server = TRUE
+      )
+
+      cli::cli_alert_success("Updated UI with {length(species)} species, {length(years)} years, and {length(sources)} df sources")
+    })
+    
+    # observeEvent for species selection changes
+    observeEvent(input$selected_species, {
+      req(app_values$all_df)
+      cli::cli_alert_info("Species selection changed: {length(input$selected_species)} species selected")
+
+      app_values$selected_species <- if (input$species_method == "individual") input$selected_species else NULL
+
+      # Apply species filter
+      df <- app_values$all_df
+
+      if (input$species_method == "individual" && length(input$selected_species) > 0) {
+        df <- df |> dplyr::filter(code_id %in% input$selected_species)
+        cli::cli_alert_info("Filtered to {nrow(df)} observations for selected species")
+      }
+
+      app_values$filtered_df <- df
+    }, ignoreInit = TRUE)
+
+    # observeEvent for df sources selection changes
+    observeEvent(input$selected_sources, {
+      req(app_values$filtered_df)
+      cli::cli_alert_info("df sources selection changed: {length(input$selected_sources)} sources selected")
+
+      app_values$selected_sources <- input$selected_sources
+
+      # Apply sources filter
+      df <- app_values$filtered_df
+
+      if (length(input$selected_sources) > 0) {
+        df <- df |> dplyr::filter(source %in% input$selected_sources)
+        cli::cli_alert_info("Filtered to {nrow(df)} observations for selected sources")
+      }
+
+      app_values$filtered_df <- df
+    }, ignoreInit = TRUE)
+
+    # observeEvent for species method changes
+    observeEvent(input$species_method, {
+      req(app_values$all_df)
+      cli::cli_alert_info("Species method changed to: {input$species_method}")
+
+      # Clear species selection when method changes from individual
+      if (input$species_method != "individual") {
+        updateSelectizeInput(session, "selected_species", selected = character(0))
+      }
+
+      app_values$species_method <- input$species_method
+
+      # Apply species method filter
+      df <- app_values$all_df
+
+      if (input$species_method == "individual" && length(input$selected_species) > 0) {
+        df <- df |> dplyr::filter(code_id %in% input$selected_species)
+        cli::cli_alert_info("Filtered to {nrow(df)} observations for species method")
+      }
+
+      app_values$filtered_df <- df
+    }, ignoreInit = TRUE)
+
+    # observeEvent for year selection changes
+    observeEvent(input$selected_years, {
+      req(app_values$filtered_df)
+      cli::cli_alert_info("Year selection changed: {input$selected_years[1]} to {input$selected_years[2]}")
+
+      app_values$selected_years <- seq(input$selected_years[1], input$selected_years[2])
+
+      # Apply year filter
+      df <- app_values$filtered_df
+      df <- df |> dplyr::filter(lubridate::year(date) %in% app_values$selected_years)
+      cli::cli_alert_info("Filtered to {nrow(df)} observations for selected years")
+
+      app_values$filtered_df <- df
+    }, ignoreInit = TRUE)
+
+    # observeEvent for yearly period changes
+    observeEvent(input$yearly_period, {
+      req(app_values$filtered_df)
+      cli::cli_alert_info("Yearly period changed")
+
+      app_values$yearly_period <- input$yearly_period
+
+      # Apply yearly period filter
+      df <- app_values$filtered_df
+
+      start_day <- format(input$yearly_period[1], "%m-%d")
+      end_day <- format(input$yearly_period[2], "%m-%d")
+
+      df <- df |>
+        dplyr::filter(
+          format(date, "%m-%d") >= start_day,
+          format(date, "%m-%d") <= end_day
         )
-      }
-      
-      # Update datasource choices
-      if (!is.null(source_choices)) {
-        updateSelectizeInput(
-          session, "selected_sources",
-          choices = source_choices,
-          selected = source_choices,  # Select all sources by default
-          server = TRUE
-        )
-      }
-      
-      cli::cli_alert_success("Updated UI with {length(species_list)} species, {length(years)} years, and {length(source_choices %||% 0)} data sources")
-    })
-    
-    
-    
-    # Reactive data filtering based on user inputs
-    filtered_data <- reactive({
-      req(input$selected_years)
-      req(app_values$all_data)
-      
-      tryCatch({
-        # Use pre-loaded data
-        all_data <- app_values$all_data
-        
-        # Filter by spatial extent only if target area is available
-        if (!is.null(target_area())) {
-          bounds <- sf::st_bbox(target_area()$geometry)
-          spatial_filtered <- all_data[
-            all_data$longitude >= bounds[1] & 
-            all_data$longitude <= bounds[3] &
-            all_data$latitude >= bounds[2] & 
-            all_data$latitude <= bounds[4],
-          ]
-        } else {
-          # Use all data if no target area is selected
-          spatial_filtered <- all_data
-        }
-        
-        # Filter by years
-        if ("date" %in% names(spatial_filtered)) {
-          date_col <- as.Date(spatial_filtered$date)
-          year_col <- as.numeric(format(date_col, "%Y"))
-          year_range <- seq(input$selected_years[1], input$selected_years[2])
-          temporal_filtered <- spatial_filtered[year_col %in% year_range, ]
-          
-          # Filter by yearly period
-          month_day <- format(date_col, "%m-%d")
-          period_start <- format(input$yearly_period[1], "%m-%d")
-          period_end <- format(input$yearly_period[2], "%m-%d")
-          
-          if (period_start <= period_end) {
-            # Normal period (e.g., 03-01 to 08-31)
-            period_filtered <- temporal_filtered[
-              format(as.Date(temporal_filtered$date), "%m-%d") >= period_start &
-              format(as.Date(temporal_filtered$date), "%m-%d") <= period_end,
-            ]
-          } else {
-            # Cross-year period (e.g., 11-01 to 02-28)
-            period_filtered <- temporal_filtered[
-              format(as.Date(temporal_filtered$date), "%m-%d") >= period_start |
-              format(as.Date(temporal_filtered$date), "%m-%d") <= period_end,
-            ]
-          }
-        } else {
-          period_filtered <- spatial_filtered
-        }
-        
-        # Filter by species
-        if (input$species_method == "individual" && 
-            !is.null(input$selected_species) && 
-            length(input$selected_species) > 0) {
-          species_filtered <- period_filtered[period_filtered$code_id %in% input$selected_species, ]
-        } else if (input$species_method == "group") {
-          # This would need to be implemented based on your species grouping logic
-          species_filtered <- period_filtered
-        } else {
-          species_filtered <- period_filtered
-        }
-        
-        # Filter by data sources
-        if (!is.null(input$selected_sources) && 
-            length(input$selected_sources) > 0 && 
-            "source" %in% names(species_filtered)) {
-          final_filtered <- species_filtered[species_filtered$source %in% input$selected_sources, ]
-        } else {
-          final_filtered <- species_filtered
-        }
-        
-        return(final_filtered)
-        
-      }, error = function(e) {
-        cli::cli_alert_danger("Error filtering data: {e$message}")
-        return(data.frame())
-      })
-    })
-    
-    # Update values when filtered data changes
-    observe({
-      data <- filtered_data()
-      values$preview_data <- data
-      values$preview_loaded <- TRUE
-      
-      if (nrow(data) > 0) {
-        cli::cli_alert_success("Data filtered: {nrow(data)} records")
-      }
-    })
-    
+      cli::cli_alert_info("Filtered to {nrow(df)} observations for yearly period")
+
+      app_values$filtered_df <- df
+    }, ignoreInit = TRUE)
     
     # Render observation table
     output$obs_table <- reactable::renderReactable({
-      data <- filtered_data()
-      
-      # Check if data is empty or NULL
-      if (is.null(data) || nrow(data) == 0) {
-        cli::cli_alert_warning("No data available for reactable")
+      df <- app_values$filtered_df
+
+      # Check if df is empty or NULL
+      if (is.null(df) || nrow(df) == 0) {
+        cli::cli_alert_warning("No df available for reactable")
         return(reactable::reactable(
-          data.frame(Message = "Aucune donnée disponible à afficher"),
+          data.frame(Message = "Aucune donnée disponible"),
           columns = list(Message = reactable::colDef(name = ""))
         ))
       }
-      
-      # Check for required columns
-      required_cols <- c("date", "code_id", "abondance", "obs", "inv_type", "source", "colony")
-      missing_cols <- setdiff(required_cols, names(data))
-      
-      if (length(missing_cols) > 0) {
-        cli::cli_alert_warning("Missing columns for reactable: {paste(missing_cols, collapse = ', ')}")
-        return(reactable::reactable(
-          data.frame(Erreur = paste("Colonnes requises manquantes :", paste(missing_cols, collapse = ", "))),
-          columns = list(Erreur = reactable::colDef(name = "Erreur"))
-        ))
-      }
-      
-      # Select relevant columns for display
-      tryCatch({
-        display_data <- data |>
-          dplyr::select(
-            Date = date,
-            Espèce = code_id,
-            Abondance = abondance,
-            Observateur = obs,
-            Type_inv = inv_type,
-            Source = source,
-            Colonie = colony
-          ) |>
-          dplyr::arrange(dplyr::desc(Date))
-      }, error = function(e) {
-        cli::cli_alert_danger("Error processing data for reactable: {e$message}")
-        return(reactable::reactable(
-          data.frame(Erreur = paste("Erreur de traitement des données :", e$message)),
-          columns = list(Erreur = reactable::colDef(name = "Erreur"))
-        ))
-      })
-      
+
+      # Clean UTF-8 encoding and select relevant columns
+      display_data <- df |>
+        dplyr::mutate(
+          dplyr::across(
+            dplyr::where(is.character),
+            ~ iconv(.x, from = "UTF-8", to = "UTF-8", sub = "")
+          )
+        ) |>
+        dplyr::select(date, code_id, abondance, obs, inv_type, source)
+
       reactable::reactable(
         display_data,
         defaultPageSize = 50,
@@ -375,64 +327,35 @@ mod_species_temporal_server <- function(id, target_area, app_values){
         showPageSizeOptions = TRUE,
         pageSizeOptions = c(25, 50, 100),
         columns = list(
-          Abondance = reactable::colDef(
+          date = reactable::colDef(
+            name = "Date",
+            format = reactable::colFormat(date = TRUE, locales = "en-CA"),
+            minWidth = 100
+          ),
+          code_id = reactable::colDef(
+            name = "Espèce",
+            minWidth = 80
+          ),
+          abondance = reactable::colDef(
+            name = "Abondance",
             format = reactable::colFormat(digits = 0),
             minWidth = 80
           ),
-          Date = reactable::colDef(
-            format = reactable::colFormat(date = TRUE),
-            minWidth = 100
-          ),
-          Espèce = reactable::colDef(
+          obs = reactable::colDef(
+            name = "Observateur",
             minWidth = 80
           ),
-          Observateur = reactable::colDef(
-            minWidth = 80
-          ),
-          Type_inv = reactable::colDef(
+          inv_type = reactable::colDef(
             name = "Type inv.",
             minWidth = 80
           ),
-          Source = reactable::colDef(
+          source = reactable::colDef(
+            name = "Source",
             minWidth = 80
-          ),
-          Colonie = reactable::colDef(
-            minWidth = 80,
-            align = "center",
-            cell = function(value) {
-              if (is.na(value)) {
-                ""
-              } else if (isTRUE(value) || value == TRUE || value == 1 || tolower(as.character(value)) %in% c("true", "yes", "1")) {
-                htmltools::tags$span(style = "color: green; font-weight: bold;", "✓")
-              } else {
-                htmltools::tags$span(style = "color: red; font-weight: bold;", "✗")
-              }
-            }
           )
-        ),
-        theme = reactable::reactableTheme(
-          stripedColor = "#f8f9fa"
         )
       )
     })
     
-    
-    
-    
-    # Return the selection for use by other modules (auto-validated)
-    return(reactive({
-      req(input$selected_years)
-      req(values$preview_data)
-      
-      list(
-        species_method = input$species_method,
-        selected_species = if (input$species_method == "individual") input$selected_species else NULL,
-        species_group = if (input$species_method == "group") input$species_group else NULL,
-        selected_years = seq(input$selected_years[1], input$selected_years[2]),
-        yearly_period = input$yearly_period,
-        selected_sources = input$selected_sources,
-        preview_data = values$preview_data
-      )
-    }))
   })
 }

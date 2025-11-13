@@ -14,8 +14,7 @@ mod_figure_generation_ui <- function(id){
       column(
         width = 12,
         h3("Étape 4 : Génération de figures", class = "text-primary"),
-        p("Générez des visualisations et des sorties d'analyse basées sur vos sélections."),
-        hr()
+        p("Générez des visualisations et des sorties d'analyse basées sur vos sélections.")
       )
     ),
     

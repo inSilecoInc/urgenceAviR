@@ -8,40 +8,48 @@ Authors@R: c(
     )
 Description: Un package conçu pour rassembler et intégrer les relevés d'oiseaux. La nouvelle base de données créée est utilisée pour évaluer le niveau de menace environnementale lors d'incident.
 Imports:
+    bsicons,
+    bslib,
     cli,
+    config,
+    data.table,
     dplyr,
+    DT,
     foreign,
+    fs,
     glue,
+    golem,
+    htmltools,
     janitor,
+    leaflet,
+    leaflet.extras,
     lubridate,
-    readxl,
     reactable,
-    stringr,
+    readxl,
+    sf,
+    shiny,
+    shinycssloaders,
+    shinyFiles,
+    shinyjs,
     stringi,
+    stringr,
+    terra,
     tibble,
     tidyr,
-    terra,
-    sf,
     tools,
-    yaml
+    utils
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests: 
-    knitr,
-    rmarkdown,
-    mapview,
-    testthat (>= 3.0.0),
-    plotly,
     ggplot2,
-    golem,
-    config,
-    leaflet.extras,
-    bslib,
-    bsicons,
-    shinyFiles,
-    fs
+    knitr,
+    mapview,
+    plotly,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    yaml
 Config/testthat/edition: 3
 URL: http://insileco.io/urgenceAviR/
 VignetteBuilder: knitr
