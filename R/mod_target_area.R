@@ -8,30 +8,25 @@
 #'
 #' @importFrom shiny NS tagList 
 mod_target_area_ui <- function(id){
-  ns <- shiny::NS(id)
-  shiny::div(
-    class = "container-fluid",
-    
-    # Header
-    shiny::div(
-      class = "row mb-4",
-      shiny::div(
-        class = "col-12",
-        shiny::h3("Étape 1 : Sélection de la zone d'étude", class = "text-primary"),
-        shiny::p("Définissez votre zone d'étude en traçant un polygone sur la carte ou en téléchargeant un fichier spatial.", class = "lead"),
-        shiny::hr()
+  ns <- NS(id)
+  tagList(
+    fluidRow(
+      column(
+        width = 12,
+        h3("Étape 1 : Sélection de la Zone d'intérêt", class = "text-primary"),
+        p("Définissez votre Zone d'intérêt en traçant un polygone sur la carte ou en téléchargeant un fichier spatial.")
       )
     ),
     
     # Main content
-    shiny::div(
+    div(
       class = "row",
-      shiny::div(
+      div(
         class = "col-lg-4",
         bslib::card(
           bslib::card_header("Méthode de sélection de la zone"),
           bslib::card_body(
-            shiny::radioButtons(
+            radioButtons(
               ns("area_method"),
               "Choisissez une méthode :",
               choices = list(
@@ -41,17 +36,17 @@ mod_target_area_ui <- function(id){
               selected = "draw"
             ),
             
-            shiny::conditionalPanel(
+            conditionalPanel(
               condition = "input.area_method == 'upload'",
               ns = ns,
-              shiny::fileInput(
+              fileInput(
                 ns("spatial_file"),
                 "Télécharger un fichier spatial",
                 accept = c(".shp", ".kml", ".kmz", ".gpx", ".geojson"),
                 multiple = FALSE
               ),
-              shiny::helpText(
-                shiny::HTML("
+              helpText(
+                HTML("
                   <strong>Formats supportés :</strong><br/>
                   • <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
                   • <strong>GPX :</strong> Format d'échange GPS<br/>
@@ -61,12 +56,12 @@ mod_target_area_ui <- function(id){
               )
             ),
             
-            shiny::div(
+            div(
               class = "d-grid mt-3",
-              shiny::actionButton(
+              actionButton(
                 ns("lock_area"),
-                "Verrouiller la zone d'étude",
-                icon = shiny::icon("lock"),
+                "Verrouiller la Zone d'intérêt",
+                icon = icon("lock"),
                 class = "btn-primary",
                 disabled = TRUE
               )
@@ -75,34 +70,35 @@ mod_target_area_ui <- function(id){
         )
       ),
       
-      shiny::div(
+      div(
         class = "col-lg-8",
         bslib::card(
           bslib::card_header("Carte interactive"),
           bslib::card_body(
-            leafletOutput(ns("area_map"), height = "80vh")
+            class = "p-0",
+            leaflet::leafletOutput(ns("area_map"), height = "70vh")
           )
         )
       )
     ),
     
     # Success message
-    shiny::div(
+    div(
       class = "row mt-4",
-      shiny::div(
+      div(
         class = "col-12",
-        shiny::conditionalPanel(
+        conditionalPanel(
           condition = "output.area_locked",
           ns = ns,
           bslib::card(
             class = "border-success",
             bslib::card_body(
               class = "text-success",
-              shiny::div(
+              div(
                 class = "d-flex align-items-center",
                 bsicons::bs_icon("lock-fill", class = "me-2"),
-                shiny::strong("Zone d'étude verrouillée avec succès !"),
-                shiny::span("Jeu de données filtré et prêt pour la sélection des espèces.", class = "ms-2")
+                strong("Zone d'intérêt verrouillée avec succès !"),
+                span("Jeu de données filtré et prêt pour la sélection des espèces.", class = "ms-2")
               )
             )
           )
@@ -128,20 +124,20 @@ mod_target_area_server <- function(id, app_values){
     )
     
     # Initialize map
-    output$area_map <- renderLeaflet({
+    output$area_map <- leaflet::renderLeaflet({
       cli::cli_alert_info("Initializing target area selection map")
       
-      leaflet() |>
-        addTiles() |>
-        setView(lng = -74, lat = 46, zoom = 6) |>
-        addDrawToolbar(
+      leaflet::leaflet() |>
+        leaflet::addTiles() |>
+        leaflet::setView(lng = -74, lat = 46, zoom = 6) |>
+        leaflet.extras::addDrawToolbar(
           targetGroup = "drawn",
           polylineOptions = FALSE,
           circleOptions = FALSE,
           rectangleOptions = TRUE,
           markerOptions = FALSE,
           circleMarkerOptions = FALSE,
-          editOptions = editToolbarOptions()
+          editOptions = leaflet.extras::editToolbarOptions()
         )
     })
     
@@ -307,16 +303,16 @@ mod_target_area_server <- function(id, app_values){
           # Add to map
           bounds <- sf::st_bbox(values$target_area)
           
-          leafletProxy("area_map") |>
-            clearGroup("uploaded") |>
-            addPolygons(
+          leaflet::leafletProxy("area_map") |>
+            leaflet::clearGroup("uploaded") |>
+            leaflet::addPolygons(
               data = sf::st_as_sf(values$target_area),
               group = "uploaded",
               color = "red",
               weight = 2,
               fillOpacity = 0.3
             ) |>
-            fitBounds(bounds[1], bounds[2], bounds[3], bounds[4])
+            leaflet::fitBounds(bounds[1], bounds[2], bounds[3], bounds[4])
           
           # Enable lock button
           shinyjs::enable("lock_area")
@@ -344,9 +340,9 @@ mod_target_area_server <- function(id, app_values){
       shinyjs::disable("lock_area")
       
       # Clear map
-      leafletProxy("area_map") |>
-        clearGroup("drawn") |>
-        clearGroup("uploaded")
+      leaflet::leafletProxy("area_map") |>
+        leaflet::clearGroup("drawn") |>
+        leaflet::clearGroup("uploaded")
     })
     
     # Lock area and filter dataset
@@ -371,8 +367,8 @@ mod_target_area_server <- function(id, app_values){
         cli::cli_alert_info("Filtering dataset by target area")
         
         # Use pre-loaded datasets from app_values
-        req(app_values$all_data)
-        all_data <- app_values$all_data
+        req(app_values$all_df)
+        all_data <- app_values$all_df
         
         # Convert target area to WGS84 if needed
         target_area_wgs84 <- sf::st_transform(values$target_area, 4326)
@@ -394,20 +390,28 @@ mod_target_area_server <- function(id, app_values){
           intersects <- sf::st_intersects(data_sf, target_area_wgs84, sparse = FALSE)
           filtered_indices <- which(intersects[, 1])
           
-          # Get filtered data back with coordinates
-          values$filtered_data <- data_with_coords[filtered_indices, ]
+          # Update app_values with spatially filtered data
+          app_values$spatially_filtered_data <- data_with_coords[filtered_indices, ]
+          app_values$all_df <- app_values$spatially_filtered_data
           
-          cli::cli_alert_success("Dataset filtered: {nrow(values$filtered_data)} records within target area (from {nrow(all_data)} total)")
+          cli::cli_alert_success("Dataset filtered: {nrow(app_values$spatially_filtered_data)} records within target area (from {nrow(all_data)} total)")
           
         } else {
           cli::cli_alert_warning("Dataset does not contain longitude/latitude columns")
-          values$filtered_data <- all_data
+          app_values$spatially_filtered_data <- all_data
+          app_values$all_df <- app_values$spatially_filtered_data
         }
         
         values$area_locked <- TRUE
-        
+
+        # Update app_values with target area information
+        app_values$target_area_geometry <- values$target_area
+        app_values$target_area_source <- values$area_source
+        app_values$target_area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
+        app_values$target_area_locked <- TRUE
+
         cli::cli_alert_success("Target area locked successfully")
-        showNotification("Zone d'étude verrouillée et jeu de données filtré !", type = "message")
+        showNotification("Zone d'intérêt verrouillée et jeu de données filtré !", type = "message")
         
       }, error = function(e) {
         cli::cli_alert_danger("Error filtering dataset: {e$message}")
@@ -420,19 +424,5 @@ mod_target_area_server <- function(id, app_values){
       values$area_locked
     })
     outputOptions(output, "area_locked", suspendWhenHidden = FALSE)
-    
-    # Return the locked area and filtered data for use by other modules
-    return(reactive({
-      if (values$area_locked) {
-        list(
-          geometry = values$target_area,
-          source = values$area_source,
-          area_km2 = as.numeric(sf::st_area(values$target_area)) / 1000000,
-          filtered_data = values$filtered_data
-        )
-      } else {
-        NULL
-      }
-    }))
   })
 }

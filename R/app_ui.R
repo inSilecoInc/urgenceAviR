@@ -32,28 +32,28 @@ app_ui <- function(request) {
     
     # Target Area Tab
     bslib::nav_panel(
-      title = shiny::span(bsicons::bs_icon("geo-alt"), "Zone d'étude"),
+      title = span(bsicons::bs_icon("geo-alt"), "Zone d'intérêt"),
       value = "target_area",
       mod_target_area_ui("target_area")
     ),
     
     # Species & Time Tab  
     bslib::nav_panel(
-      title = shiny::span(bsicons::bs_icon("piggy-bank"), "Espèces et temps"),
+      title = span(bsicons::bs_icon("bug"), "Espèces et temps"),
       value = "species_temporal", 
       mod_species_temporal_ui("species_temporal")
     ),
     
     # Grid Configuration Tab
     bslib::nav_panel(
-      title = shiny::span(bsicons::bs_icon("grid"), "Configuration grille"),
+      title = span(bsicons::bs_icon("grid"), "Configuration grille"),
       value = "grid_config",
       mod_grid_config_ui("grid_config")
     ),
     
     # Figure Generation Tab
     bslib::nav_panel(
-      title = shiny::span(bsicons::bs_icon("bar-chart"), "Génération de figures"),
+      title = span(bsicons::bs_icon("bar-chart"), "Génération de figures"),
       value = "figure_generation",
       mod_figure_generation_ui("figure_generation")
     ),

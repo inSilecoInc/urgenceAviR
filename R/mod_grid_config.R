@@ -14,8 +14,7 @@ mod_grid_config_ui <- function(id){
       column(
         width = 12,
         h3("Étape 3 : Configuration de la grille", class = "text-primary"),
-        p("Configurez les paramètres de grille pour l'analyse spatiale et l'agrégation des données."),
-        hr()
+        p("Configurez les paramètres de grille pour l'analyse spatiale et l'agrégation des données.")
       )
     ),
     
@@ -119,7 +118,7 @@ mod_grid_config_ui <- function(id){
 #' grid_config Server Functions
 #'
 #' @noRd 
-mod_grid_config_server <- function(id, target_area, species_temporal_result, app_values){
+mod_grid_config_server <- function(id, species_temporal_result, app_values){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -142,19 +141,13 @@ mod_grid_config_server <- function(id, target_area, species_temporal_result, app
           incProgress(0.2, detail = "Using pre-loaded datasets")
           
           # Use pre-loaded data
-          req(app_values$all_data)
-          all_data <- app_values$all_data
+          req(app_values$all_df)
+          all_data <- app_values$all_df
           
-          incProgress(0.4, detail = "Filtering by area")
+          incProgress(0.4, detail = "Using spatially filtered data")
           
-          # Filter by spatial extent (simplified for preview)
-          bounds <- sf::st_bbox(target_area()$geometry)
-          spatial_filtered <- all_data[
-            all_data$longitude >= bounds[1] & 
-            all_data$longitude <= bounds[3] &
-            all_data$latitude >= bounds[2] & 
-            all_data$latitude <= bounds[4],
-          ]
+          # Use spatially filtered data from target_area module
+          spatial_filtered <- all_data
           
           incProgress(0.6, detail = "Filtering by time")
           
