@@ -1,0 +1,106 @@
+groupe_fonctionnel;division_taxonomique;nomfr;nomla;milieu_marin;zone_alimentation
+Plongeur pélagique;Alcidés 1;Petit Pingouin ;Alca torda;Côtier;Plongeur
+Plongeur pélagique;Alcidés 1;Guillemot à miroir;Cepphus grylle;Côtier;Plongeur
+Plongeur pélagique;Alcidés 2;Guillemot marmette;Uria aalge;Pélagique;Plongeur
+Plongeur pélagique;Alcidés 2;Guillemot de Brünnich;Uria lomvia;Pélagique;Plongeur
+Plongeur pélagique;Alcidés 3;Macareux moine ;Fratercula arctica;Pélagique;Plongeur
+Plongeur pélagique;Alcidés 4;Mergule nain;Alle alle;Pélagique;Plongeur
+Plongeur pélagique;Fous;Fou de Bassan;Morus bassanus;Pélagique;Plongeur
+De surface pélagique;Procellariidés;Fulmar boréal;Fulmarus glacialis;Pélagique;De surface
+De surface pélagique;Procellariidés;Puffin majeur;Ardenna gravis;Pélagique;De surface
+De surface pélagique;Procellariidés;Puffin des Anglais;Puffinus puffinus;Pélagique;De surface
+De surface pélagique;Procellariidés;Puffin fuligineux;Ardenna grisea;Pélagique;De surface
+De surface pélagique;Océanites 1;Océanite cul-blanc;Oceanodroma leucorhoa;Pélagique;De surface
+De surface pélagique;Océanites 2;Océanite de Wilson;Oceanites oceanicus;Pélagique;De surface
+De surface pélagique;Mouettes 1;Mouette tridactyle;Rissa tridactyla;Pélagique;De surface
+De surface pélagique;Mouettes 2;Mouette de Franklin;Leucophaeus pipixcan;Pélagique;De surface
+De surface pélagique;Mouettes 2;Mouette de Sabine;Xema sabini;Pélagique;De surface
+De surface pélagique;Mouettes 3;Mouette blanche;Pagophila eburnea;Pélagique;De surface
+Plongeur côtier;Canards de mer 1;Eider à tête grise;Somateria spectabilis;Côtier;Plongeur
+Plongeur côtier;Canards de mer 2;Eider à duvet;Somateria mollissima;Côtier;Plongeur
+Plongeur côtier;Canards de mer 3;Macreuse à front blanc;Melanitta perspicillata;Côtier;Plongeur
+Plongeur côtier;Canards de mer 3;Macreuse brune;Melanitta fusca;Côtier;Plongeur
+Plongeur côtier;Canards de mer 3;Macreuse à bec jaune;Melanitta nigra;Côtier;Plongeur
+Plongeur côtier;Canards de mer 4;Harelde kakawi;Clangula hyemalis;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 1;Arlequin plongeur;Histrionicus histrionicus;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 2;Fuligule à dos blanc;Aythya valisineria;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 2;Fuligule à tête rouge;Aythya americana;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 2;Fuligule à collier;Aythya collaris;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 2;Fuligule milouinan;Aythya marila;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 2;Petit Fuligule;Aythya affinis;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 3;Petit Garrot;Bucephala albeola;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 3;Garrot à oeil d'or;Bucephala clangula;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 3;Harle couronné;Lophodytes cucullatus;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 3;Grand Harle;Mergus merganser;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 3;Harle huppé;Mergus serrator;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 4;Garrot d'Islande;Bucephala islandica;Côtier;Plongeur
+Plongeur côtier;Canards plongeurs 5;Érismature rousse;Oxyura jamaicensis;Côtier;Plongeur
+Plongeur côtier;Plongeons;Plongeon catmarin;Gavia stellata;Côtier;Plongeur
+Plongeur côtier;Plongeons;Plongeon huard;Gavia immer;Côtier;Plongeur
+Plongeur côtier;Grèbes 1;Grèbe à bec bigarré;Podilymbus podiceps;Côtier;Plongeur
+Plongeur côtier;Grèbes 1;Grèbe jougris;Podiceps grisegena;Côtier;Plongeur
+Plongeur côtier;Grèbes 2;Grèbe esclavon;Podiceps auritus;Côtier;Plongeur
+Plongeur côtier;Cormorans;Cormoran à aigrettes;Nannopterum auritum;Côtier;Plongeur
+Plongeur côtier;Cormorans;Grand Cormoran;Phalacrocorax carbo;Côtier;Plongeur
+De surface côtier;Cygnes, oies et bernaches 1;Bernache du Canada;Branta canadensis;Côtier;De surface
+De surface côtier;Cygnes, oies et bernaches 2;Bernache cravant;Branta bernicla;Côtier;De surface
+De surface côtier;Cygnes, oies et bernaches 3;Cygne siffleur;Cygnus columbianus;Côtier;De surface
+De surface côtier;Canards barboteur;Canard branchu;Aix sponsa;Côtier;De surface
+De surface côtier;Canards barboteur;Canard chipeau;Mareca strepera;Côtier;De surface
+De surface côtier;Canards barboteur;Canard d'Amérique;Mareca americana;Côtier;De surface
+De surface côtier;Canards barboteur;Canard noir;Anas rubripes;Côtier;De surface
+De surface côtier;Canards barboteur;Canard colvert;Anas platyrhynchos;Côtier;De surface
+De surface côtier;Canards barboteur;Sarcelle à ailes bleues; Spatula discors;Côtier;De surface
+De surface côtier;Canards barboteur;Canard souchet;Spatula clypeata;Côtier;De surface
+De surface côtier;Canards barboteur;Canard pilet;Anas acuta;Côtier;De surface
+De surface côtier;Canards barboteur;Sarcelle d'hiver;Anas crecca;Côtier;De surface
+De surface côtier;Mouettes 2;Mouette rieuse;Leucophaeus atricilla;Côtier;De surface
+De surface côtier;Mouettes 2;Mouette atricille;Chroicocephalus philadelphia;Côtier;De surface
+De surface côtier;Mouettes 2;Mouette de Bonaparte;Hydrocoloeus minutus;Côtier;De surface
+De surface côtier;Mouettes 2;Mouette pygmée;Chroicocephalus ridibundus;Côtier;De surface
+De surface côtier;Goélands;Goéland à bec cerclé;Larus delawarensis;Côtier;De surface
+De surface côtier;Goélands;Goéland argenté;Larus argentatus;Côtier;De surface
+De surface côtier;Goélands;Goéland marin;Larus marinus;Côtier;De surface
+Échassiers;Hérons et aigrettes 1;Butor d'Amérique;Botaurus lentiginosus;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Grand Héron;Ardea herodias;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Grande Aigrette;Ardea alba;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Aigrette neigeuse;Egretta thula;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Héron garde-boeufs;Bubulcus ibis;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Héron vert;Butorides virescens;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 1;Bihoreau gris;Nycticorax nycticorax;Côtier;Échassiers
+Échassiers;Hérons et aigrettes 2;Petit Blongios;Ixobrychus exilis;Côtier;Échassiers
+Échassiers;Rallidés 1;Râle de Virginie;Rallus limicola;Côtier;Échassiers
+Échassiers;Rallidés 1;Marouette de Caroline;Porzana carolina;Côtier;Échassiers
+Échassiers;Rallidés 1;Gallinule poule-d'eau;Gallinula galeata;Côtier;Échassiers
+Échassiers;Rallidés 1;Foulque d'Amérique;Fulica americana;Côtier;Échassiers
+Échassiers;Rallidés 2;Râle jaune;Coturnicops noveboracensis;Côtier;Échassiers
+Échassiers;Limicoles 1;Pluvier argenté;Pluvialis squatarola;Côtier;Échassiers
+Échassiers;Limicoles 1;Pluvier bronzé;Pluvialis dominica;Côtier;Échassiers
+Échassiers;Limicoles 1;Pluvier semipalmé;Charadrius semipalmatus;Côtier;Échassiers
+Échassiers;Limicoles 1;Pluvier kildir;Charadrius vociferus;Côtier;Échassiers
+Échassiers;Limicoles 2;Pluvier siffleur;Charadrius melodus;Côtier;Échassiers
+Échassiers;Limicoles 3;Grand Chevalier;Tringa melanoleuca;Côtier;Échassiers
+Échassiers;Limicoles 3;Petit Chevalier;Tringa flavipes;Côtier;Échassiers
+Échassiers;Limicoles 3;Chevalier solitaire;Tringa solitaria;Côtier;Échassiers
+Échassiers;Limicoles 3;Chevalier semipalmé;Tringa semipalmata;Côtier;Échassiers
+Échassiers;Limicoles 3;Chevalier grivelé;Actitis macularius;Côtier;Échassiers
+Échassiers;Limicoles 3;Courlis corlieu;Numenius phaeopus;Côtier;Échassiers
+Échassiers;Limicoles 3;Barge hudsonienne;Limosa haemastica;Côtier;Échassiers
+Échassiers;Limicoles 3;Barge marbrée;Limosa fedoa;Côtier;Échassiers
+Échassiers;Limicoles 3;Tournepierre à collier;Arenaria interpres;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau sanderling;Calidris alba;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau semipalmé;Calidris pusilla;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau minuscule;Calidris minutilla;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau à croupion blanc;Calidris fuscicollis;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau de Baird;Calidris bairdii;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau à poitrine cendrée;Calidris melanotos;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau violet;Calidris maritima;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau variable;Calidris alpina;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécasseau à échasses;Calidris himantopus;Côtier;Échassiers
+Échassiers;Limicoles 3;Combattant varié;Calidris pugnaxx;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécassin roux;Limnodromus griseus;Côtier;Échassiers
+Échassiers;Limicoles 3;Bécassine de Wilson;Gallinago delicata;Côtier;Échassiers
+Échassiers;Limicoles 4;Bécasseau maubèche;Calidris canutus;Côtier;Échassiers
+Échassiers;Phalaropes;Phalarope de Wilson;Phalaropus tricolor;Pélagique;Échassiers
+Échassiers;Phalaropes;Phalarope à bec étroit;Phalaropus lobatus;Pélagique;Échassiers
+Échassiers;Phalaropes;Phalarope à bec large;Phalaropus fulicarius;Pélagique;Échassiers

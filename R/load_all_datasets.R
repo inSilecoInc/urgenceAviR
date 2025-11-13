@@ -51,7 +51,7 @@ load_all_datasets <- function(combine = TRUE) {
     # Combine datasets if requested
     if (combine) {
         cli::cli_h1("Combining datasets")
-        combined_data <- dplyr::bind_rows(datasets, .id = "dataset")
+        combined_data <- dplyr::bind_rows(datasets)
         cli::cli_alert_success("Successfully combined datasets")
         return(combined_data)
     }
