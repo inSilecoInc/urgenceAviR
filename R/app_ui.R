@@ -32,14 +32,14 @@ app_ui <- function(request) {
     
     # Target Area Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("geo-alt"), "1. Déterminer la zone d'intérêt"),
+      title = span(bsicons::bs_icon("geo-alt"), "1. D\u00e9terminer la zone d'int\u00e9r\u00eat"),
       value = "target_area",
       mod_target_area_ui("target_area")
     ),
     
     # Species & Time Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("bug"), "2. Filtrer sur les espèces et le temps"),
+      title = span(bsicons::bs_icon("bug"), "2. Filtrer sur les esp\u00e8ces et le temps"),
       value = "species_temporal",
       id = "nav_species_temporal",
       mod_species_temporal_ui("species_temporal")

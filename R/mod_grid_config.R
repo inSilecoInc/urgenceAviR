@@ -13,8 +13,8 @@ mod_grid_config_ui <- function(id){
     fluidRow(
       column(
         width = 12,
-        h3("Étape 3 : Configuration de la grille", class = "text-primary"),
-        p("Configurez les paramètres de grille pour l'analyse spatiale et l'agrégation des données.")
+        h3("\u00c9tape 3 : Configuration de la grille", class = "text-primary"),
+        p("Configurez les param\u00e8tres de grille pour l'analyse spatiale et l'agr\u00e9gation des donn\u00e9es.")
       )
     ),
     
@@ -22,7 +22,7 @@ mod_grid_config_ui <- function(id){
       column(
         width = 6,
         wellPanel(
-          h4("Paramètres de la grille"),
+          h4("Param\u00e8tres de la grille"),
           
           fluidRow(
             column(
@@ -42,7 +42,7 @@ mod_grid_config_ui <- function(id){
                 ns("grid_type"),
                 "Type de grille :",
                 choices = list(
-                  "Carré" = "square",
+                  "Carr\u00e9" = "square",
                   "Hexagonale" = "hexagonal"
                 ),
                 selected = "square"
@@ -64,11 +64,11 @@ mod_grid_config_ui <- function(id){
       column(
         width = 6,
         wellPanel(
-          h4("Aperçu des données"),
+          h4("Aper\u00e7u des donn\u00e9es"),
           
           actionButton(
             ns("load_preview"),
-            "Charger l'aperçu des données",
+            "Charger l'aper\u00e7u des donn\u00e9es",
             icon = icon("eye"),
             class = "btn-info"
           ),
@@ -80,7 +80,7 @@ mod_grid_config_ui <- function(id){
             ns = ns,
             div(
               class = "alert alert-success",
-              icon("check-circle"), " Aperçu des données chargé avec succès !"
+              icon("check-circle"), " Aper\u00e7u des donn\u00e9es charg\u00e9 avec succ\u00e8s !"
             )
           ),
           
@@ -105,9 +105,9 @@ mod_grid_config_ui <- function(id){
           ns = ns,
           div(
             class = "alert alert-success",
-            icon("check-circle"), " Configuration de la grille validée !",
+            icon("check-circle"), " Configuration de la grille valid\u00e9e !",
             br(),
-            "Vous pouvez maintenant procéder à la génération de figures."
+            "Vous pouvez maintenant proc\u00e9der \u00e0 la g\u00e9n\u00e9ration de figures."
           )
         )
       )
@@ -117,8 +117,8 @@ mod_grid_config_ui <- function(id){
 
 #' grid_config Server Functions
 #'
-#' @noRd 
-mod_grid_config_server <- function(id, species_temporal_result, app_values){
+#' @noRd
+mod_grid_config_server <- function(id, species_temporal_result, app_values, target_area = reactive(NULL)){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -136,7 +136,7 @@ mod_grid_config_server <- function(id, species_temporal_result, app_values){
       
       cli::cli_alert_info("Loading data preview for grid configuration")
       
-      withProgress(message = 'Chargement de l\'aperçu...', value = 0, {
+      withProgress(message = 'Chargement de l\'aper\u00e7u...', value = 0, {
         tryCatch({
           incProgress(0.2, detail = "Using pre-loaded datasets")
           
@@ -207,7 +207,7 @@ mod_grid_config_server <- function(id, species_temporal_result, app_values){
           
         }, error = function(e) {
           cli::cli_alert_danger("Error loading grid preview: {e$message}")
-          showNotification(paste("Erreur de chargement de l'aperçu :", e$message), type = "error")
+          showNotification(paste("Erreur de chargement de l'aper\u00e7u :", e$message), type = "error")
         })
       })
     })
@@ -223,11 +223,11 @@ mod_grid_config_server <- function(id, species_temporal_result, app_values){
       
       if (n_records == 0) {
         cli::cli_alert_warning("No records found with current configuration")
-        showNotification("Avertissement : Aucun enregistrement trouvé avec la configuration actuelle. Veuillez ajuster vos filtres.", type = "warning")
+        showNotification("Avertissement : Aucun enregistrement trouv\u00e9 avec la configuration actuelle. Veuillez ajuster vos filtres.", type = "warning")
         return()
       } else if (n_records < input$min_observations) {
         cli::cli_alert_warning("Very few records found ({n_records})")
-        showNotification("Avertissement : Très peu d'enregistrements trouvés. Les résultats peuvent ne pas être fiables.", type = "warning")
+        showNotification("Avertissement : Tr\u00e8s peu d'enregistrements trouv\u00e9s. Les r\u00e9sultats peuvent ne pas \u00eatre fiables.", type = "warning")
       }
       
       # Estimate grid cells
@@ -239,7 +239,7 @@ mod_grid_config_server <- function(id, species_temporal_result, app_values){
       values$config_validated <- TRUE
       
       cli::cli_alert_success("Grid configuration validated: {n_records} records, ~{estimated_cells} cells")
-      showNotification("Configuration de la grille validée avec succès !", type = "message")
+      showNotification("Configuration de la grille valid\u00e9e avec succ\u00e8s !", type = "message")
     })
     
     # Output for conditional panels
