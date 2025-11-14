@@ -4,19 +4,19 @@
 
 - **Clara Casabona**. Contributor.
 
-- **Matthieu Beaumont**. Author, maintainer, copyright holder.
+- **Matthieu Beaumont**. Author.
 
-- **Steve Vissault**. Author.
+- **inSileco**. Author, maintainer.
 
 ## Citation
 
-Beaumont M, Vissault S (2025). *urgenceAviR: Integrate birds abundances
-data*. R package version 0.0.1, <http://insileco.io/urgenceAviR/>.
+Beaumont M, inSileco (2025). *urgenceAviR: urgenceAviR*. R package
+version 0.9.0, <http://insileco.io/urgenceAviR/>.
 
     @Manual{,
-      title = {urgenceAviR: Integrate birds abundances data},
-      author = {Matthieu Beaumont and Steve Vissault},
+      title = {urgenceAviR: urgenceAviR},
+      author = {Matthieu Beaumont and {inSileco}},
       year = {2025},
-      note = {R package version 0.0.1},
+      note = {R package version 0.9.0},
       url = {http://insileco.io/urgenceAviR/},
     }

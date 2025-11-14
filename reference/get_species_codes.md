@@ -7,8 +7,8 @@ with metadata, and optionally drop subspecies.
 
 ``` r
 get_species_codes(
-  species_path = external_files$species_codes$path,
-  metadata_path = external_files$species_metadata$path,
+  species_path = external_files()$species_codes$path,
+  metadata_path = external_files()$species_metadata$path,
   drop_subspecies = TRUE
 )
 ```

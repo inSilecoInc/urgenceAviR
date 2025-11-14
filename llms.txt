@@ -43,6 +43,10 @@ devtools::install_github("insileco/urgenceAviR")
   : Load and process the Sauvagine Fleuve dataset
 - [`load_somec()`](http://insileco.io/urgenceAviR/reference/load_somec.md)
   : Load and process the SOMEC dataset
+- [`run_app()`](http://insileco.io/urgenceAviR/reference/run_app.md) :
+  Run the Shiny Application
+- [`set_datasets_folder()`](http://insileco.io/urgenceAviR/reference/set_datasets_folder.md)
+  : Set datasets folder path
 
 # Articles
 

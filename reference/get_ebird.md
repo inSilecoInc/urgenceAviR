@@ -21,7 +21,8 @@ get_ebird(
 - path:
 
   Character string specifying the file path to the eBird GeoDatabase
-  file (.gdb).
+  file (.gdb). If `NULL`, uses the default path from
+  `external_files()$ebird_data$path`.
 
 - species:
 
@@ -63,5 +64,9 @@ get_ebird(
   species = "Snow Goose",
   year = 2012:2014,
   month = 4:5
-)} # }
+)
+
+# Using default path from external_files
+get_ebird(species = "Snow Goose", year = 2020)
+} # }
 ```
