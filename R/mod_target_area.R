@@ -12,19 +12,32 @@ mod_target_area_ui <- function(id){
   tagList(
     fluidRow(
       column(
-        width = 12,
-        h3("Étape 1 : Sélection de la Zone d'intérêt", class = "text-primary"),
-        p("Définissez votre Zone d'intérêt en traçant un polygone sur la carte ou en téléchargeant un fichier spatial.")
+        width = 8,
+        h3("Étape 1 : Sélection de la zone d'intérêt", class = "text-primary"),
+        p("Définissez votre zone d'intérêt en traçant un polygone sur la carte ou en téléchargeant un fichier spatial.")
+      ),
+      column(
+        width = 4,
+        class = "d-flex align-items-center justify-content-end",
+        div(
+          style = "padding-top: 10px;",
+          actionButton(
+            ns("lock_area"),
+            HTML("Verrouiller la zone d'intérêt &nbsp;<i class='fa fa-arrow-right'></i>"),
+            class = "btn-success",
+            disabled = TRUE
+          )
+        )
       )
     ),
-    
+
     # Main content
     div(
       class = "row",
       div(
         class = "col-lg-4",
         bslib::card(
-          bslib::card_header("Méthode de sélection de la zone"),
+          bslib::card_header(h5("Méthode de sélection de la zone")),
           bslib::card_body(
             radioButtons(
               ns("area_method"),
@@ -35,7 +48,7 @@ mod_target_area_ui <- function(id){
               ),
               selected = "draw"
             ),
-            
+
             conditionalPanel(
               condition = "input.area_method == 'upload'",
               ns = ns,
@@ -54,17 +67,6 @@ mod_target_area_ui <- function(id){
                   • <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
                 ")
               )
-            ),
-            
-            div(
-              class = "d-grid mt-3",
-              actionButton(
-                ns("lock_area"),
-                "Verrouiller la Zone d'intérêt",
-                icon = icon("lock"),
-                class = "btn-primary",
-                disabled = TRUE
-              )
             )
           )
         )
@@ -73,34 +75,10 @@ mod_target_area_ui <- function(id){
       div(
         class = "col-lg-8",
         bslib::card(
-          bslib::card_header("Carte interactive"),
+          bslib::card_header(h5("Carte interactive")),
           bslib::card_body(
             class = "p-0",
             leaflet::leafletOutput(ns("area_map"), height = "70vh")
-          )
-        )
-      )
-    ),
-    
-    # Success message
-    div(
-      class = "row mt-4",
-      div(
-        class = "col-12",
-        conditionalPanel(
-          condition = "output.area_locked",
-          ns = ns,
-          bslib::card(
-            class = "border-success",
-            bslib::card_body(
-              class = "text-success",
-              div(
-                class = "d-flex align-items-center",
-                bsicons::bs_icon("lock-fill", class = "me-2"),
-                strong("Zone d'intérêt verrouillée avec succès !"),
-                span("Jeu de données filtré et prêt pour la sélection des espèces.", class = "ms-2")
-              )
-            )
           )
         )
       )
@@ -129,7 +107,7 @@ mod_target_area_server <- function(id, app_values){
       
       leaflet::leaflet() |>
         leaflet::addTiles() |>
-        leaflet::setView(lng = -74, lat = 46, zoom = 6) |>
+        leaflet::setView(lng = -69.53, lat =  47.83, zoom = 8) |>
         leaflet.extras::addDrawToolbar(
           targetGroup = "drawn",
           polylineOptions = FALSE,
@@ -412,6 +390,9 @@ mod_target_area_server <- function(id, app_values){
 
         cli::cli_alert_success("Target area locked successfully")
         showNotification("Zone d'intérêt verrouillée et jeu de données filtré !", type = "message")
+
+        # Signal to app_server to navigate to next tab
+        app_values$navigate_to_tab <- "species_temporal"
         
       }, error = function(e) {
         cli::cli_alert_danger("Error filtering dataset: {e$message}")
