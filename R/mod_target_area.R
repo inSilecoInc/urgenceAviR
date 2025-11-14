@@ -13,8 +13,8 @@ mod_target_area_ui <- function(id){
     fluidRow(
       column(
         width = 8,
-        h3("Étape 1 : Sélection de la zone d'intérêt", class = "text-primary"),
-        p("Définissez votre zone d'intérêt en traçant un polygone sur la carte ou en téléchargeant un fichier spatial.")
+        h3("\u00c9tape 1 : S\u00e9lection de la zone d'int\u00e9r\u00eat", class = "text-primary"),
+        p("D\u00e9finissez votre zone d'int\u00e9r\u00eat en tra\u00e7ant un polygone sur la carte ou en t\u00e9l\u00e9chargeant un fichier spatial.")
       ),
       column(
         width = 4,
@@ -23,7 +23,7 @@ mod_target_area_ui <- function(id){
           style = "padding-top: 10px;",
           actionButton(
             ns("lock_area"),
-            HTML("Verrouiller la zone d'intérêt &nbsp;<i class='fa fa-arrow-right'></i>"),
+            HTML("Verrouiller la zone d'int\u00e9r\u00eat &nbsp;<i class='fa fa-arrow-right'></i>"),
             class = "btn-success",
             disabled = TRUE
           )
@@ -37,14 +37,14 @@ mod_target_area_ui <- function(id){
       div(
         class = "col-lg-4",
         bslib::card(
-          bslib::card_header(h5("Méthode de sélection de la zone")),
+          bslib::card_header(h5("M\u00e9thode de s\u00e9lection de la zone")),
           bslib::card_body(
             radioButtons(
               ns("area_method"),
-              "Choisissez une méthode :",
+              "Choisissez une m\u00e9thode :",
               choices = list(
                 "Dessiner un polygone sur la carte" = "draw",
-                "Télécharger un fichier spatial" = "upload"
+                "T\u00e9l\u00e9charger un fichier spatial" = "upload"
               ),
               selected = "draw"
             ),
@@ -54,17 +54,17 @@ mod_target_area_ui <- function(id){
               ns = ns,
               fileInput(
                 ns("spatial_file"),
-                "Télécharger un fichier spatial",
+                "T\u00e9l\u00e9charger un fichier spatial",
                 accept = c(".shp", ".kml", ".kmz", ".gpx", ".geojson"),
                 multiple = FALSE
               ),
               helpText(
                 HTML("
-                  <strong>Formats supportés :</strong><br/>
-                  • <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
-                  • <strong>GPX :</strong> Format d'échange GPS<br/>
-                  • <strong>GeoJSON :</strong> Format spatial web<br/>
-                  • <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
+                  <strong>Formats support\u00e9s :</strong><br/>
+                  \u2022 <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
+                  \u2022 <strong>GPX :</strong> Format d'\u00e9change GPS<br/>
+                  \u2022 <strong>GeoJSON :</strong> Format spatial web<br/>
+                  \u2022 <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
                 ")
               )
             )
@@ -299,7 +299,7 @@ mod_target_area_server <- function(id, app_values){
           
         } else {
           cli::cli_alert_danger("Unsupported file format: {file_ext}")
-          showNotification("Format de fichier non pris en charge. Veuillez télécharger des fichiers .shp, .kml, .kmz, .gpx ou .geojson.", type = "error")
+          showNotification("Format de fichier non pris en charge. Veuillez t\u00e9l\u00e9charger des fichiers .shp, .kml, .kmz, .gpx ou .geojson.", type = "error")
         }
         
       }, error = function(e) {
@@ -333,11 +333,11 @@ mod_target_area_server <- function(id, app_values){
       area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
       
       if (area_km2 < 0.1) {
-        cli::cli_alert_warning("Area is very small ({round(area_km2, 3)} km²)")
-        showNotification("Avertissement : La zone sélectionnée est très petite. Considérez sélectionner une zone plus grande.", type = "warning")
+        cli::cli_alert_warning("Area is very small ({round(area_km2, 3)} km\u00b2)")
+        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s petite. Consid\u00e9rez s\u00e9lectionner une zone plus grande.", type = "warning")
       } else if (area_km2 > 100000) {
-        cli::cli_alert_warning("Area is very large ({round(area_km2, 0)} km²)")
-        showNotification("Avertissement : La zone sélectionnée est très grande. Le traitement peut prendre beaucoup de temps.", type = "warning")
+        cli::cli_alert_warning("Area is very large ({round(area_km2, 0)} km\u00b2)")
+        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s grande. Le traitement peut prendre beaucoup de temps.", type = "warning")
       }
       
       tryCatch({
@@ -389,14 +389,14 @@ mod_target_area_server <- function(id, app_values){
         app_values$target_area_locked <- TRUE
 
         cli::cli_alert_success("Target area locked successfully")
-        showNotification("Zone d'intérêt verrouillée et jeu de données filtré !", type = "message")
+        showNotification("Zone d'int\u00e9r\u00eat verrouill\u00e9e et jeu de donn\u00e9es filtr\u00e9 !", type = "message")
 
         # Signal to app_server to navigate to next tab
         app_values$navigate_to_tab <- "species_temporal"
-        
+
       }, error = function(e) {
         cli::cli_alert_danger("Error filtering dataset: {e$message}")
-        showNotification(paste("Erreur de filtrage du jeu de données :", e$message), type = "error")
+        showNotification(paste("Erreur de filtrage du jeu de donn\u00e9es :", e$message), type = "error")
       })
     })
     

@@ -14,17 +14,16 @@ Imports:
     config,
     data.table,
     dplyr,
-    DT,
     foreign,
     fs,
     glue,
     golem,
-    htmltools,
     janitor,
     leaflet,
     leaflet.extras,
     lubridate,
     reactable,
+    readr,
     readxl,
     sf,
     shiny,
@@ -36,8 +35,7 @@ Imports:
     terra,
     tibble,
     tidyr,
-    tools,
-    utils
+    tools
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -39,7 +39,7 @@ app_server <- function(input, output, session) {
   # Load datasets function
   load_datasets_startup <- function() {
     tryCatch({
-      shinycssloaders::showPageSpinner(caption = "Chargement des données...")
+      shinycssloaders::showPageSpinner(caption = "Chargement des donn\u00e9es...")
       
       cli::cli_alert_info("Starting dataset loading process...")
       
@@ -54,11 +54,11 @@ app_server <- function(input, output, session) {
       shinycssloaders::hidePageSpinner()
       
       cli::cli_alert_success("Loaded {nrow(all_data)} observations")
-      showNotification("Données chargées avec succès !", type = "message")
+      showNotification("Donn\u00e9es charg\u00e9es avec succ\u00e8s !", type = "message")
     }, error = function(e) {
       shinycssloaders::hidePageSpinner()
       cli::cli_alert_danger("Error loading datasets: {e$message}")
-      showNotification(paste("Erreur lors du chargement des données :", e$message), type = "error")
+      showNotification(paste("Erreur lors du chargement des donn\u00e9es :", e$message), type = "error")
     })
   }
   
@@ -131,7 +131,7 @@ app_server <- function(input, output, session) {
     req(app_values$navigate_to_tab)
 
     cli::cli_alert_info("Navigating to tab: {app_values$navigate_to_tab}")
-    shiny::updateNavbarPage(
+    updateNavbarPage(
       session = session,
       inputId = "main_nav",
       selected = app_values$navigate_to_tab

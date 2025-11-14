@@ -13,8 +13,8 @@ mod_species_temporal_ui <- function(id){
     fluidRow(
       column(
         width = 6,
-        h3("Étape 2 : Sélection des espèces et des périodes temporelles", class = "text-primary"),
-        p("Sélectionnez les espèces cibles, définissez les filtres temporels et les sources de données")
+        h3("\u00c9tape 2 : S\u00e9lection des esp\u00e8ces et des p\u00e9riodes temporelles", class = "text-primary"),
+        p("S\u00e9lectionnez les esp\u00e8ces cibles, d\u00e9finissez les filtres temporels et les sources de donn\u00e9es")
       ),
       column(
         width = 6,
@@ -23,7 +23,7 @@ mod_species_temporal_ui <- function(id){
           style = "padding-top: 10px;",
           actionButton(
             ns("reset_filters"),
-            HTML("<i class='fa fa-undo'></i> &nbsp;Réinitialiser"),
+            HTML("<i class='fa fa-undo'></i> &nbsp;R\u00e9initialiser"),
             class = "btn-secondary me-2"
           ),
           actionButton(
@@ -39,17 +39,17 @@ mod_species_temporal_ui <- function(id){
       column(
         width = 4,
         bslib::card(
-          bslib::card_header(h5("Sélection des espèces")),
+          bslib::card_header(h5("S\u00e9lection des esp\u00e8ces")),
           bslib::card_body(
             fluidRow(
               column(
                 width = 6,
                 radioButtons(
                   ns("species_method"),
-                  "Méthode de sélection :",
+                  "M\u00e9thode de s\u00e9lection :",
                   choices = list(
-                    "Toutes les espèces" = "all",
-                    "Espèces spécifiques" = "individual",
+                    "Toutes les esp\u00e8ces" = "all",
+                    "Esp\u00e8ces sp\u00e9cifiques" = "individual",
                     "Groupe fonctionnel" = "functional_group",
                     "Milieu" = "habitat"
                   ),
@@ -118,7 +118,7 @@ mod_species_temporal_ui <- function(id){
                   ns = ns,
                   selectizeInput(
                     ns("selected_species"),
-                    "Choisissez les espèces :",
+                    "Choisissez les esp\u00e8ces :",
                     choices = NULL,
                     multiple = TRUE,
                     options = list(
@@ -143,7 +143,7 @@ mod_species_temporal_ui <- function(id){
                 width = 6,
                 sliderInput(
                   ns("selected_years"),
-                  "Sélectionnez la plage d'années :",
+                  "S\u00e9lectionnez la plage d'ann\u00e9es :",
                   min = 2000,
                   max = 2024,
                   value = c(2019, 2024),
@@ -156,7 +156,7 @@ mod_species_temporal_ui <- function(id){
                 width = 6,
                 dateRangeInput(
                   ns("yearly_period"),
-                  "Sélectionnez la période annuelle :",
+                  "S\u00e9lectionnez la p\u00e9riode annuelle :",
                   start = "2024-01-01",
                   end = "2024-12-31",
                   language="fr",
@@ -164,7 +164,7 @@ mod_species_temporal_ui <- function(id){
                   startview = "month"
                 ),
 
-                helpText("Ceci définit la fenêtre temporelle à l'intérieur de chaque année.")
+                helpText("Ceci d\u00e9finit la fen\u00eatre temporelle \u00e0 l'int\u00e9rieur de chaque ann\u00e9e.")
               )
             )
           )
@@ -174,16 +174,16 @@ mod_species_temporal_ui <- function(id){
       column(
         width = 4,
         bslib::card(
-          bslib::card_header(h5("Source des données")),
+          bslib::card_header(h5("Source des donn\u00e9es")),
           bslib::card_body(
             div(
               selectizeInput(
                 ns("selected_sources"),
-                "Sélectionnez les sources de données :",
+                "S\u00e9lectionnez les sources de donn\u00e9es :",
                 choices = NULL,
                 multiple = TRUE,
                 options = list(
-                  placeholder = "Toutes les sources sélectionnées par défaut...",
+                  placeholder = "Toutes les sources s\u00e9lectionn\u00e9es par d\u00e9faut...",
                   plugins = list('remove_button'),
                   dropdownParent = "body"
                 )
@@ -193,13 +193,13 @@ mod_species_temporal_ui <- function(id){
         )
       )
     ),
-    
-    
+
+
     fluidRow(
       column(
         width = 12,
         bslib::card(
-          bslib::card_header(h5("Tableau de données")),
+          bslib::card_header(h5("Tableau de donn\u00e9es")),
           bslib::card_body(
             reactable::reactableOutput(ns("obs_table"))
           )
@@ -211,7 +211,7 @@ mod_species_temporal_ui <- function(id){
 
 #' species_temporal Server Functions
 #'
-#' @noRd 
+#' @noRd
 mod_species_temporal_server <- function(id, app_values){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -364,7 +364,7 @@ mod_species_temporal_server <- function(id, app_values){
               filterable = TRUE
             ),
             nomfr = reactable::colDef(
-              name = "Nom français",
+              name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
             nomla = reactable::colDef(
@@ -424,7 +424,7 @@ mod_species_temporal_server <- function(id, app_values){
               filterable = TRUE
             ),
             nomfr = reactable::colDef(
-              name = "Nom français",
+              name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
             nomla = reactable::colDef(
@@ -654,7 +654,7 @@ mod_species_temporal_server <- function(id, app_values){
       app_values$filtered_df <- app_values$all_df
 
       cli::cli_alert_success("All filters reset to default values")
-      showNotification("Tous les filtres ont été réinitialisés", type = "message")
+      showNotification("Tous les filtres ont \u00e9t\u00e9 r\u00e9initialis\u00e9s", type = "message")
     })
 
     # Lock filters and navigate to grid config
@@ -671,7 +671,7 @@ mod_species_temporal_server <- function(id, app_values){
       cli::cli_alert_success("Filters locked: {n_obs} observations, {n_species} species")
 
       showNotification(
-        paste0("Filtres verrouillés : ", n_obs, " observations, ", n_species, " espèces"),
+        paste0("Filtres verrouill\u00e9s : ", n_obs, " observations, ", n_species, " esp\u00e8ces"),
         type = "message"
       )
 
@@ -688,7 +688,7 @@ mod_species_temporal_server <- function(id, app_values){
       if (is.null(df) || nrow(df) == 0) {
         cli::cli_alert_warning("No df available for reactable")
         return(reactable::reactable(
-          data.frame(Message = "Aucune donnée disponible"),
+          data.frame(Message = "Aucune donn\u00e9e disponible"),
           columns = list(Message = reactable::colDef(name = ""))
         ))
       }
@@ -742,7 +742,7 @@ mod_species_temporal_server <- function(id, app_values){
             minWidth = 70
           ),
           nom_francais = reactable::colDef(
-            name = "Nom français",
+            name = "Nom fran\u00e7ais",
             minWidth = 120
           ),
           nom_latin = reactable::colDef(
