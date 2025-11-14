@@ -1,37 +1,53 @@
 Package: urgenceAviR
-Title: Integrate birds abundances data 
-Version: 0.0.1
+Title: urgenceAviR
+Version: 0.9.0
 Authors@R: c( 
         person("Clara", "Casabona", role = "ctb"),
-        person("Matthieu", "Beaumont", email = "matthieu.beaumont@ec.gc.ca", role = c("aut", "cre", "cph")),
-        person("Steve", "Vissault", email = "steve.vissault@insileco.io", role = "aut")
+        person("Matthieu", "Beaumont", email = "matthieu.beaumont@ec.gc.ca", role = "aut"),
+        person("inSileco", "", email = "info@insileco.io", role = c("aut", "cre"))
     )
-Description: A package designed to gather bird surveys and integrate them. The newly created database is used to assess environmental threat levels. It includes tools for loading, 
-    processing, and analyzing spatial datasets, as well as integration with 
-    various taxonomic reference systems.
+Description: Un package conçu pour rassembler et intégrer les relevés d'oiseaux. La nouvelle base de données créée est utilisée pour évaluer le niveau de menace environnementale lors d'incident.
 Imports:
+    bsicons,
+    bslib,
     cli,
+    config,
+    data.table,
     dplyr,
     foreign,
+    fs,
     glue,
+    golem,
     janitor,
+    leaflet,
+    leaflet.extras,
     lubridate,
+    reactable,
+    readr,
     readxl,
-    stringr,
+    sf,
+    shiny,
+    shinycssloaders,
+    shinyFiles,
+    shinyjs,
     stringi,
+    stringr,
+    terra,
     tibble,
     tidyr,
-    terra,
-    sf
+    tools
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests: 
+    ggplot2,
     knitr,
-    rmarkdown,
     mapview,
-    testthat (>= 3.0.0)
+    plotly,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    yaml
 Config/testthat/edition: 3
 URL: http://insileco.io/urgenceAviR/
 VignetteBuilder: knitr

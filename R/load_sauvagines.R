@@ -12,17 +12,17 @@
 load_sauvagine_fleuve <- function() {
 
     cli::cli_h2("Sauvagine Fleuve")
-    cli::cli_alert_info("Starting integration procedure on {external_files$sauvagine_fleuve$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$sauvagine_fleuve$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$sauvagine_fleuve$path)) {
-        cli::cli_abort("Could not find file: {external_files$sauvagine_fleuve$path}")
+    if (!file.exists(external_files()$sauvagine_fleuve$path)) {
+        cli::cli_abort("Could not find file: {external_files()$sauvagine_fleuve$path}")
     }
 
-    sauvagine_fleuve <- read.csv2(external_files$sauvagine_fleuve$path) |> tibble::as_tibble()
+    sauvagine_fleuve <- data.table::fread(external_files()$sauvagine_fleuve$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$sauvagine_fleuve$check_columns, names(sauvagine_fleuve))
+    missing_cols <- setdiff(external_files()$sauvagine_fleuve$check_columns, names(sauvagine_fleuve))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -45,7 +45,7 @@ load_sauvagine_fleuve <- function() {
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
             inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
-            link = external_files$sauvagine_fleuve$path,
+            link = external_files()$sauvagine_fleuve$path,
             source = "Sauvagine Fleuve",
             locality = NA,
             colony = FALSE

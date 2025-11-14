@@ -12,17 +12,17 @@
 load_macreuse <- function() {
 
     cli::cli_h2("Macreuse")
-    cli::cli_alert_info("Starting integration procedure on {external_files$macreuse$path}")
+    cli::cli_alert_info("Starting integration procedure on {external_files()$macreuse$path}")
 
     # Assert file exists
-    if (!file.exists(external_files$macreuse$path)) {
-        cli::cli_abort("Could not find file: {external_files$macreuse$path}")
+    if (!file.exists(external_files()$macreuse$path)) {
+        cli::cli_abort("Could not find file: {external_files()$macreuse$path}")
     }
 
-    macreuse <- read.csv2(external_files$macreuse$path) |> tibble::as_tibble()
+    macreuse <- data.table::fread(external_files()$macreuse$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # Assert columns exist
-    missing_cols <- setdiff(external_files$macreuse$check_columns, names(macreuse))
+    missing_cols <- setdiff(external_files()$macreuse$check_columns, names(macreuse))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -46,7 +46,7 @@ load_macreuse <- function() {
             date = lubridate::ymd(date),
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
-            link = external_files$macreuse$path,
+            link = external_files()$macreuse$path,
             source = "Macreuse",
             inv_type = NA,  # Quel type d'inventaire
             locality = NA,

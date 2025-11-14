@@ -13,18 +13,18 @@
 load_canards <- function() {
 
     cli::cli_h2("Canards de mer")
-    cli::cli_alert_info("Starting integration procedure on { external_files$canards_de_mer$path }")
+    cli::cli_alert_info("Starting integration procedure on { external_files()$canards_de_mer$path }")
 
     # assert file exists
-    if(!file.exists(external_files$canards_de_mer$path)) {
-        cli::cli_abort("Could not find file { external_files$canards_de_mer$path }")
+    if(!file.exists(external_files()$canards_de_mer$path)) {
+        cli::cli_abort("Could not find file { external_files()$canards_de_mer$path }")
     }
 
     # Read file
-    canards <- read.csv2(external_files$canards_de_mer$path) |> tibble::as_tibble()
+    canards <- data.table::fread(external_files()$canards_de_mer$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
     # assert columns exist
-    missing_cols <- setdiff(external_files$canards_de_mer$check_columns, names(canards))
+    missing_cols <- setdiff(external_files()$canards_de_mer$check_columns, names(canards))
     if (length(missing_cols) > 0) {
         cli::cli_abort(c(
             "Missing required columns in dataset:",
@@ -53,7 +53,7 @@ load_canards <- function() {
                 tolower(),
             source = "Canards de mer",
             colony = FALSE,
-            link = external_files$canards_de_mer$path
+            link = external_files()$canards_de_mer$path
         )
 
     # Join TAXO - Match code_id using nom_fr
