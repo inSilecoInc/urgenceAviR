@@ -11,7 +11,9 @@ app_server <- function(input, output, session) {
   # Reactive values for cross-module communication
   app_values <- reactiveValues(
     datasets_loaded = FALSE,
-    datasets_folder_configured = FALSE
+    datasets_folder_configured = FALSE,
+    target_area_locked = FALSE,
+    navigate_to_tab = NULL
   )
 
   # Set datasets_folder if provided in config
@@ -75,5 +77,68 @@ app_server <- function(input, output, session) {
 
   #mod_grid_config_server("grid_config", app_values)
   #mod_figure_generation_server("figure_generation", app_values)
-  
+
+  # Disable tabs 2 and 3 initially (when no area is locked)
+  observe({
+    priority = 100  # High priority to run early
+
+    if (!isTRUE(app_values$target_area_locked)) {
+      cli::cli_alert_info("Target area not locked - disabling tabs 2 and 3")
+      shinyjs::addClass(selector = "a[data-value='species_temporal']", class = "disabled")
+      shinyjs::addClass(selector = "a[data-value='grid_config']", class = "disabled")
+
+      # Add CSS to make disabled tabs appear grayed out and non-clickable
+      shinyjs::runjs("
+        $('a[data-value=\"species_temporal\"]').css({
+          'pointer-events': 'none',
+          'opacity': '0.5',
+          'cursor': 'not-allowed'
+        });
+        $('a[data-value=\"grid_config\"]').css({
+          'pointer-events': 'none',
+          'opacity': '0.5',
+          'cursor': 'not-allowed'
+        });
+      ")
+    }
+  })
+
+  # Enable tabs when area is locked
+  observe({
+    req(app_values$target_area_locked)
+
+    cli::cli_alert_info("Target area locked - enabling tabs 2 and 3")
+    shinyjs::removeClass(selector = "a[data-value='species_temporal']", class = "disabled")
+    shinyjs::removeClass(selector = "a[data-value='grid_config']", class = "disabled")
+
+    # Remove CSS to re-enable tabs
+    shinyjs::runjs("
+      $('a[data-value=\"species_temporal\"]').css({
+        'pointer-events': 'auto',
+        'opacity': '1',
+        'cursor': 'pointer'
+      });
+      $('a[data-value=\"grid_config\"]').css({
+        'pointer-events': 'auto',
+        'opacity': '1',
+        'cursor': 'pointer'
+      });
+    ")
+  })
+
+  # Handle navigation requests from modules
+  observe({
+    req(app_values$navigate_to_tab)
+
+    cli::cli_alert_info("Navigating to tab: {app_values$navigate_to_tab}")
+    shiny::updateNavbarPage(
+      session = session,
+      inputId = "main_nav",
+      selected = app_values$navigate_to_tab
+    )
+
+    # Reset navigation signal
+    app_values$navigate_to_tab <- NULL
+  })
+
 }

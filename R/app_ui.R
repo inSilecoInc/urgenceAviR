@@ -32,34 +32,26 @@ app_ui <- function(request) {
     
     # Target Area Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("geo-alt"), "Zone d'intérêt"),
+      title = span(bsicons::bs_icon("geo-alt"), "1. Déterminer la zone d'intérêt"),
       value = "target_area",
       mod_target_area_ui("target_area")
     ),
     
-    # Species & Time Tab  
+    # Species & Time Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("bug"), "Espèces et temps"),
-      value = "species_temporal", 
+      title = span(bsicons::bs_icon("bug"), "2. Filtrer sur les espèces et le temps"),
+      value = "species_temporal",
+      id = "nav_species_temporal",
       mod_species_temporal_ui("species_temporal")
     ),
-    
+
     # Grid Configuration Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("grid"), "Configuration grille"),
+      title = span(bsicons::bs_icon("grid"), "3. Configurer et obtenir la grille d'occurences"),
       value = "grid_config",
+      id = "nav_grid_config",
       mod_grid_config_ui("grid_config")
-    ),
-    
-    # Figure Generation Tab
-    bslib::nav_panel(
-      title = span(bsicons::bs_icon("bar-chart"), "Génération de figures"),
-      value = "figure_generation",
-      mod_figure_generation_ui("figure_generation")
-    ),
-    
-    # Settings and Progress in Sidebar
-    bslib::nav_spacer(),
+    )
     
   )
 }
