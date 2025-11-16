@@ -46,7 +46,8 @@ app_server <- function(input, output, session) {
       all_data <- load_all_datasets(combine = TRUE) |>
         dplyr::filter(lubridate::year(date) > 1900) |>
         dplyr::filter(!is.na(latitude) | !is.na(longitude)) |>
-        dplyr::filter(!is.na(code_id))
+        dplyr::filter(!is.na(code_id)) |>
+        dplyr::filter(abondance > 0)
       
       app_values$all_df <- all_data
       app_values$datasets_loaded <- TRUE
@@ -75,8 +76,11 @@ app_server <- function(input, output, session) {
     cli::cli_alert_danger("Error initializing species_temporal module: {e$message}")
   })
 
-  #mod_grid_config_server("grid_config", app_values)
-  #mod_figure_generation_server("figure_generation", app_values)
+  tryCatch({
+    mod_make_grid_server("make_grid", app_values)
+  }, error = function(e) {
+    cli::cli_alert_danger("Error initializing make_grid module: {e$message}")
+  })
 
   # Disable tabs 2 and 3 initially (when no area is locked)
   observe({
@@ -85,7 +89,7 @@ app_server <- function(input, output, session) {
     if (!isTRUE(app_values$target_area_locked)) {
       cli::cli_alert_info("Target area not locked - disabling tabs 2 and 3")
       shinyjs::addClass(selector = "a[data-value='species_temporal']", class = "disabled")
-      shinyjs::addClass(selector = "a[data-value='grid_config']", class = "disabled")
+      shinyjs::addClass(selector = "a[data-value='make_grid']", class = "disabled")
 
       # Add CSS to make disabled tabs appear grayed out and non-clickable
       shinyjs::runjs("
@@ -94,7 +98,7 @@ app_server <- function(input, output, session) {
           'opacity': '0.5',
           'cursor': 'not-allowed'
         });
-        $('a[data-value=\"grid_config\"]').css({
+        $('a[data-value=\"make_grid\"]').css({
           'pointer-events': 'none',
           'opacity': '0.5',
           'cursor': 'not-allowed'
@@ -109,7 +113,7 @@ app_server <- function(input, output, session) {
 
     cli::cli_alert_info("Target area locked - enabling tabs 2 and 3")
     shinyjs::removeClass(selector = "a[data-value='species_temporal']", class = "disabled")
-    shinyjs::removeClass(selector = "a[data-value='grid_config']", class = "disabled")
+    shinyjs::removeClass(selector = "a[data-value='make_grid']", class = "disabled")
 
     # Remove CSS to re-enable tabs
     shinyjs::runjs("
@@ -118,7 +122,7 @@ app_server <- function(input, output, session) {
         'opacity': '1',
         'cursor': 'pointer'
       });
-      $('a[data-value=\"grid_config\"]').css({
+      $('a[data-value=\"make_grid\"]').css({
         'pointer-events': 'auto',
         'opacity': '1',
         'cursor': 'pointer'
