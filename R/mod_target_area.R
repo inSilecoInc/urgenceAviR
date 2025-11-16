@@ -44,7 +44,7 @@ mod_target_area_ui <- function(id){
               "Choisissez une m\u00e9thode :",
               choices = list(
                 "Dessiner un polygone sur la carte" = "draw",
-                "T\u00e9l\u00e9charger un fichier spatial" = "upload"
+                "T\u00e9l\u00e9verser un fichier spatial" = "upload"
               ),
               selected = "draw"
             ),
@@ -54,7 +54,7 @@ mod_target_area_ui <- function(id){
               ns = ns,
               fileInput(
                 ns("spatial_file"),
-                "T\u00e9l\u00e9charger un fichier spatial",
+                "T\u00e9l\u00e9verser un fichier spatial",
                 accept = c(".shp", ".kml", ".kmz", ".gpx", ".geojson"),
                 multiple = FALSE
               ),
@@ -104,7 +104,7 @@ mod_target_area_server <- function(id, app_values){
     # Initialize map
     output$area_map <- leaflet::renderLeaflet({
       cli::cli_alert_info("Initializing target area selection map")
-      
+
       leaflet::leaflet() |>
         leaflet::addTiles() |>
         leaflet::setView(lng = -69.53, lat =  47.83, zoom = 8) |>
@@ -299,7 +299,7 @@ mod_target_area_server <- function(id, app_values){
           
         } else {
           cli::cli_alert_danger("Unsupported file format: {file_ext}")
-          showNotification("Format de fichier non pris en charge. Veuillez t\u00e9l\u00e9charger des fichiers .shp, .kml, .kmz, .gpx ou .geojson.", type = "error")
+          showNotification("Format de fichier non pris en charge. Veuillez T\u00e9l\u00e9verser des fichiers .shp, .kml, .kmz, .gpx ou .geojson.", type = "error")
         }
         
       }, error = function(e) {
@@ -329,16 +329,6 @@ mod_target_area_server <- function(id, app_values){
       
       cli::cli_alert_info("Locking target area and filtering dataset")
       
-      # Perform area checks
-      area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
-      
-      if (area_km2 < 0.1) {
-        cli::cli_alert_warning("Area is very small ({round(area_km2, 3)} km\u00b2)")
-        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s petite. Consid\u00e9rez s\u00e9lectionner une zone plus grande.", type = "warning")
-      } else if (area_km2 > 100000) {
-        cli::cli_alert_warning("Area is very large ({round(area_km2, 0)} km\u00b2)")
-        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s grande. Le traitement peut prendre beaucoup de temps.", type = "warning")
-      }
       
       tryCatch({
         # Filter dataset by target area
@@ -370,14 +360,12 @@ mod_target_area_server <- function(id, app_values){
           
           # Update app_values with spatially filtered data
           app_values$spatially_filtered_data <- data_with_coords[filtered_indices, ]
-          app_values$all_df <- app_values$spatially_filtered_data
-          
+
           cli::cli_alert_success("Dataset filtered: {nrow(app_values$spatially_filtered_data)} records within target area (from {nrow(all_data)} total)")
           
         } else {
           cli::cli_alert_warning("Dataset does not contain longitude/latitude columns")
           app_values$spatially_filtered_data <- all_data
-          app_values$all_df <- app_values$spatially_filtered_data
         }
         
         values$area_locked <- TRUE
@@ -385,7 +373,6 @@ mod_target_area_server <- function(id, app_values){
         # Update app_values with target area information
         app_values$target_area_geometry <- values$target_area
         app_values$target_area_source <- values$area_source
-        app_values$target_area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
         app_values$target_area_locked <- TRUE
 
         cli::cli_alert_success("Target area locked successfully")
