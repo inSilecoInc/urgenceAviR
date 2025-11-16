@@ -268,15 +268,15 @@ mod_species_temporal_server <- function(id, app_values){
 
     # Initialize filtered_df when datasets are loaded
     observe({
-      req(app_values$all_df)
+      req(app_values$spatially_filtered_data)
 
-      cli::cli_alert_info("Initializing filtered df from app_values")
+      cli::cli_alert_info("Initializing filtered df from spatially_filtered_data")
 
-      # Initialize filtered_df with all available df
-      app_values$filtered_df <- app_values$all_df
+      # Initialize filtered_df with spatially filtered data
+      app_values$filtered_df <- app_values$spatially_filtered_data
 
       # Get metadata for UI updates
-      all_df <- app_values$all_df
+      all_df <- app_values$spatially_filtered_data
       species <- sort(unique(all_df$code_id))
       years <- sort(unique(as.numeric(format(as.Date(all_df$date), "%Y")), na.rm = TRUE))
       sources <- sort(unique(all_df$source))
@@ -325,129 +325,22 @@ mod_species_temporal_server <- function(id, app_values){
       cli::cli_alert_success("Loaded {length(functional_groups)} functional groups and {length(habitats)} habitats from taxonomy")
     })
 
+    # Initialize taxonomy info module
+    taxonomy_info <- mod_taxonomy_info_server("taxonomy_info", taxo_vuln)
+
     # Info button for functional groups
     observeEvent(input$info_functional_group, {
-      taxo <- taxo_vuln()
-      req(taxo)
-
-      cli::cli_alert_info("Showing functional group taxonomy modal")
-
-      # Prepare data grouped by functional group
-      taxo_grouped <- taxo |>
-        dplyr::select(groupe_fonctionnel, nomfr, nomla, species_id) |>
-        dplyr::arrange(groupe_fonctionnel, nomfr)
-
-      showModal(
-        modalDialog(
-          title = "Table taxonomique - Groupes fonctionnels",
-          size = "xl",
-          easyClose = TRUE,
-          footer = modalButton("Fermer"),
-          reactable::reactableOutput(ns("taxo_functional_table"))
-        )
-      )
-
-      output$taxo_functional_table <- reactable::renderReactable({
-        reactable::reactable(
-          taxo_grouped,
-          filterable = TRUE,
-          searchable = TRUE,
-          defaultPageSize = 15,
-          showPageSizeOptions = TRUE,
-          pageSizeOptions = c(10, 15, 25, 50),
-          striped = TRUE,
-          highlight = TRUE,
-          columns = list(
-            groupe_fonctionnel = reactable::colDef(
-              name = "Groupe fonctionnel",
-              minWidth = 150,
-              filterable = TRUE
-            ),
-            nomfr = reactable::colDef(
-              name = "Nom fran\u00e7ais",
-              minWidth = 150
-            ),
-            nomla = reactable::colDef(
-              name = "Nom latin",
-              minWidth = 150,
-              style = list(fontStyle = "italic")
-            ),
-            species_id = reactable::colDef(
-              name = "Code",
-              minWidth = 80
-            )
-          ),
-          defaultColDef = reactable::colDef(
-            align = "left",
-            headerStyle = list(background = "#f7f7f8")
-          )
-        )
-      })
+      taxonomy_info$show_functional_group_table()
     })
 
     # Info button for habitats
     observeEvent(input$info_habitat, {
-      taxo <- taxo_vuln()
-      req(taxo)
-
-      cli::cli_alert_info("Showing habitat taxonomy modal")
-
-      # Prepare data grouped by habitat
-      taxo_grouped <- taxo |>
-        dplyr::select(milieu_marin, nomfr, nomla, species_id) |>
-        dplyr::arrange(milieu_marin, nomfr)
-
-      showModal(
-        modalDialog(
-          title = "Table taxonomique - Milieux",
-          size = "xl",
-          easyClose = TRUE,
-          footer = modalButton("Fermer"),
-          reactable::reactableOutput(ns("taxo_habitat_table"))
-        )
-      )
-
-      output$taxo_habitat_table <- reactable::renderReactable({
-        reactable::reactable(
-          taxo_grouped,
-          filterable = TRUE,
-          searchable = TRUE,
-          defaultPageSize = 15,
-          showPageSizeOptions = TRUE,
-          pageSizeOptions = c(10, 15, 25, 50),
-          striped = TRUE,
-          highlight = TRUE,
-          columns = list(
-            milieu_marin = reactable::colDef(
-              name = "Milieu marin",
-              minWidth = 120,
-              filterable = TRUE
-            ),
-            nomfr = reactable::colDef(
-              name = "Nom fran\u00e7ais",
-              minWidth = 150
-            ),
-            nomla = reactable::colDef(
-              name = "Nom latin",
-              minWidth = 150,
-              style = list(fontStyle = "italic")
-            ),
-            species_id = reactable::colDef(
-              name = "Code",
-              minWidth = 80
-            )
-          ),
-          defaultColDef = reactable::colDef(
-            align = "left",
-            headerStyle = list(background = "#f7f7f8")
-          )
-        )
-      })
+      taxonomy_info$show_habitat_table()
     })
 
     # observeEvent for functional group selection changes
     observeEvent(input$functional_groups, {
-      req(app_values$all_df)
+      req(app_values$spatially_filtered_data)
       taxo <- taxo_vuln()
       req(taxo)
 
@@ -463,7 +356,7 @@ mod_species_temporal_server <- function(id, app_values){
         cli::cli_alert_info("Found {length(selected_species_codes)} species for selected functional groups")
 
         # Update the species selection UI to show which species are selected
-        all_species <- sort(unique(app_values$all_df$code_id))
+        all_species <- sort(unique(app_values$spatially_filtered_data$code_id))
         updateSelectizeInput(
           session, "selected_species",
           choices = create_species_choices(all_species),
@@ -472,20 +365,20 @@ mod_species_temporal_server <- function(id, app_values){
         )
 
         # Filter data by selected species codes
-        app_values$filtered_df <- app_values$all_df |>
+        app_values$filtered_df <- app_values$spatially_filtered_data |>
           dplyr::filter(code_id %in% selected_species_codes)
 
         cli::cli_alert_info("Filtered to {nrow(app_values$filtered_df)} observations for selected functional groups")
       } else {
-        # If no functional groups selected, reset to all data
-        app_values$filtered_df <- app_values$all_df
+        # If no functional groups selected, reset to spatially filtered data
+        app_values$filtered_df <- app_values$spatially_filtered_data
         updateSelectizeInput(session, "selected_species", selected = character(0))
       }
     }, ignoreInit = TRUE)
 
     # observeEvent for habitat selection changes
     observeEvent(input$habitats, {
-      req(app_values$all_df)
+      req(app_values$spatially_filtered_data)
       taxo <- taxo_vuln()
       req(taxo)
 
@@ -501,7 +394,7 @@ mod_species_temporal_server <- function(id, app_values){
         cli::cli_alert_info("Found {length(selected_species_codes)} species for selected habitats")
 
         # Update the species selection UI to show which species are selected
-        all_species <- sort(unique(app_values$all_df$code_id))
+        all_species <- sort(unique(app_values$spatially_filtered_data$code_id))
         updateSelectizeInput(
           session, "selected_species",
           choices = create_species_choices(all_species),
@@ -510,26 +403,26 @@ mod_species_temporal_server <- function(id, app_values){
         )
 
         # Filter data by selected species codes
-        app_values$filtered_df <- app_values$all_df |>
+        app_values$filtered_df <- app_values$spatially_filtered_data |>
           dplyr::filter(code_id %in% selected_species_codes)
 
         cli::cli_alert_info("Filtered to {nrow(app_values$filtered_df)} observations for selected habitats")
       } else {
-        # If no habitats selected, reset to all data
-        app_values$filtered_df <- app_values$all_df
+        # If no habitats selected, reset to spatially filtered data
+        app_values$filtered_df <- app_values$spatially_filtered_data
         updateSelectizeInput(session, "selected_species", selected = character(0))
       }
     }, ignoreInit = TRUE)
 
     # observeEvent for species selection changes
     observeEvent(input$selected_species, {
-      req(app_values$all_df)
+      req(app_values$spatially_filtered_data)
       cli::cli_alert_info("Species selection changed: {length(input$selected_species)} species selected")
 
       app_values$selected_species <- if (input$species_method %in% c("individual", "functional_group", "habitat")) input$selected_species else NULL
 
       # Apply species filter
-      df <- app_values$all_df
+      df <- app_values$spatially_filtered_data
 
       if (input$species_method == "individual" && length(input$selected_species) > 0) {
         df <- df |> dplyr::filter(code_id %in% input$selected_species)
@@ -559,7 +452,7 @@ mod_species_temporal_server <- function(id, app_values){
 
     # observeEvent for species method changes
     observeEvent(input$species_method, {
-      req(app_values$all_df)
+      req(app_values$spatially_filtered_data)
       cli::cli_alert_info("Species method changed to: {input$species_method}")
 
       # Clear all selection inputs when method changes
@@ -571,8 +464,8 @@ mod_species_temporal_server <- function(id, app_values){
 
       # Reset filtered data when switching to "all" method
       if (input$species_method == "all") {
-        app_values$filtered_df <- app_values$all_df
-        cli::cli_alert_info("Species method set to 'all' - showing all {nrow(app_values$all_df)} observations")
+        app_values$filtered_df <- app_values$spatially_filtered_data
+        cli::cli_alert_info("Species method set to 'all' - showing all {nrow(app_values$spatially_filtered_data)} observations")
       }
     }, ignoreInit = TRUE)
 
@@ -627,8 +520,8 @@ mod_species_temporal_server <- function(id, app_values){
       updateSelectizeInput(session, "habitats", selected = character(0))
 
       # Reset temporal filters
-      if (!is.null(app_values$all_df)) {
-        all_data <- app_values$all_df
+      if (!is.null(app_values$spatially_filtered_data)) {
+        all_data <- app_values$spatially_filtered_data
         years <- sort(unique(as.numeric(format(as.Date(all_data$date), "%Y")), na.rm = TRUE))
         sources <- sort(unique(all_data$source))
 
@@ -650,8 +543,8 @@ mod_species_temporal_server <- function(id, app_values){
         )
       }
 
-      # Reset filtered data to all data
-      app_values$filtered_df <- app_values$all_df
+      # Reset filtered data to spatially filtered data
+      app_values$filtered_df <- app_values$spatially_filtered_data
 
       cli::cli_alert_success("All filters reset to default values")
       showNotification("Tous les filtres ont \u00e9t\u00e9 r\u00e9initialis\u00e9s", type = "message")
@@ -675,8 +568,8 @@ mod_species_temporal_server <- function(id, app_values){
         type = "message"
       )
 
-      # Navigate to grid configuration tab
-      app_values$navigate_to_tab <- "grid_config"
+      # Navigate to make grid tab
+      app_values$navigate_to_tab <- "make_grid"
     })
 
     # Render observation table
@@ -693,28 +586,50 @@ mod_species_temporal_server <- function(id, app_values){
         ))
       }
 
-      # Join with taxonomy data to get French names and ecological info
-      if (!is.null(taxo)) {
-        taxo_info <- taxo |>
+      # Join with avian_core to get French and Latin names, then taxo for ecological info
+      avian <- avian_core()
+
+      if (!is.null(avian)) {
+        # Prepare avian core data
+        avian_info <- avian |>
           dplyr::select(
-            code_id = species_id,
-            nom_francais = nomfr,
-            nom_latin = nomla,
-            milieu_marin,
-            groupe_fonctionnel
+            code_id = Species_ID,
+            nom_francais = French_Name,
+            nom_latin = Scientific_Name
           )
 
+        # Join with avian core first
         display_data <- df |>
-          dplyr::left_join(taxo_info, by = "code_id") |>
+          dplyr::left_join(avian_info, by = "code_id")
+
+        # Then join with taxo for milieu_marin and groupe_fonctionnel
+        if (!is.null(taxo)) {
+          taxo_info <- taxo |>
+            dplyr::select(
+              code_id = species_id,
+              milieu_marin,
+              groupe_fonctionnel
+            )
+
+          display_data <- display_data |>
+            dplyr::left_join(taxo_info, by = "code_id")
+        }
+
+        # Merge French and Latin names in the same cell and reorder columns
+        display_data <- display_data |>
           dplyr::mutate(
+            nom_espece = paste0(nom_francais, " <br><i>", nom_latin, "</i>"),
             dplyr::across(
               dplyr::where(is.character),
               ~ iconv(.x, from = "UTF-8", to = "UTF-8", sub = "")
             )
           ) |>
-          dplyr::select(date, code_id, nom_francais, nom_latin, milieu_marin, groupe_fonctionnel, abondance, obs, inv_type, source)
+          dplyr::select(
+            date, milieu_marin, code_id, nom_espece, groupe_fonctionnel,
+            obs, abondance, inv_type, source
+          )
       } else {
-        # Fallback if taxonomy not available
+        # Fallback if avian core not available
         display_data <- df |>
           dplyr::mutate(
             dplyr::across(
@@ -722,49 +637,56 @@ mod_species_temporal_server <- function(id, app_values){
               ~ iconv(.x, from = "UTF-8", to = "UTF-8", sub = "")
             )
           ) |>
-          dplyr::select(date, code_id, abondance, obs, inv_type, source)
+          dplyr::select(code_id, obs, abondance, inv_type, source)
       }
 
       reactable::reactable(
         display_data,
-        defaultPageSize = 50,
+        defaultPageSize = 10,
         searchable = TRUE,
         showPageSizeOptions = TRUE,
-        pageSizeOptions = c(25, 50, 100),
+        pageSizeOptions = c(10, 25, 50, 100),
+        language = reactable::reactableLang(
+          searchPlaceholder = "Rechercher...",
+          searchLabel = "Rechercher",
+          noData = "Aucune donn\u00e9e disponible",
+          pageSizeOptions = "Afficher {rows}",
+          pageInfo = "{rowStart} \u00e0 {rowEnd} sur {rows} entr\u00e9es",
+          pagePrevious = "Pr\u00e9c\u00e9dent",
+          pageNext = "Suivant",
+          pagePreviousLabel = "Page pr\u00e9c\u00e9dente",
+          pageNextLabel = "Page suivante"
+        ),
         columns = list(
           date = reactable::colDef(
             name = "Date",
             format = reactable::colFormat(date = TRUE, locales = "en-CA"),
             minWidth = 100
           ),
+          milieu_marin = reactable::colDef(
+            name = "Milieu",
+            minWidth = 100
+          ),
           code_id = reactable::colDef(
             name = "Code",
             minWidth = 70
           ),
-          nom_francais = reactable::colDef(
-            name = "Nom fran\u00e7ais",
-            minWidth = 120
-          ),
-          nom_latin = reactable::colDef(
-            name = "Nom latin",
-            minWidth = 120,
-            style = list(fontStyle = "italic")
-          ),
-          milieu_marin = reactable::colDef(
-            name = "Milieu",
-            minWidth = 100
+          nom_espece = reactable::colDef(
+            name = "Esp\u00e8ce",
+            minWidth = 200,
+            html = TRUE
           ),
           groupe_fonctionnel = reactable::colDef(
             name = "Groupe fonctionnel",
             minWidth = 120
           ),
+          obs = reactable::colDef(
+            name = "Observateur",
+            minWidth = 80
+          ),
           abondance = reactable::colDef(
             name = "Abondance",
             format = reactable::colFormat(digits = 0),
-            minWidth = 80
-          ),
-          obs = reactable::colDef(
-            name = "Observateur",
             minWidth = 80
           ),
           inv_type = reactable::colDef(

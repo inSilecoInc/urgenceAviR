@@ -45,12 +45,12 @@ app_ui <- function(request) {
       mod_species_temporal_ui("species_temporal")
     ),
 
-    # Grid Configuration Tab
+    # Make Grid Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("grid"), "3. Configurer et obtenir la grille d'occurences"),
-      value = "grid_config",
-      id = "nav_grid_config",
-      mod_grid_config_ui("grid_config")
+      title = span(bsicons::bs_icon("grid"), "3. Visualisation spatiale des observations"),
+      value = "make_grid",
+      id = "nav_make_grid",
+      mod_make_grid_ui("make_grid")
     )
     
   )
