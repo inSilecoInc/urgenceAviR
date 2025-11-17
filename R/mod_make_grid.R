@@ -14,7 +14,7 @@ mod_make_grid_ui <- function(id){
       column(
         width = 8,
         h3("\u00c9tape 3 : Visualisation spatiale des observations", class = "text-primary"),
-        p("Configurez les param\u00e8tres de grille pour l'analyse spatiale et l'agr\u00e9gation des donn\u00e9es.")
+        p("Configurez les param\u00e8tres de grille et la visualisation des donn\u00e9es.")
       ),
       column(
         width = 4,
@@ -22,9 +22,14 @@ mod_make_grid_ui <- function(id){
         div(
           style = "padding-top: 10px;",
           actionButton(
+            ns("back_to_filters"),
+            HTML("<i class='fa fa-arrow-left'></i> &nbsp;Filtrer sur les espèces et le temps"),
+            class = "btn-primary me-2"
+          ),
+          actionButton(
             ns("export_grid"),
             HTML("<i class='fa fa-download'></i> &nbsp;Exporter la visualisation"),
-            class = "btn-primary",
+            class = "btn-success",
             disabled = TRUE
           )
         )
@@ -37,25 +42,82 @@ mod_make_grid_ui <- function(id){
       div(
         class = "col-lg-4",
         bslib::card(
-          bslib::card_header(h5("Param\u00e8tres de la grille")),
+          bslib::card_header(h5("Param\u00e8tres")),
           bslib::card_body(
+            fillable = FALSE,
+            fill= FALSE,
+            h6("Configuration de la grille", class = "fw-bold"),
             numericInput(
               ns("grid_size"),
-              "Taille des cellules de grille (km) :",
-              value = 0.5,
-              min = 0.1,
+              "Taille des cellules (km) :",
+              value = 1,
+              min = 0.5,
               max = 10,
               step = 0.1
             ),
-
-            selectInput(
+            selectizeInput(
               ns("grid_type"),
               "Type de grille :",
               choices = list(
                 "Carr\u00e9" = "square",
                 "Hexagonale" = "hexagonal"
               ),
+              options = list(
+                dropdownParent = "body"
+              ),
               selected = "hexagonal"
+            ),
+            selectizeInput(
+              ns("color_palette"),
+              "Palette :",
+              choices = list(
+                "Jaune-Orange-Rouge" = "YlOrRd",
+                "Jaune-Orange-Brun" = "YlOrBr",
+                "Bleu-Vert" = "BuGn",
+                "Bleu-Violet" = "BuPu",
+                "Vert-Bleu" = "GnBu",
+                "Orange-Rouge" = "OrRd",
+                "Violet-Bleu" = "PuBu",
+                "Violet-Bleu-Vert" = "PuBuGn",
+                "Violet-Rouge" = "PuRd",
+                "Rouge-Violet" = "RdPu",
+                "Jaune-Vert-Bleu" = "YlGnBu",
+                "Jaune-Vert" = "YlGn",
+                "Rouge-Jaune-Bleu" = "RdYlBu",
+                "Rouge-Jaune-Vert" = "RdYlGn",
+                "Spectral" = "Spectral",
+                "Viridis" = "viridis",
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma"
+              ),
+              selected = "YlOrRd",
+              options = list(
+                dropdownParent = "body"
+              )
+            ),
+            checkboxInput(
+              ns("mask_target_area"),
+              "Masquer la zone d'intérêt",
+              value = FALSE
+            ),
+
+            h6("Variable d'intérêt", class = "fw-bold"),
+
+            radioButtons(
+              ns("variable_type"),
+              "Type de variable :",
+              choices = list(
+                "Nombre d'observations" = "n_obs",
+                "Somme de l'abondance" = "sum_abundance"
+              ),
+              selected = "n_obs"
+            ),
+
+            checkboxInput(
+              ns("transform_log10"),
+              "Transformation log10",
+              value = FALSE
             )
           )
         )
@@ -64,10 +126,22 @@ mod_make_grid_ui <- function(id){
       div(
         class = "col-lg-8",
         bslib::card(
-          bslib::card_header(h5("Carte interactive - Aper\u00e7u de la grille")),
+          bslib::card_header(h5("Aper\u00e7u des observations")),
           bslib::card_body(
             class = "p-0",
-            leaflet::leafletOutput(ns("grid_map"), height = "70vh")
+            div(
+              style = "position: relative;",
+              leaflet::leafletOutput(ns("grid_map"), height = "70vh"),
+              div(
+                id = ns("map_loading"),
+                style = "display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; align-items: center; justify-content: center;",
+                div(
+                  style = "text-align: center;",
+                  tags$i(class = "fa fa-spinner fa-spin fa-3x", style = "color: #0d6efd;"),
+                  tags$p("Génération de la grille...", style = "margin-top: 10px; color: #0d6efd; font-weight: bold;")
+                )
+              )
+            )
           )
         )
       )
@@ -84,52 +158,69 @@ mod_make_grid_server <- function(id, app_values){
 
     # Reactive values
     values <- reactiveValues(
-      preview_data = NULL,
-      config_validated = FALSE,
-      preview_loaded = FALSE,
-      grid = NULL
+      grid_with_data = NULL,
+      variable_selected = NULL,
+      transformed_grid = NULL,
+      display_grid = NULL
     )
 
-    # Initialize map
+    # Initialize map with target area if available
     output$grid_map <- leaflet::renderLeaflet({
       cli::cli_alert_info("Initializing grid configuration map")
 
-      leaflet::leaflet() |>
+      map <- leaflet::leaflet() |>
         leaflet::addTiles() |>
         leaflet::setView(lng = -69.53, lat = 47.83, zoom = 8)
+
+      # Add target area if already locked
+      if (!is.null(app_values$target_area_geometry)) {
+        tryCatch({
+          cli::cli_alert_info("Target area found, adding to initial map")
+
+          target_sf <- sf::st_as_sf(app_values$target_area_geometry)
+          bounds <- sf::st_bbox(target_sf)
+
+          # Validate bounds
+          if (all(is.finite(c(bounds[1], bounds[2], bounds[3], bounds[4])))) {
+            map <- map |>
+              leaflet::addPolygons(
+                data = target_sf,
+                group = "target_area",
+                color = "blue",
+                weight = 2,
+                fillOpacity = 0
+              ) |>
+              leaflet::fitBounds(
+                lng1 = as.numeric(bounds["xmin"]),
+                lat1 = as.numeric(bounds["ymin"]),
+                lng2 = as.numeric(bounds["xmax"]),
+                lat2 = as.numeric(bounds["ymax"])
+              )
+
+            cli::cli_alert_success("Target area added to map")
+          } else {
+            cli::cli_alert_warning("Invalid bounds, skipping fitBounds")
+          }
+        }, error = function(e) {
+          cli::cli_alert_warning("Could not add target area to map: {e$message}")
+        })
+      }
+
+      map
     })
 
-    # Add target area to map when available
-    observe({
-      req(app_values$target_area_geometry)
-
-      cli::cli_alert_info("Adding target area to grid map")
-
-      bounds <- sf::st_bbox(app_values$target_area_geometry)
-
-      leaflet::leafletProxy("grid_map") |>
-        leaflet::clearGroup("target_area") |>
-        leaflet::addPolygons(
-          data = sf::st_as_sf(app_values$target_area_geometry),
-          group = "target_area",
-          color = "blue",
-          weight = 2,
-          fillOpacity = 0.1,
-          label = "Zone d'intérêt"
-        ) |>
-        leaflet::fitBounds(bounds[1], bounds[2], bounds[3], bounds[4])
-    })
-
-    # Function to generate grid
-    generate_grid <- function() {
+    # Step 1: Generate grid with data when grid parameters change
+    observeEvent(list(input$grid_size, input$grid_type, app_values$target_area_geometry, app_values$filtered_df), {
       req(app_values$target_area_geometry)
       req(app_values$filtered_df)
       req(input$grid_size)
       req(input$grid_type)
 
-      cli::cli_alert_info("Generating grid with size={input$grid_size}km, type={input$grid_type}")
+      cli::cli_alert_info("Generating grid with data: size={input$grid_size}km, type={input$grid_type}")
+      shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'flex');"))
 
       tryCatch({
+        
         # Use filtered data from module 2 (species_temporal)
         filtered_data <- app_values$filtered_df
 
@@ -143,17 +234,17 @@ mod_make_grid_server <- function(id, app_values){
         if (input$grid_type == "square") {
           grid <- sf::st_make_grid(
             target_proj,
-            cellsize = input$grid_size * 1000,  # Convert km to meters
+            cellsize = input$grid_size * 1000, # Convert km to meters
             square = TRUE
           )
         } else {
           grid <- sf::st_make_grid(
             target_proj,
-            cellsize = input$grid_size * 1000,  # Convert km to meters
+            cellsize = input$grid_size * 1000, # Convert km to meters
             square = FALSE
           )
         }
-
+                
         # Convert grid to sf object and add IDs
         grid_sf <- sf::st_sf(
           grid_id = seq_along(grid),
@@ -168,7 +259,7 @@ mod_make_grid_server <- function(id, app_values){
 
         values$grid <- grid_wgs84
 
-        # Count observations per grid cell
+        # Count observations and sum abundance per grid cell
         if (nrow(filtered_data) > 0 && "longitude" %in% names(filtered_data) && "latitude" %in% names(filtered_data)) {
           # Create spatial points
           data_sf <- sf::st_as_sf(
@@ -180,38 +271,164 @@ mod_make_grid_server <- function(id, app_values){
           # Transform to same projection as grid
           data_proj <- sf::st_transform(data_sf, 32619)
 
-          # Spatial join to count observations
+          # Spatial join to aggregate observations (reversed to keep all grid cells)
           joined <- sf::st_join(grid_sf, data_proj)
-          obs_counts <- as.data.frame(table(joined$grid_id))
-          names(obs_counts) <- c("grid_id", "n_obs")
-          obs_counts$grid_id <- as.integer(as.character(obs_counts$grid_id))
 
-          # Add observation counts to grid
-          grid_wgs84$n_obs <- 0
-          grid_wgs84$n_obs[match(obs_counts$grid_id, grid_wgs84$grid_id)] <- obs_counts$n_obs
+          # Calculate both observation counts and abundance sums
+          grid_wgs84 <- joined |>
+            dplyr::group_by(grid_id) |>
+            dplyr::summarise(
+              n_obs = sum(!is.na(abondance)),
+              sum_abundance = sum(abondance, na.rm = TRUE),
+              .groups = "drop"
+            ) |> 
+            dplyr::filter(n_obs > 0) |> 
+            sf::st_transform(4326)
+        } 
+
+        # Store grid with data
+        values$grid_with_data <- grid_wgs84
+
+        cli::cli_alert_success("Grid with data created: {nrow(grid_wgs84)} cells")
+        # Hide loading overlay
+        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+
+      }, error = function(e) {
+        cli::cli_alert_danger("Error generating grid: {e$message}")
+        showNotification(paste("Erreur de génération de la grille :", e$message), type = "error")
+        # Hide loading overlay
+        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+      })
+    }, ignoreNULL = TRUE)
+
+    # Step 2a: Select variable type
+    observeEvent(list(values$grid_with_data, input$variable_type), {
+      req(values$grid_with_data)
+
+      cli::cli_alert_info("Selecting variable: {input$variable_type}")
+
+      tryCatch({
+        grid_wgs84 <- values$grid_with_data
+
+        # Select variable to display based on user choice
+        if (input$variable_type == "sum_abundance") {
+          grid_wgs84$display_value <- grid_wgs84$sum_abundance
+          var_label <- "Abondance totale"
         } else {
-          grid_wgs84$n_obs <- 0
+          grid_wgs84$display_value <- grid_wgs84$n_obs
+          var_label <- "Nombre d'observations"
         }
 
-        # Create color palette based on observation counts
+        # Store variable-selected grid and label
+        values$variable_selected <- grid_wgs84
+        values$var_label <- var_label
+
+        cli::cli_alert_success("Variable selected: {var_label}")
+
+      }, error = function(e) {
+        cli::cli_alert_danger("Error selecting variable: {e$message}")
+      })
+    }, ignoreInit = FALSE, ignoreNULL = TRUE)
+
+    # Step 2b: Apply log transformation
+    observeEvent(list(values$variable_selected, input$transform_log10), {
+      req(values$variable_selected)
+
+      cli::cli_alert_info("Applying transformation: log10={input$transform_log10}")
+
+      tryCatch({
+        grid_wgs84 <- values$variable_selected
+        var_label <- values$var_label
+
+        # Apply transformation
+        if (input$transform_log10) {
+          grid_wgs84$display_value <- log10(grid_wgs84$display_value)
+          var_label <- paste0(var_label, " (log10)")
+        }
+
+        # Update label
+        values$transformed_grid <- grid_wgs84
+        values$var_label <- var_label
+
+        cli::cli_alert_success("Transformation applied")
+
+      }, error = function(e) {
+        cli::cli_alert_danger("Error applying transformation: {e$message}")
+      })
+    }, ignoreInit = FALSE, ignoreNULL = TRUE)
+
+    # Step 2c: Prepare labels for display
+    observeEvent(values$transformed_grid, {
+      req(values$transformed_grid)
+
+      cli::cli_alert_info("Preparing labels for display")
+
+      tryCatch({
+        grid_wgs84 <- values$transformed_grid
+
+        # Create label text
+        if (input$variable_type == "sum_abundance") {
+          if (input$transform_log10) {
+            grid_wgs84$label_text <- paste0(
+              "Abondance: ", round(grid_wgs84$sum_abundance, 0),
+              " (log10: ", round(grid_wgs84$display_value, 2), ")"
+            )
+          } else {
+            grid_wgs84$label_text <- paste0("Abondance: ", round(grid_wgs84$sum_abundance, 0))
+          }
+        } else {
+          if (input$transform_log10) {
+            grid_wgs84$label_text <- paste0(
+              grid_wgs84$n_obs, " observations",
+              " (log10: ", round(grid_wgs84$display_value, 2), ")"
+            )
+          } else {
+            grid_wgs84$label_text <- paste0(grid_wgs84$n_obs, " observations")
+          }
+        }
+
+        # Store display grid
+        values$display_grid <- grid_wgs84
+
+        cli::cli_alert_success("Display data prepared: {nrow(grid_wgs84)} cells")
+
+      }, error = function(e) {
+        cli::cli_alert_danger("Error preparing display: {e$message}")
+      })
+    }, ignoreInit = FALSE, ignoreNULL = TRUE)
+
+    # Step 3: Update grid visualization
+    observeEvent(list(values$display_grid, input$color_palette), {
+      req(values$display_grid)
+      req(values$var_label)
+
+      # Show loading overlay
+      shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'flex');"))
+
+      cli::cli_alert_info("Updating grid visualization")
+      tryCatch({
+        grid_wgs84_filtered <- values$display_grid
+        var_label <- values$var_label
+
+        # Create color palette
         pal <- leaflet::colorNumeric(
-          palette = "YlOrRd",
-          domain = grid_wgs84$n_obs,
+          palette = input$color_palette,
+          domain = grid_wgs84_filtered$display_value,
           na.color = "#00000000"
         )
 
-        # Add grid to map
+        # Update grid on map
         leaflet::leafletProxy("grid_map") |>
           leaflet::clearGroup("grid") |>
           leaflet::clearControls() |>
           leaflet::addPolygons(
-            data = grid_wgs84,
+            data = grid_wgs84_filtered,
             group = "grid",
-            fillColor = ~pal(n_obs),
+            fillColor = ~pal(display_value),
             fillOpacity = 0.6,
             color = "white",
             weight = 1,
-            label = ~paste0("Cellule ", grid_id, ": ", n_obs, " observations"),
+            label = ~label_text,
             highlightOptions = leaflet::highlightOptions(
               weight = 3,
               color = "black",
@@ -222,57 +439,58 @@ mod_make_grid_server <- function(id, app_values){
           leaflet::addLegend(
             position = "bottomright",
             pal = pal,
-            values = grid_wgs84$n_obs,
-            title = "Nombre d'observations",
+            values = grid_wgs84_filtered$display_value,
+            title = var_label,
             group = "legend"
           )
-
-        values$preview_loaded <- TRUE
 
         # Enable export button
         shinyjs::enable("export_grid")
 
-        cli::cli_alert_success("Grid generated: {nrow(grid_wgs84)} cells")
+        # Hide loading overlay
+        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
 
       }, error = function(e) {
-        cli::cli_alert_danger("Error generating grid: {e$message}")
-        showNotification(paste("Erreur de génération de la grille :", e$message), type = "error")
+        cli::cli_alert_danger("Error updating visualization: {e$message}")
+        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
       })
-    }
+    }, ignoreInit = FALSE, ignoreNULL = TRUE)
 
-    # Automatically generate grid when parameters change or data is available
-    observe({
-      generate_grid()
-    }) |> bindEvent(input$grid_size, input$grid_type, app_values$filtered_df, ignoreNULL = TRUE, ignoreInit = FALSE)
+    # Step 4: Toggle target area overlay
+    observeEvent(input$mask_target_area, {
+      req(app_values$target_area_geometry)
+
+      cli::cli_alert_info("Toggling target area overlay")
+
+      leaflet::leafletProxy("grid_map") |>
+        leaflet::clearGroup("target_area") |>
+        leaflet::clearGroup("target_area_overlay")
+
+      # Add target area if not masked
+      if (!input$mask_target_area) {
+        target_sf <- sf::st_as_sf(app_values$target_area_geometry)
+        leaflet::leafletProxy("grid_map") |>
+          leaflet::addPolygons(
+            data = target_sf,
+            group = "target_area_overlay",
+            color = "blue",
+            weight = 2,
+            fillOpacity = 0
+          )
+      }
+    }, ignoreInit = TRUE)
 
     # Export grid
     observeEvent(input$export_grid, {
-      req(values$grid)
-
-      cli::cli_alert_info("Exporting grid visualization")
-
-      grid_data <- values$grid
-      n_cells <- nrow(grid_data)
-      n_cells_with_data <- sum(grid_data$n_obs > 0)
-      total_obs <- sum(grid_data$n_obs)
-
-      # Store grid configuration in app_values
-      app_values$grid_config <- list(
-        grid_size = input$grid_size,
-        grid_type = input$grid_type,
-        grid = values$grid,
-        n_cells = n_cells,
-        n_cells_with_data = n_cells_with_data,
-        total_observations = total_obs
-      )
-
-      cli::cli_alert_success("Grid ready for export: {n_cells} cells, {total_obs} total observations")
-      showNotification(
-        "Grille prête pour l'exportation !",
-        type = "message"
-      )
 
       # TODO: Add actual export functionality here (e.g., download as shapefile, GeoJSON, etc.)
     })
+
+    # Handle back to filters button
+    observeEvent(input$back_to_filters, {
+      cli::cli_alert_info("Navigating back to species_temporal tab")
+      app_values$navigate_to_tab <- "species_temporal"
+    })
+
   })
 }

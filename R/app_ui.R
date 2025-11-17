@@ -47,7 +47,7 @@ app_ui <- function(request) {
 
     # Make Grid Tab
     bslib::nav_panel(
-      title = span(bsicons::bs_icon("grid"), "3. Visualisation spatiale des observations"),
+      title = span(bsicons::bs_icon("grid"), "3. Visualiser spatialement les observations"),
       value = "make_grid",
       id = "nav_make_grid",
       mod_make_grid_ui("make_grid")
