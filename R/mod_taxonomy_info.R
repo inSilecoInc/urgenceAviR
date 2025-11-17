@@ -56,12 +56,12 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
           language = reactable::reactableLang(
             searchPlaceholder = "Rechercher...",
             searchLabel = "Rechercher",
-            noData = "Aucune donnée disponible",
+            noData = "Aucune donn\u00e9e disponible",
             pageSizeOptions = "Afficher {rows}",
-            pageInfo = "{rowStart} à {rowEnd} sur {rows} entrées",
-            pagePrevious = "Précédent",
+            pageInfo = "{rowStart} \u00e0 {rowEnd} sur {rows} entr\u00e9es",
+            pagePrevious = "Pr\u00e9c\u00e9dent",
             pageNext = "Suivant",
-            pagePreviousLabel = "Page précédente",
+            pagePreviousLabel = "Page pr\u00e9c\u00e9dente",
             pageNextLabel = "Page suivante"
           ),
           columns = list(
@@ -71,7 +71,7 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
               filterable = TRUE
             ),
             nomfr = reactable::colDef(
-              name = "Nom français",
+              name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
             nomla = reactable::colDef(
@@ -127,12 +127,12 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
           language = reactable::reactableLang(
             searchPlaceholder = "Rechercher...",
             searchLabel = "Rechercher",
-            noData = "Aucune donnée disponible",
+            noData = "Aucune donn\u00e9e disponible",
             pageSizeOptions = "Afficher {rows}",
-            pageInfo = "{rowStart} à {rowEnd} sur {rows} entrées",
-            pagePrevious = "Précédent",
+            pageInfo = "{rowStart} \u00e0 {rowEnd} sur {rows} entr\u00e9es",
+            pagePrevious = "Pr\u00e9c\u00e9dent",
             pageNext = "Suivant",
-            pagePreviousLabel = "Page précédente",
+            pagePreviousLabel = "Page pr\u00e9c\u00e9dente",
             pageNextLabel = "Page suivante"
           ),
           columns = list(
@@ -142,7 +142,7 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
               filterable = TRUE
             ),
             nomfr = reactable::colDef(
-              name = "Nom français",
+              name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
             nomla = reactable::colDef(
