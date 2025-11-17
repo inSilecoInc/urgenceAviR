@@ -23,12 +23,12 @@ mod_species_temporal_ui <- function(id){
           style = "padding-top: 10px;",
           actionButton(
             ns("back_to_target_area"),
-            HTML("<i class='fa fa-arrow-left'></i> &nbsp;Déterminer la zone d'intérêt"),
+            HTML("<i class='fa fa-arrow-left'></i> &nbsp;D\u00e9terminer la zone d'int\u00e9r\u00eat"),
             class = "btn-primary me-2"
           ),
           actionButton(
             ns("reset_filters"),
-            HTML("<i class='fa fa-undo'></i> &nbsp;Réinitialiser les filtres"),
+            HTML("<i class='fa fa-undo'></i> &nbsp;R\u00e9initialiser les filtres"),
             class = "btn-secondary me-2"
           ),
           actionButton(
@@ -204,7 +204,7 @@ mod_species_temporal_ui <- function(id){
       column(
         width = 12,
         bslib::card(
-          bslib::card_header(h5("Observations dans la zone d'intérêt")),
+          bslib::card_header(h5("Observations dans la zone d'int\u00e9r\u00eat")),
           bslib::card_body(
             reactable::reactableOutput(ns("obs_table"))
           )
@@ -601,9 +601,9 @@ mod_species_temporal_server <- function(id, app_values){
         # Prepare avian core data
         avian_info <- avian |>
           dplyr::select(
-            code_id = Species_ID,
-            nom_francais = French_Name,
-            nom_latin = Scientific_Name
+            code_id = .data$Species_ID,
+            nom_francais = .data$French_Name,
+            nom_latin = .data$Scientific_Name
           )
 
         # Join with avian core first
@@ -626,15 +626,15 @@ mod_species_temporal_server <- function(id, app_values){
         # Merge French and Latin names in the same cell and reorder columns
         display_data <- display_data |>
           dplyr::mutate(
-            nom_espece = paste0(nom_francais, " <br><i>", nom_latin, "</i>"),
+            nom_espece = paste0(.data$nom_francais, " <br><i>", .data$nom_latin, "</i>"),
             dplyr::across(
               dplyr::where(is.character),
               ~ iconv(.x, from = "UTF-8", to = "UTF-8", sub = "")
             )
           ) |>
           dplyr::select(
-            date, milieu_marin, code_id, nom_espece, groupe_fonctionnel,
-            obs, abondance, inv_type, source
+            .data$date, .data$milieu_marin, .data$code_id, .data$nom_espece, .data$groupe_fonctionnel,
+            .data$obs, .data$abondance, .data$inv_type, .data$source
           )
       } else {
         # Fallback if avian core not available

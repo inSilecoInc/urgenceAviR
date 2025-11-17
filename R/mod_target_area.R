@@ -54,16 +54,16 @@ mod_target_area_ui <- function(id){
               ns = ns,
               fileInput(
                 ns("spatial_file"),
-                "Téléverser un fichier spatial",
+                "T\u00e9l\u00e9verser un fichier spatial",
                 accept = c(".shp", ".kml", ".kmz", ".geojson"),
                 multiple = FALSE
               ),
               helpText(
                 HTML("
-                  <strong>Formats supportés :</strong><br/>
-                  • <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
-                  • <strong>GeoJSON :</strong> Format spatial web<br/>
-                  • <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
+                  <strong>Formats support\u00e9s :</strong><br/>
+                  \u2022 <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
+                  \u2022 <strong>GeoJSON :</strong> Format spatial web<br/>
+                  \u2022 <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
                 ")
               )
             )
@@ -301,7 +301,7 @@ mod_target_area_server <- function(id, app_values){
       cli::cli_alert_info("Locking target area and filtering dataset")
 
       # Show full page spinner
-      shinycssloaders::showPageSpinner(caption = "Filtrage spatial des données...")
+      shinycssloaders::showPageSpinner(caption = "Filtrage spatial des donn\u00e9es...")
 
       tryCatch({
         # Filter dataset by target area
@@ -350,7 +350,7 @@ mod_target_area_server <- function(id, app_values){
 
         cli::cli_alert_success("Target area locked successfully")
 
-        showNotification("Zone d'intérêt verrouillée et jeu de données filtré !", type = "message")
+        showNotification("Zone d'int\u00e9r\u00eat verrouill\u00e9e et jeu de donn\u00e9es filtr\u00e9 !", type = "message")
 
         # Signal to app_server to navigate to next tab
         app_values$navigate_to_tab <- "species_temporal"
@@ -363,7 +363,7 @@ mod_target_area_server <- function(id, app_values){
         shinycssloaders::hidePageSpinner()
 
         cli::cli_alert_danger("Error filtering dataset: {e$message}")
-        showNotification(paste("Erreur de filtrage du jeu de données :", e$message), type = "error")
+        showNotification(paste("Erreur de filtrage du jeu de donn\u00e9es :", e$message), type = "error")
       })
     })
     

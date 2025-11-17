@@ -23,7 +23,7 @@ mod_make_grid_ui <- function(id){
           style = "padding-top: 10px;",
           actionButton(
             ns("back_to_filters"),
-            HTML("<i class='fa fa-arrow-left'></i> &nbsp;Filtrer sur les espèces et le temps"),
+            HTML("<i class='fa fa-arrow-left'></i> &nbsp;Filtrer sur les esp\u00e8ces et le temps"),
             class = "btn-primary me-2"
           ),
           actionButton(
@@ -98,11 +98,11 @@ mod_make_grid_ui <- function(id){
             ),
             checkboxInput(
               ns("mask_target_area"),
-              "Masquer la zone d'intérêt",
+              "Masquer la zone d'int\u00e9r\u00eat",
               value = FALSE
             ),
 
-            h6("Variable d'intérêt", class = "fw-bold"),
+            h6("Variable d'int\u00e9r\u00eat", class = "fw-bold"),
 
             radioButtons(
               ns("variable_type"),
@@ -138,7 +138,7 @@ mod_make_grid_ui <- function(id){
                 div(
                   style = "text-align: center;",
                   tags$i(class = "fa fa-spinner fa-spin fa-3x", style = "color: #0d6efd;"),
-                  tags$p("Génération de la grille...", style = "margin-top: 10px; color: #0d6efd; font-weight: bold;")
+                  tags$p("G\u00e9n\u00e9ration de la grille...", style = "margin-top: 10px; color: #0d6efd; font-weight: bold;")
                 )
               )
             )
@@ -276,13 +276,13 @@ mod_make_grid_server <- function(id, app_values){
 
           # Calculate both observation counts and abundance sums
           grid_wgs84 <- joined |>
-            dplyr::group_by(grid_id) |>
+            dplyr::group_by(.data$grid_id) |>
             dplyr::summarise(
-              n_obs = sum(!is.na(abondance)),
-              sum_abundance = sum(abondance, na.rm = TRUE),
+              n_obs = sum(!is.na(.data$abondance)),
+              sum_abundance = sum(.data$abondance, na.rm = TRUE),
               .groups = "drop"
-            ) |> 
-            dplyr::filter(n_obs > 0) |> 
+            ) |>
+            dplyr::filter(.data$n_obs > 0) |>
             sf::st_transform(4326)
         } 
 
@@ -295,7 +295,7 @@ mod_make_grid_server <- function(id, app_values){
 
       }, error = function(e) {
         cli::cli_alert_danger("Error generating grid: {e$message}")
-        showNotification(paste("Erreur de génération de la grille :", e$message), type = "error")
+        showNotification(paste("Erreur de g\u00e9n\u00e9ration de la grille :", e$message), type = "error")
         # Hide loading overlay
         shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
       })
