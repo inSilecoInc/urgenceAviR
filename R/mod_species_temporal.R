@@ -22,8 +22,13 @@ mod_species_temporal_ui <- function(id){
         div(
           style = "padding-top: 10px;",
           actionButton(
+            ns("back_to_target_area"),
+            HTML("<i class='fa fa-arrow-left'></i> &nbsp;Déterminer la zone d'intérêt"),
+            class = "btn-primary me-2"
+          ),
+          actionButton(
             ns("reset_filters"),
-            HTML("<i class='fa fa-undo'></i> &nbsp;R\u00e9initialiser"),
+            HTML("<i class='fa fa-undo'></i> &nbsp;Réinitialiser les filtres"),
             class = "btn-secondary me-2"
           ),
           actionButton(
@@ -199,7 +204,7 @@ mod_species_temporal_ui <- function(id){
       column(
         width = 12,
         bslib::card(
-          bslib::card_header(h5("Tableau de donn\u00e9es")),
+          bslib::card_header(h5("Observations dans la zone d'intérêt")),
           bslib::card_body(
             reactable::reactableOutput(ns("obs_table"))
           )
@@ -414,18 +419,21 @@ mod_species_temporal_server <- function(id, app_values){
       }
     }, ignoreInit = TRUE)
 
-    # observeEvent for species selection changes
-    observeEvent(input$selected_species, {
-      req(app_values$spatially_filtered_data)
-      cli::cli_alert_info("Species selection changed: {length(input$selected_species)} species selected")
+    # Debounced species selection
+    selected_species_debounced <- debounce(reactive(input$selected_species), 500)
 
-      app_values$selected_species <- if (input$species_method %in% c("individual", "functional_group", "habitat")) input$selected_species else NULL
+    # observeEvent for species selection changes
+    observeEvent(selected_species_debounced(), {
+      req(app_values$spatially_filtered_data)
+      cli::cli_alert_info("Species selection changed: {length(selected_species_debounced())} species selected")
+
+      app_values$selected_species <- if (input$species_method %in% c("individual", "functional_group", "habitat")) selected_species_debounced() else NULL
 
       # Apply species filter
       df <- app_values$spatially_filtered_data
 
-      if (input$species_method == "individual" && length(input$selected_species) > 0) {
-        df <- df |> dplyr::filter(code_id %in% input$selected_species)
+      if (input$species_method == "individual" && length(selected_species_debounced()) > 0) {
+        df <- df |> dplyr::filter(code_id %in% selected_species_debounced())
         cli::cli_alert_info("Filtered to {nrow(df)} observations for selected species")
       }
 
@@ -700,6 +708,12 @@ mod_species_temporal_server <- function(id, app_values){
         )
       )
     })
-    
+
+    # Handle back to target area button
+    observeEvent(input$back_to_target_area, {
+      cli::cli_alert_info("Navigating back to target area tab")
+      app_values$navigate_to_tab <- "target_area"
+    })
+
   })
 }
