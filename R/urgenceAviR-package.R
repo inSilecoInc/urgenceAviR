@@ -10,6 +10,7 @@ NULL
 
 # Global variables used in data.table operations
 utils::globalVariables(c(
+  ".data",
   "groupe_fonctionnel",
   "nomfr",
   "nomla",

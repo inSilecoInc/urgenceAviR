@@ -44,7 +44,7 @@ mod_target_area_ui <- function(id){
               "Choisissez une m\u00e9thode :",
               choices = list(
                 "Dessiner un polygone sur la carte" = "draw",
-                "T\u00e9l\u00e9charger un fichier spatial" = "upload"
+                "T\u00e9l\u00e9verser un fichier spatial" = "upload"
               ),
               selected = "draw"
             ),
@@ -54,15 +54,14 @@ mod_target_area_ui <- function(id){
               ns = ns,
               fileInput(
                 ns("spatial_file"),
-                "T\u00e9l\u00e9charger un fichier spatial",
-                accept = c(".shp", ".kml", ".kmz", ".gpx", ".geojson"),
+                "T\u00e9l\u00e9verser un fichier spatial",
+                accept = c(".shp", ".kml", ".kmz", ".geojson"),
                 multiple = FALSE
               ),
               helpText(
                 HTML("
                   <strong>Formats support\u00e9s :</strong><br/>
                   \u2022 <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
-                  \u2022 <strong>GPX :</strong> Format d'\u00e9change GPS<br/>
                   \u2022 <strong>GeoJSON :</strong> Format spatial web<br/>
                   \u2022 <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
                 ")
@@ -104,7 +103,7 @@ mod_target_area_server <- function(id, app_values){
     # Initialize map
     output$area_map <- leaflet::renderLeaflet({
       cli::cli_alert_info("Initializing target area selection map")
-      
+
       leaflet::leaflet() |>
         leaflet::addTiles() |>
         leaflet::setView(lng = -69.53, lat =  47.83, zoom = 8) |>
@@ -191,75 +190,52 @@ mod_target_area_server <- function(id, app_values){
         file_ext <- tools::file_ext(input$spatial_file$name)
         
         # Handle different file types
-        if (file_ext %in% c("shp", "kml", "kmz", "gpx", "geojson")) {
+        if (file_ext %in% c("shp", "kml", "kmz", "geojson")) {
           
           cli::cli_alert_info("Processing {toupper(file_ext)} file: {input$spatial_file$name}")
-          
           # Read spatial file directly (single layer, single file)
           spatial_data <- sf::st_read(file_path, quiet = TRUE)
           
           # Transform to WGS84 if needed - with robust error handling
           tryCatch({
             current_crs <- sf::st_crs(spatial_data)
-            
-            # Safe CRS handling
-            if (is.null(current_crs) || is.na(current_crs)) {
-              cli::cli_alert_warning("No CRS defined, setting to WGS84 (EPSG:4326)")
+
+            # Safe CRS handling - check if CRS is valid
+            has_valid_crs <- FALSE
+            tryCatch({
+              has_valid_crs <- !is.null(current_crs) && !is.na(current_crs$input) && current_crs$input != ""
+            }, error = function(e) {
+              has_valid_crs <- FALSE
+            })
+
+            if (!has_valid_crs) {
+              cli::cli_alert_warning("No valid CRS defined, setting to WGS84 (EPSG:4326)")
               sf::st_crs(spatial_data) <- 4326
             } else {
-              crs_input <- current_crs$input
-              if (is.null(crs_input) || is.na(crs_input) || crs_input == "") {
-                cli::cli_alert_warning("Invalid CRS, setting to WGS84 (EPSG:4326)")
+              cli::cli_alert_info("Current CRS: {current_crs$input}")
+
+              # Check if transformation is needed
+              tryCatch({
+                is_longlat <- sf::st_is_longlat(spatial_data)
+                if (isTRUE(is_longlat)) {
+                  cli::cli_alert_info("Data already in geographic coordinates")
+                } else {
+                  cli::cli_alert_info("Transforming from {current_crs$input} to WGS84")
+                  spatial_data <- sf::st_transform(spatial_data, 4326)
+                }
+              }, error = function(e) {
+                cli::cli_alert_warning("CRS check failed: {e$message}. Setting to WGS84")
                 sf::st_crs(spatial_data) <- 4326
-              } else {
-                cli::cli_alert_info("Current CRS: {crs_input}")
-                
-                # Check if transformation is needed
-                tryCatch({
-                  is_longlat <- sf::st_is_longlat(spatial_data)
-                  if (is.na(is_longlat) || !is_longlat) {
-                    cli::cli_alert_info("Transforming from {crs_input} to WGS84")
-                    spatial_data <- sf::st_transform(spatial_data, 4326)
-                  } else {
-                    cli::cli_alert_info("Data already in geographic coordinates")
-                  }
-                }, error = function(e) {
-                  cli::cli_alert_warning("CRS check failed: {e$message}. Setting to WGS84")
-                  sf::st_crs(spatial_data) <- 4326
-                })
-              }
+              })
             }
           }, error = function(e) {
             cli::cli_alert_warning("CRS processing failed: {e$message}. Proceeding with original data")
           })
           
-          # Log feature information and validate geometry
-          tryCatch({
-            cli::cli_alert_info("Loaded {nrow(spatial_data)} feature(s)")
-            
-            # Check geometry types with error handling
-            geom_types <- sf::st_geometry_type(spatial_data)
-            unique_types <- unique(as.character(geom_types))
-            cli::cli_alert_info("Geometry types: {paste(unique_types, collapse = ', ')}")
-            
-            # Filter for polygon geometries only
-            polygon_indices <- geom_types %in% c("POLYGON", "MULTIPOLYGON")
-            
-            if (!any(polygon_indices)) {
-              stop("No polygon geometries found in the file. Only polygon features can be used as target areas.")
-            }
-            
-            if (sum(polygon_indices) < nrow(spatial_data)) {
-              cli::cli_alert_warning("Filtering to {sum(polygon_indices)} polygon features out of {nrow(spatial_data)} total features")
-              spatial_data <- spatial_data[polygon_indices, ]
-            }
-            
-          }, error = function(e) {
-            cli::cli_alert_warning("Geometry type checking failed: {e$message}. Proceeding with all features")
-          })
-          
+
           # If multiple features, take the union
-          if (nrow(spatial_data) > 1) {
+          n_features <- nrow(spatial_data)
+          if (!is.na(n_features) && n_features > 1) {
             cli::cli_alert_info("Multiple polygon features found, creating union")
             tryCatch({
               spatial_data <- sf::st_union(spatial_data)
@@ -268,15 +244,10 @@ mod_target_area_server <- function(id, app_values){
               spatial_data <- spatial_data[1, ]
             })
           }
-          
+
           # Extract geometry
           values$target_area <- sf::st_geometry(spatial_data)
           values$area_source <- "uploaded"
-          
-          # Validate the geometry
-          if (length(values$target_area) == 0) {
-            stop("No valid geometry extracted from the file")
-          }
           
           # Add to map
           bounds <- sf::st_bbox(values$target_area)
@@ -286,7 +257,7 @@ mod_target_area_server <- function(id, app_values){
             leaflet::addPolygons(
               data = sf::st_as_sf(values$target_area),
               group = "uploaded",
-              color = "red",
+              color = "blue",
               weight = 2,
               fillOpacity = 0.3
             ) |>
@@ -299,7 +270,7 @@ mod_target_area_server <- function(id, app_values){
           
         } else {
           cli::cli_alert_danger("Unsupported file format: {file_ext}")
-          showNotification("Format de fichier non pris en charge. Veuillez t\u00e9l\u00e9charger des fichiers .shp, .kml, .kmz, .gpx ou .geojson.", type = "error")
+          showNotification("Format de fichier non pris en charge. Veuillez T\u00e9l\u00e9verser des fichiers .shp, .kml, .kmz ou .geojson.", type = "error")
         }
         
       }, error = function(e) {
@@ -326,75 +297,71 @@ mod_target_area_server <- function(id, app_values){
     # Lock area and filter dataset
     observeEvent(input$lock_area, {
       req(values$target_area)
-      
+
       cli::cli_alert_info("Locking target area and filtering dataset")
-      
-      # Perform area checks
-      area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
-      
-      if (area_km2 < 0.1) {
-        cli::cli_alert_warning("Area is very small ({round(area_km2, 3)} km\u00b2)")
-        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s petite. Consid\u00e9rez s\u00e9lectionner une zone plus grande.", type = "warning")
-      } else if (area_km2 > 100000) {
-        cli::cli_alert_warning("Area is very large ({round(area_km2, 0)} km\u00b2)")
-        showNotification("Avertissement : La zone s\u00e9lectionn\u00e9e est tr\u00e8s grande. Le traitement peut prendre beaucoup de temps.", type = "warning")
-      }
-      
+
+      # Show full page spinner
+      shinycssloaders::showPageSpinner(caption = "Filtrage spatial des donn\u00e9es...")
+
       tryCatch({
         # Filter dataset by target area
         cli::cli_alert_info("Filtering dataset by target area")
-        
+
         # Use pre-loaded datasets from app_values
         req(app_values$all_df)
         all_data <- app_values$all_df
-        
+
         # Convert target area to WGS84 if needed
         target_area_wgs84 <- sf::st_transform(values$target_area, 4326)
-        
+
         # Create spatial points from the dataset
         if ("longitude" %in% names(all_data) && "latitude" %in% names(all_data)) {
           # Remove records with missing coordinates
           complete_coords <- complete.cases(all_data[c("longitude", "latitude")])
           data_with_coords <- all_data[complete_coords, ]
-          
+
           # Create sf points
           data_sf <- sf::st_as_sf(
             data_with_coords,
             coords = c("longitude", "latitude"),
             crs = 4326
           )
-          
+
           # Filter points within target area
           intersects <- sf::st_intersects(data_sf, target_area_wgs84, sparse = FALSE)
           filtered_indices <- which(intersects[, 1])
-          
+
           # Update app_values with spatially filtered data
           app_values$spatially_filtered_data <- data_with_coords[filtered_indices, ]
-          app_values$all_df <- app_values$spatially_filtered_data
-          
+
           cli::cli_alert_success("Dataset filtered: {nrow(app_values$spatially_filtered_data)} records within target area (from {nrow(all_data)} total)")
-          
+
         } else {
           cli::cli_alert_warning("Dataset does not contain longitude/latitude columns")
           app_values$spatially_filtered_data <- all_data
-          app_values$all_df <- app_values$spatially_filtered_data
         }
-        
+
         values$area_locked <- TRUE
 
         # Update app_values with target area information
         app_values$target_area_geometry <- values$target_area
         app_values$target_area_source <- values$area_source
-        app_values$target_area_km2 <- as.numeric(sf::st_area(values$target_area)) / 1000000
         app_values$target_area_locked <- TRUE
 
         cli::cli_alert_success("Target area locked successfully")
+
         showNotification("Zone d'int\u00e9r\u00eat verrouill\u00e9e et jeu de donn\u00e9es filtr\u00e9 !", type = "message")
 
         # Signal to app_server to navigate to next tab
         app_values$navigate_to_tab <- "species_temporal"
 
+        # Hide spinner before showing notification and navigating
+        shinycssloaders::hidePageSpinner()
+
       }, error = function(e) {
+        # Hide spinner on error
+        shinycssloaders::hidePageSpinner()
+
         cli::cli_alert_danger("Error filtering dataset: {e$message}")
         showNotification(paste("Erreur de filtrage du jeu de donn\u00e9es :", e$message), type = "error")
       })
