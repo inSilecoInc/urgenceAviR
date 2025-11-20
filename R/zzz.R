@@ -15,6 +15,7 @@ globalVariables(c(
   "SeaState","FlySwim"
 ))
 
+<<<<<<< HEAD
 ### espèces d'intérêt du Québec--------
 input <- system.file("exdata/Taxonomy/Taxo_vulnerabilite.xlsx", package = "urgenceAviR") 
 type<-readxl::read_excel(input,sheet="Feuil1",guess_max = 1048576) #get nb of columns, possible bug in the number given to shhet in xlsx_col_types compared to read_excel?
@@ -33,6 +34,11 @@ rm(tmp)
 #ajouter code_id à spQc
 spQc$code_id<-taxo$Species_ID[match(spQc$NomFR,taxo$French_Name)]
 
+=======
+### espèces ECCC-----------
+input <- system.file("inst/exdata/Taxonomy/ECCC Avian Core 20241025.xlsx", package = "urgenceAviR")
+taxo <- readxl::read_excel(input, sheet = "ECCC Avian Core 20241025", guess_max = 1048576)
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
 
 equivalences <- c(
   "ARL" = "HADU",
@@ -118,7 +124,10 @@ equivalences <- c(
   "UNEI" = "UNSD",
   "UNGO" = "GOLD_UNI",
   "UNGU" = "UNGL",
+<<<<<<< HEAD
   "UNGU" = "UNGL",
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   "UNHA" = "ACCI_UNI",
   "UNLA" = "UNGL",
   "UNLI" = "SHOR_UNI",
@@ -163,6 +172,7 @@ equivalences <- c(
   "CANO" = "ABDU",
   "CAPI" = "NOPI",
   "CAPL" = "UNSD",
+<<<<<<< HEAD
   "CASP" = "UNDU",
   "CNCC" = "UNDU",
   "COAI" = "DCCO",
@@ -236,26 +246,115 @@ equivalences <- c(
   "CAAM" = "AMWI",
   "CABA" = "UNDU",
   "CANC" = "UNMB",
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   "CASP" = "UNDU",
-  "CHPJ" = "LEYE",
-  "EPSP" = "HAWK",
-  "FUMP" = "SCAU",
-  "FUSP" = "SCAU",
-  "GAHA" = "MEGO",
-  "GASP" = "UNGE",
-  "GOSP" = "UNGU",
-  "HASP" = "UNME",
-  "MASP" = "UNSC",
+  "CNCC" = "UNDU",
+  "COAI" = "DCCO",
+  "COSP" = "CORM_UNI",
+  "EIDU" = "COEI",
+  "EIGO" = "UNSD",
+  "EITG" = "KIEI",
+  "FAGE" = "GYRF",
+  "FOBA" = "NOGA",
+  "FUCO" = "RNDU",
+  "FUMI" = "GRSC",
+  "FUBO" = "NOFU",
+  "FUSP" = "SCAU_UNI",
+  "GAHA" = "UNSD",
+  "GAIO" = "GOLD_UNI",
+  "GAIS" = "BAGO",
+  "GAOO" = "COGO",
+  "GASP" = "GOLD_UNI",
+  "GOAC" = "ICGU",
+  "GOAR" = "HERG",
+  "GOBC" = "RBBG",
+  "GOBL" = "UNLG",
+  "GOBO" = "BOGU",
+  "GOMA" = "GBBG",
+  "GOSP" = "UNGL",
+  "GRCB" = "CORA",
+  "GRCM" = "GRCO",
+  "GRES" = "HOGR",
+  "GRHA" = "COME",
+  "GRJO" = "RNGR",
+  "GUMA" = "COMU",
+  "GUMI" = "BLGU",
+  "GUPP" = "MURR_UNI",
+  "HACO" = "HOME",
+  "HAGA" = "UNSD",
+  "HAHU" = "RBME", 
+  "HAKA" = "LTDU",
+  "HANE" = "SNOW",
+  "HASP" = "UNSD",
+  "MAAB" = "WWSC",
+  "MABJ" = "BLSC",
+  "MABR" = "WWSC",
+  "MACN" = "BLSC",
+  "MAFB" = "SUSC",
+  "MANO" = "BLSC",
+  "MASP" = "SCOT_UNI",
+  "MPAM" = "BEKI",
+  "MOTR" = "BLKI",
+  "OINE" = "SNGO",
   "OIRI" = "GWFG",
-  "PLSP" = "UNSD",
-  "RAPA" = "RAPT",
-  "SASP" = "TEAL",
-  "STSP" = "UNTE",
-  "BUSE" = "HAWK"
-)
-
-# Create an environment to store mutable package variables
-.pkg_env <- new.env()
+  "OISP" = "UNKN",
+  "PEFU" = "LESC",
+  "PEGA" = "BUFF",
+  "PEPI" = "RAZO",
+  "PHOQ" = "SEAL",
+  "PLCA" = "RTLO",
+  "PLHU" = "COLO",
+  "PLSP" = "LOON_UNI",
+  "PYTB" = "BAEA",
+  "RERO" = "RFOX",
+  "ROCO" = "FBWH",
+  "SAHI" = "WITE",
+  "BAPE" = "OSPR",
+  "BEWI" = "WISN",
+  "BIGR" = "BCNH",
+  "BUAM" = "AMBI",
+  "BUMA" = "NOHA",
+  "BUPA" = "RLHA",
+  "BUQR" = "RTHA",
+  "BUSE" = "ACCI_UNI",
+  "CAAM" = "AMWI",
+  "CABA" = "UNDU",
+  "CABR" = "WODU",
+  "CACH" = "GADW",
+  "CANC" = "MALL",
+  "CASO" = "NOSH",
+  "CHGR" = "SPSA",
+  "CHPJ" = "GRYE",
+  "COAM" = "AMCR",
+  "DISA" = "WITU",
+  "EPSP" = "ACCI_UNI",
+  "FAPE" = "PEFA",
+  "FOAM" = "AMCO",
+  "FUMP" = "SCAU_UNI",
+  "FUTR" = "REDH",
+  "GAPE" = "COMO",
+  "GRAI" = "GREG",
+  "GRBB" = "PBGR",
+  "GRCA" = "SACR",
+  "GRHE" = "GBHE",
+  "GRPI" = "PIWO",
+  "HEVE" = "GRHE",
+  "HIBI" = "TRES",
+  "INCO" = "UNKN",
+  "MOBO" = "BOGU",
+  "PLKI" = "KILL",
+  "RAPA" = "ACCI_UNI",
+  "SAAB" = "BWTE",
+  "SASP" = "TEAL_UNI",
+  "STPI" = "COTE",
+  "STSP" = "TERN_UNI",
+  "URTR" = "TUVU",
+  "ARPY" = "EAGL",
+  "BARB" = "UNDU",
+  "GOEL" = "UNGL",
+  "LISP" = "SHOR_UNI",
+  "PLON" = "LOON_UNI") 
 
 # Base path for datasets folder - must be set before using load_all_datasets()
 .pkg_env$datasets_folder <- NULL
@@ -300,7 +399,11 @@ datasets_folder <- function() {
     check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
   ),
   somec = list(
+<<<<<<< HEAD
     path = paste0(datasets_folder, "ConsultationSOMEC.csv"),
+=======
+    path = NULL,  # Will be set by set_datasets_folder()
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     check_columns = c("CruiseID","Alpha","StartDate", "LatStart", "LongStart", "Alpha", "Count", "ObserverName")
   ),
   biomq = list(
@@ -312,13 +415,18 @@ datasets_folder <- function() {
     )
   ),
   Iles_Nunavik = list(
+<<<<<<< HEAD
     path = paste0(datasets_folder, "consultationIles_Nunavik.csv"), 
+=======
+    path = NULL,  # Will be set by set_datasets_folder()
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     check_columns = c(
       "Nom_Ile", "Longitude", "Latitude", "Nom_francais",
       "Nb_compte", "Methode_descriptif", "Annee",
       "Mois", "Jour")
   ),
   Inventaire_aerien_Nunavik = list(
+<<<<<<< HEAD
     path = paste0(datasets_folder,"consultationInventaire_aerien_Nunavik.csv"), 
     check_columns = c(
       "Obs_ID", "Nom_français", "Longitude", "Latitude", 
@@ -328,6 +436,17 @@ datasets_folder <- function() {
     path = paste0(datasets_folder,"all_atlantic_colonies_obs.csv"), 
     check_columns = c(
       "ColonyId", "Species_code.full", "Long", "Lat", 
+=======
+    path = NULL,  # Will be set by set_datasets_folder()
+    check_columns = c(
+      "Obs_ID", "Nom_français", "Longitude", "Latitude",
+      "Nb_total_ind",  "Date","Observateur")
+    ),
+  atlantic_colonies = list(
+    path = NULL,  # Will be set by set_datasets_folder()
+    check_columns = c(
+      "ColonyId", "Species_code.full", "Long", "Lat",
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
       "Colony_size",  "Date","Source","CensusId")
   )
 )
@@ -360,7 +479,10 @@ set_datasets_folder <- function(path) {
     sauvagine_fleuve = "ConsultationSauvagineFleuve.csv",
     sriv = "ConsultationSRIV.csv",
     somec = "ConsultationSOMEC.csv",
-    biomq = "consultationBIOMQ.xlsx"
+    biomq = "consultationBIOMQ.xlsx",
+    Iles_Nunavik = "consultationIles_Nunavik.csv",
+    Inventaire_aerien_Nunavik = "consultationInventaire_aerien_Nunavik.csv",
+    atlantic_colonies = "all_atlantic_colonies_obs.csv"
   )
   
   for (i in names(.pkg_env$external_files)) {

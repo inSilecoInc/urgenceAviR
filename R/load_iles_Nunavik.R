@@ -19,7 +19,11 @@ load_Iles_Nunavik <- function() {
     cli::cli_abort("Could not find file: {external_files$Iles_Nunavik$path}")
   }
   
+<<<<<<< HEAD
   Iles_Nunavik <- read.csv2(external_files$Iles_Nunavik$path) |> tibble::as_tibble()
+=======
+  Iles_Nunavik <- data.table::fread(external_files$Iles_Nunavik$path, dec = ",", sep = ";") |> tibble::as_tibble()
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   
   # Assert columns exist
   missing_cols <- setdiff(external_files$Iles_Nunavik$check_columns, names(Iles_Nunavik))
@@ -53,7 +57,10 @@ load_Iles_Nunavik <- function() {
     ) 
   
   # Join TAXO - Match CODE_ID using Nom_francais
+<<<<<<< HEAD
   Iles_Nunavik$code_id<-NA
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   Iles_Nunavik <- Iles_Nunavik |>
     dplyr::mutate(
       code_id = ifelse(!is.na(taxo$Species_ID[match(Iles_Nunavik$Nom_scientifique,

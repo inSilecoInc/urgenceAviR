@@ -33,6 +33,7 @@ load_eider_hiver <- function() {
     cli::cli_alert_info("Applying transformation on {nrow(eiderhiver)} rows")
 
     eiderhiver <- eiderhiver |>
+<<<<<<< HEAD
         dplyr::select(Region, An, Mois, Jour, Species, visuelblancs, visuelbruns, inconnus, LatDec, LongDec) |>
         dplyr::mutate(
             latitude = as.numeric(LatDec),
@@ -52,6 +53,8 @@ load_eider_hiver <- function() {
             code_id = Species
         )
 
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
       dplyr::mutate(
         latitude = as.numeric(LatDec),
         longitude = as.numeric(LongDec),

@@ -45,8 +45,11 @@ load_oies <- function() {
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
             inv_type = "aeronef",  
+<<<<<<< HEAD
             inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
             link = external_files()$oies$path,
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
             source = "oies",
             locality = NA,
             abondance = as.numeric(abondance),
@@ -54,8 +57,13 @@ load_oies <- function() {
         ) 
 
     # Join TAXO - Match CODE_ID using Code4_FR via right_join
+<<<<<<< HEAD
     oies$code_id<-taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
     
+=======
+    # TODO
+    oies$code_id<- taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     
     oies <- oies |>
       dplyr::mutate(

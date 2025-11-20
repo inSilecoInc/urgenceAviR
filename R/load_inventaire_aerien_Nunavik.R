@@ -19,7 +19,11 @@ load_Inventaire_aerien_Nunavik <- function() {
     cli::cli_abort("Could not find file: {external_files$Inventaire_aerien_Nunavik$path}")
   }
   
+<<<<<<< HEAD
   Inventaire_aerien_Nunavik <- read.csv2(external_files$Inventaire_aerien_Nunavik$path) |> tibble::as_tibble()
+=======
+  Inventaire_aerien_Nunavik <- data.table::fread(external_files$Inventaire_aerien_Nunavik$path, dec = ",", sep = ";") |> tibble::as_tibble()
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   
   # Assert columns exist
   missing_cols <- setdiff(external_files$Inventaire_aerien_Nunavik$check_columns, names(Inventaire_aerien_Nunavik))
@@ -52,8 +56,13 @@ load_Inventaire_aerien_Nunavik <- function() {
     ) 
   
   # Join TAXO - Match CODE_ID using Nom_francais
+<<<<<<< HEAD
   Inventaire_aerien_Nunavik$code_id<-taxo$Species_ID[match(Inventaire_aerien_Nunavik$Nom_anglais,
                                                            taxo$English_Name)]
+=======
+  Inventaire_aerien_Nunavik$code_id <- taxo$Species_ID[match(Inventaire_aerien_Nunavik$Nom_anglais, taxo$English_Name)]
+  
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   Inventaire_aerien_Nunavik <- Inventaire_aerien_Nunavik |>
     dplyr::mutate(
       code_id = ifelse(
@@ -63,7 +72,10 @@ load_Inventaire_aerien_Nunavik <- function() {
       )
     ) 
   
+<<<<<<< HEAD
   
+=======
+>>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
   # Re-order cols
   Inventaire_aerien_Nunavik <- dplyr::select(Inventaire_aerien_Nunavik, dplyr::all_of(final_cols))
   
