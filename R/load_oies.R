@@ -33,7 +33,6 @@ load_oies <- function() {
     cli::cli_alert_info("Applying transformation on {nrow(oies)} rows")
 
     oies <- oies |>
-        dplyr::select(Date, Observateur, Code, Count, Longitude, Latitude) |>
         dplyr::rename(
             longitude = Longitude,
             latitude = Latitude,
@@ -45,32 +44,25 @@ load_oies <- function() {
             date = lubridate::ymd(date),
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
-            inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
-            link = external_files$oies$path,
+            inv_type = "aeronef",  
             source = "oies",
             locality = NA,
             abondance = as.numeric(abondance),
-            colony = FALSE
+            sampling_id=date
         ) 
 
     # Join TAXO - Match CODE_ID using Code4_FR via right_join
+    oies$code_id<-taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
+    
+    
     oies <- oies |>
-        dplyr::left_join(
-            dplyr::select(
-                get_species_codes(),
-                code_id,
-                code4_fr
-            ) |> dplyr::distinct(),
-            by = c("Code" = "code4_fr"),
-            na_matches = "never"
-        ) |>
-        dplyr::mutate(
-            code_id = ifelse(
-                Code %in% names(equivalences_garrots),
-                equivalences_garrots[Code],
-                code_id
-            )
+      dplyr::mutate(
+        code_id = ifelse(
+          NomFR %in% names(equivalences),
+          equivalences[NomFR],
+          code_id
         )
+      )
 
     # Correct longitudes
     oies <- oies |>

@@ -57,19 +57,15 @@ load_canards <- function() {
         )
 
     # Join TAXO - Match code_id using nom_fr
+    canards$code_id<-NA
     canards <- canards |>
-        dplyr::left_join(
-            dplyr::select(get_species_codes(), code_id, nom_fr) |> dplyr::distinct(),
-            by = "nom_fr",
-            na_matches = "never"
-        ) |>
-        dplyr::mutate(
-            code_id = ifelse(
-                nom_fr %in% names(equivalences),
-                equivalences[nom_fr],
-                code_id
-            )
+      dplyr::mutate(
+        code_id = ifelse(
+          nom_fr %in% names(equivalences),
+          equivalences[nom_fr],
+          code_id
         )
+      )
 
     # Re-order cols
     canards <- dplyr::select(canards, dplyr::all_of(final_cols))

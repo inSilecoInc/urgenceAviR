@@ -33,25 +33,23 @@ load_eider_hiver <- function() {
     cli::cli_alert_info("Applying transformation on {nrow(eiderhiver)} rows")
 
     eiderhiver <- eiderhiver |>
-        dplyr::select(Region, An, Mois, Jour, Species, visuelblancs, visuelbruns, inconnus, LatDec, LongDec) |>
-        dplyr::mutate(
-            latitude = as.numeric(LatDec),
-            longitude = as.numeric(LongDec),
-            n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
-            date = lubridate::make_date(An, Mois, Jour),
-            link = external_files$eider_hiver$path,
-            source = "Eider Hiver",
-            inv_type = NA, # Helicopter bateau ?
-            locality = Region,
-            obs = NA, # Observateurs disponibles
-            colony = FALSE
-        ) |>
-        dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour)) |>
-        dplyr::rename(
-            abondance = n_obs,
-            code_id = Species
-        )
-
+      dplyr::mutate(
+        latitude = as.numeric(LatDec),
+        longitude = as.numeric(LongDec),
+        n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
+        date = lubridate::make_date(An, Mois, Jour),
+        source = "Eider Hiver",
+        inv_type = "aeronef", 
+        locality = Region,
+        obs = NA, # Observateurs disponibles
+        sampling_id=as.character(An)
+      ) |>
+      dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour)) |>
+      dplyr::rename(
+        abondance = n_obs,
+        code_id = Species
+      )
+    
     # Re-order cols
     eiderhiver <- dplyr::select(eiderhiver, dplyr::all_of(final_cols))
 

@@ -27,7 +27,9 @@ load_all_datasets <- function(combine = TRUE) {
         oies = load_oies,
         sauvagine_fleuve = load_sauvagine_fleuve,
         biomq = load_biomq,
-        somec = load_somec
+        somec = load_somec,
+        iles_Nunavik = load_iles_Nuvavik,
+        inventaire_aerien_Nunavik = load_inventaire_aerien_Nunavik
         #load_atlantic_colonies = load_atlantic_colonies
     )
     

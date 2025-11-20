@@ -53,25 +53,16 @@ load_macreuse <- function() {
             colony = FALSE
         ) 
 
-    # Join TAXO - Match CODE_ID using Code4_FR
+    # Join TAXO 
+    macreuse$code_id<-NA
     macreuse <- macreuse |>
-        dplyr::left_join(
-            dplyr::select(
-                    get_species_codes(), 
-                    code_id, 
-                    code4_fr
-                ) |>
-                dplyr::distinct(),
-            by = c("code_sp" = "code4_fr"),
-            na_matches = "never"
-        ) |>
-        dplyr::mutate(
-            code_id = ifelse(
-                code_sp %in% names(equivalences_garrots),
-                equivalences_garrots[code_sp],
-                code_id
-            )
+      dplyr::mutate(
+        code_id = ifelse(
+          code_sp %in% names(equivalences),
+          equivalences[code_sp],
+          code_id
         )
+      )
     
     # Re-order cols
     macreuse <- dplyr::select(macreuse, dplyr::all_of(final_cols))

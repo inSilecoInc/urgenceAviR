@@ -33,43 +33,34 @@ load_somec <- function() {
     cli::cli_alert_info("Applying transformation on {nrow(somec)} rows")
 
     somec <- somec |>
-        dplyr::rename(
-            latitude = ObsLat,
-            longitude = ObsLong,
-            date = Date,
-            abondance = Count,
-            obs = Observer
-        ) |>
-        dplyr::select(latitude, longitude, date, abondance, obs, alpha = Alpha) |>
-        dplyr::mutate(
-            date = as.Date(date),
-            latitude = as.numeric(latitude),
-            longitude = as.numeric(longitude),
-            source = "somec",
-            link = external_files$somec$path,
-            inv_type = NA,
-            locality = NA,
-            colony = FALSE
-        )
-
-    # Join TAXO - Match CODE_ID using Alpha_Code
+      dplyr::rename(
+        latitude = LatStart,
+        longitude = LongStart,
+        code_id = Alpha,
+        date = StartDate,
+        abondance = Count,
+        obs = ObserverName
+      ) |>
+      dplyr::mutate(
+        latitude = as.numeric(latitude),
+        longitude = as.numeric(longitude),
+        locality=NA,
+        date = as.Date(date),
+        source = "somec",
+        inv_type = "pelagique",
+        sampling_id = paste(CruiseID,date,sep="_"))
+    
+    
+    #Join TAXO - Match CODE_ID using Alpha_Code
     somec <- somec |>
-        dplyr::left_join(
-            dplyr::select(
-                get_species_codes(),
-                code_id,
-                alpha_code
-            ) |> dplyr::distinct(),
-            by = c("alpha" = "alpha_code"),
-            na_matches = "never"
-        ) |>
-        dplyr::mutate(
-            code_id = ifelse(
-                alpha %in% names(alpha_to_species_id),
-                alpha_to_species_id[alpha],
-                code_id
-            )
+      dplyr::mutate(
+        code_id = ifelse(
+          code_id %in% names(equivalences),
+          equivalences[code_id],
+          code_id
         )
+      )
+    
     # Re-order cols
     somec <- dplyr::select(somec, dplyr::all_of(final_cols))
 
