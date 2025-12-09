@@ -37,21 +37,21 @@ load_eider_hiver <- function() {
         dplyr::mutate(
             latitude = as.numeric(LatDec),
             longitude = as.numeric(LongDec),
-            n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
+            n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = TRUE),
             date = lubridate::make_date(An, Mois, Jour),
             link = external_files()$eider_hiver$path,
             source = "Eider Hiver",
-            inv_type = NA, # Helicopter bateau ?
+            inv_type = "aeronef",
             locality = Region,
-            obs = NA, # Observateurs disponibles
-            colony = FALSE
+            obs = NA,
+            colony = FALSE,
+            sampling_id = as.character(An)
         ) |>
-        dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour)) |>
+        dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour, LatDec, LongDec, Region)) |>
         dplyr::rename(
             abondance = n_obs,
             code_id = Species
         )
-
     # Re-order cols
     eiderhiver <- dplyr::select(eiderhiver, dplyr::all_of(final_cols))
 

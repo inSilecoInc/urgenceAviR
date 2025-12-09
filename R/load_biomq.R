@@ -60,6 +60,9 @@ load_biomq <- function() {
         )
 
     # Enforce sp. 
+    biomq$code_id<-taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
+    
+    
     biomq <- biomq |>
         dplyr::mutate(
             nom_fr = stringr::str_replace_all(
@@ -95,17 +98,7 @@ load_biomq <- function() {
             latitude >= 30 & latitude <= 70
         )
 
-    # Adjust CODE_ID using equivalences_minuscule
-    biomq <- biomq |>
-        dplyr::mutate(
-            code_id = ifelse(
-                nom_fr %in% names(equivalences),
-                equivalences[nom_fr],
-                code_id
-            )
-        )
-
-    # Re-order cols
+    
     biomq <- dplyr::select(biomq, dplyr::all_of(final_cols))
 
     cli::cli_alert_success("Returning {nrow(biomq)} rows")

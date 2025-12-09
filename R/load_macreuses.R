@@ -53,7 +53,7 @@ load_macreuse <- function() {
             colony = FALSE
         ) 
 
-    # Join TAXO - Match CODE_ID using Code4_FR
+    # Join TAXO 
     macreuse <- macreuse |>
         dplyr::left_join(
             dplyr::select(

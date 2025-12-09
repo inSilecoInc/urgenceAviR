@@ -45,13 +45,13 @@ load_oies <- function() {
             date = lubridate::ymd(date),
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
-            inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
+            inv_type = "aeronef",
             link = external_files()$oies$path,
             source = "oies",
             locality = NA,
             abondance = as.numeric(abondance),
             colony = FALSE
-        ) 
+        )
 
     # Join TAXO - Match CODE_ID using Code4_FR via right_join
     oies <- oies |>
@@ -66,8 +66,8 @@ load_oies <- function() {
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                Code %in% names(equivalences_garrots),
-                equivalences_garrots[Code],
+                Code %in% names(equivalences),
+                equivalences[Code],
                 code_id
             )
         )
