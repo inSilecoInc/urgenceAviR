@@ -33,7 +33,7 @@ mod_species_temporal_ui <- function(id){
           ),
           actionButton(
             ns("lock_filters"),
-            HTML("Verrouiller les filtres &nbsp;<i class='fa fa-arrow-right'></i>"),
+            HTML("<i class='fa fa-lock'></i> &nbsp;Verrouiller les filtres &nbsp;<i class='fa fa-arrow-right'></i>"),
             class = "btn-success"
           )
         )
@@ -206,8 +206,10 @@ mod_species_temporal_ui <- function(id){
         bslib::card(
           bslib::card_header(h5("Observations dans la zone d'int\u00e9r\u00eat")),
           bslib::card_body(
-            reactable::reactableOutput(ns("obs_table"))
-          )
+            shinycssloaders::withSpinner(
+              type = 8, caption = p("Application des filtres..."),
+              reactable::reactableOutput(ns("obs_table"))
+          ))
         )
       )
     )
@@ -420,7 +422,7 @@ mod_species_temporal_server <- function(id, app_values){
     }, ignoreInit = TRUE)
 
     # Debounced species selection
-    selected_species_debounced <- debounce(reactive(input$selected_species), 500)
+    selected_species_debounced <- debounce(reactive(input$selected_species), 1000)
 
     # observeEvent for species selection changes
     observeEvent(selected_species_debounced(), {
@@ -583,7 +585,6 @@ mod_species_temporal_server <- function(id, app_values){
     # Render observation table
     output$obs_table <- reactable::renderReactable({
       df <- app_values$filtered_df
-      taxo <- taxo_vuln()
 
       # Check if df is empty or NULL
       if (is.null(df) || nrow(df) == 0) {
@@ -594,37 +595,11 @@ mod_species_temporal_server <- function(id, app_values){
         ))
       }
 
-      # Join with avian_core to get French and Latin names, then taxo for ecological info
-      avian <- avian_core()
-
-      if (!is.null(avian)) {
-        # Prepare avian core data
-        avian_info <- avian |>
-          dplyr::select(
-            code_id = .data$Species_ID,
-            nom_francais = .data$French_Name,
-            nom_latin = .data$Scientific_Name
-          )
-
-        # Join with avian core first
-        display_data <- df |>
-          dplyr::left_join(avian_info, by = "code_id")
-
-        # Then join with taxo for milieu_marin and groupe_fonctionnel
-        if (!is.null(taxo)) {
-          taxo_info <- taxo |>
-            dplyr::select(
-              code_id = species_id,
-              milieu_marin,
-              groupe_fonctionnel
-            )
-
-          display_data <- display_data |>
-            dplyr::left_join(taxo_info, by = "code_id")
-        }
-
+      # Data is already enriched with taxonomy info from app_server
+      # Just format for display
+      if ("nom_francais" %in% names(df) && "nom_latin" %in% names(df)) {
         # Merge French and Latin names in the same cell and reorder columns
-        display_data <- display_data |>
+        display_data <- df |>
           dplyr::mutate(
             nom_espece = paste0(.data$nom_francais, " <br><i>", .data$nom_latin, "</i>"),
             dplyr::across(
@@ -637,7 +612,7 @@ mod_species_temporal_server <- function(id, app_values){
             .data$obs, .data$abondance, .data$inv_type, .data$source
           )
       } else {
-        # Fallback if avian core not available
+        # Fallback if taxonomy columns not available
         display_data <- df |>
           dplyr::mutate(
             dplyr::across(
@@ -645,13 +620,14 @@ mod_species_temporal_server <- function(id, app_values){
               ~ iconv(.x, from = "UTF-8", to = "UTF-8", sub = "")
             )
           ) |>
-          dplyr::select(code_id, obs, abondance, inv_type, source)
+          dplyr::select(.data$code_id, .data$obs, .data$abondance, .data$inv_type, .data$source)
       }
 
       reactable::reactable(
         display_data,
         defaultPageSize = 10,
         searchable = TRUE,
+        filterable = TRUE,
         showPageSizeOptions = TRUE,
         pageSizeOptions = c(10, 25, 50, 100),
         language = reactable::reactableLang(
