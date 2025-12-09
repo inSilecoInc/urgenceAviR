@@ -54,10 +54,6 @@ load_macreuse <- function() {
         ) 
 
     # Join TAXO 
-<<<<<<< HEAD
-    macreuse$code_id<-NA
-=======
->>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     macreuse <- macreuse |>
       dplyr::mutate(
         code_id = ifelse(

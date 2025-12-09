@@ -57,10 +57,6 @@ load_biomq <- function() {
     # Enforce sp. 
     biomq$code_id<-taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
     
-<<<<<<< HEAD
-    
-=======
->>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     biomq <- biomq |>
       dplyr::mutate(
         code_id = ifelse(
@@ -77,11 +73,6 @@ load_biomq <- function() {
             latitude >= 30 & latitude <= 70
         )
 
-<<<<<<< HEAD
-    
-
-=======
->>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
     # Re-order cols
     biomq <- dplyr::select(biomq, dplyr::all_of(final_cols))
 

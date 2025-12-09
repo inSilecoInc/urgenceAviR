@@ -33,28 +33,6 @@ load_eider_hiver <- function() {
     cli::cli_alert_info("Applying transformation on {nrow(eiderhiver)} rows")
 
     eiderhiver <- eiderhiver |>
-<<<<<<< HEAD
-        dplyr::select(Region, An, Mois, Jour, Species, visuelblancs, visuelbruns, inconnus, LatDec, LongDec) |>
-        dplyr::mutate(
-            latitude = as.numeric(LatDec),
-            longitude = as.numeric(LongDec),
-            n_obs = rowSums(eiderhiver[, c("visuelblancs", "visuelbruns", "inconnus")], na.rm = T),
-            date = lubridate::make_date(An, Mois, Jour),
-            link = external_files()$eider_hiver$path,
-            source = "Eider Hiver",
-            inv_type = NA, # Helicopter bateau ?
-            locality = Region,
-            obs = NA, # Observateurs disponibles
-            colony = FALSE
-        ) |>
-        dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour)) |>
-        dplyr::rename(
-            abondance = n_obs,
-            code_id = Species
-        )
-
-=======
->>>>>>> 1e14150 (Ajout de data set iles_nunavik et aérien_nunavik et nouveau equivalances code espèce)
       dplyr::mutate(
         latitude = as.numeric(LatDec),
         longitude = as.numeric(LongDec),
