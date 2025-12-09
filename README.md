@@ -13,6 +13,6 @@ A package designed to gather bird surveys and integrate them. The newly created 
 install.packages("devtools")
 
 # Install urgenceAviR from GitHub
-devtools::install_github("insileco/urgenceAviR")
+devtools::install_github("inSilecoInc/urgenceAviR")
 ```
 
