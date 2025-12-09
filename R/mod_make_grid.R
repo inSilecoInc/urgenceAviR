@@ -169,7 +169,26 @@ mod_make_grid_server <- function(id, app_values){
       cli::cli_alert_info("Initializing grid configuration map")
 
       map <- leaflet::leaflet() |>
-        leaflet::addTiles() |>
+        leaflet::addProviderTiles(
+          leaflet::providers$OpenStreetMap,
+          group = "OpenStreetMap"
+        ) |>
+        leaflet::addProviderTiles(
+          leaflet::providers$Esri.WorldImagery,
+          group = "Satellite"
+        ) |>
+        leaflet::addProviderTiles(
+          leaflet::providers$CartoDB.DarkMatter,
+          group = "Dark"
+        ) |>
+        leaflet::addProviderTiles(
+          leaflet::providers$OpenTopoMap,
+          group = "Terrain"
+        ) |>
+        leaflet::addLayersControl(
+          baseGroups = c("OpenStreetMap", "Satellite", "Dark", "Terrain"),
+          options = leaflet::layersControlOptions(collapsed = TRUE)
+        ) |>
         leaflet::setView(lng = -69.53, lat = 47.83, zoom = 8)
 
       # Add target area if already locked
@@ -299,7 +318,7 @@ mod_make_grid_server <- function(id, app_values){
         # Hide loading overlay
         shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
       })
-    }, ignoreNULL = TRUE)
+    }, ignoreInit = FALSE, ignoreNULL = TRUE)
 
     # Step 2a: Select variable type
     observeEvent(list(values$grid_with_data, input$variable_type), {
@@ -397,13 +416,15 @@ mod_make_grid_server <- function(id, app_values){
       })
     }, ignoreInit = FALSE, ignoreNULL = TRUE)
 
-    # Step 3: Update grid visualization
-    observeEvent(list(values$display_grid, input$color_palette), {
+
+    # Helper function to update visualization
+    update_visualization <- function(show_loading = TRUE) {
       req(values$display_grid)
       req(values$var_label)
 
-      # Show loading overlay
-      shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'flex');"))
+      if (show_loading) {
+        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'flex');"))
+      }
 
       cli::cli_alert_info("Updating grid visualization")
       tryCatch({
@@ -447,14 +468,27 @@ mod_make_grid_server <- function(id, app_values){
         # Enable export button
         shinyjs::enable("export_grid")
 
-        # Hide loading overlay
-        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+        if (show_loading) {
+          shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+        }
 
       }, error = function(e) {
         cli::cli_alert_danger("Error updating visualization: {e$message}")
-        shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+        if (show_loading) {
+          shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
+        }
       })
+    }
+
+    # Step 3: Update grid visualization when data changes
+    observeEvent(list(values$display_grid, values$var_label), {
+      update_visualization(show_loading = TRUE)
     }, ignoreInit = FALSE, ignoreNULL = TRUE)
+
+    # Update only colors when palette changes (no loading overlay)
+    observeEvent(input$color_palette, {
+      update_visualization(show_loading = FALSE)
+    }, ignoreInit = TRUE)
 
     # Step 4: Toggle target area overlay
     observeEvent(input$mask_target_area, {
@@ -478,7 +512,7 @@ mod_make_grid_server <- function(id, app_values){
             fillOpacity = 0
           )
       }
-    }, ignoreInit = TRUE)
+    }, ignoreInit = FALSE)
 
     # Export grid
     observeEvent(input$export_grid, {
