@@ -44,11 +44,14 @@ app_server <- function(input, output, session) {
       cli::cli_alert_info("Starting dataset loading process...")
       
       all_data <- load_all_datasets(combine = TRUE) |>
-        dplyr::filter(lubridate::year(date) > 1900) |>
-        dplyr::filter(!is.na(latitude) | !is.na(longitude)) |>
-        dplyr::filter(!is.na(code_id)) |>
-        dplyr::filter(abondance > 0)
-      
+        dplyr::filter(lubridate::year(.data$date) > 1900) |>
+        dplyr::filter(!is.na(.data$latitude) | !is.na(.data$longitude)) |>
+        dplyr::filter(!is.na(.data$code_id)) |>
+        dplyr::filter(.data$abondance > 0)
+
+      # Enrich with taxonomy information
+      all_data <- enrich_with_taxonomy(all_data)
+
       app_values$all_df <- all_data
       app_values$datasets_loaded <- TRUE
       

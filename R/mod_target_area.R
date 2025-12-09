@@ -23,7 +23,7 @@ mod_target_area_ui <- function(id){
           style = "padding-top: 10px;",
           actionButton(
             ns("lock_area"),
-            HTML("Verrouiller la zone d'int\u00e9r\u00eat &nbsp;<i class='fa fa-arrow-right'></i>"),
+            HTML("<i class='fa fa-lock'></i> &nbsp;Verrouiller la zone d'int\u00e9r\u00eat &nbsp;<i class='fa fa-arrow-right'></i>"),
             class = "btn-success",
             disabled = TRUE
           )
@@ -355,7 +355,7 @@ mod_target_area_server <- function(id, app_values){
         # Signal to app_server to navigate to next tab
         app_values$navigate_to_tab <- "species_temporal"
 
-        # Hide spinner before showing notification and navigating
+        # Hide spinner after navigation signal
         shinycssloaders::hidePageSpinner()
 
       }, error = function(e) {
