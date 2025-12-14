@@ -54,22 +54,22 @@ load_somec <- function() {
 
     # Join TAXO - Match CODE_ID using Alpha_Code
     somec <- somec |>
-        dplyr::left_join(
-            dplyr::select(
-                get_species_codes(),
-                code_id,
-                alpha_code
-            ) |> dplyr::distinct(),
-            by = c("alpha" = "alpha_code"),
-            na_matches = "never"
+        dplyr::rename(
+            code_id = alpha
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                alpha %in% names(alpha_to_species_id),
-                alpha_to_species_id[alpha],
+                code_id %in% names(equivalences),
+                equivalences[code_id],
                 code_id
             )
+        ) |>
+        dplyr::left_join(
+            taxonomy,
+            by = "code_id",
+            na_matches = "never"
         )
+    
     # Re-order cols
     somec <- dplyr::select(somec, dplyr::all_of(final_cols))
 

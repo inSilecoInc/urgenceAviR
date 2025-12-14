@@ -1,3 +1,6 @@
+# Package environment for storing mutable state
+.pkg_env <- new.env(parent = emptyenv())
+
 globalVariables(c(
   "Alpha", "Alpha_Code", "An", "Annee", "AnneeDebut", "CODE_ID", "CentroideX", "CentroideY",
   "Code", "Code4_EN", "Code4_FR", "CodeSp", "Count", "Date", "Espece", "Groupe_FR", "Jour",
@@ -12,18 +15,13 @@ globalVariables(c(
   "Nb_compte", "Methode_descriptif","Obs_ID","Nb_total_ind",
   "CruiseID","StartDate","LatStart" ,"LongStart",
   "Alpha","Count","Distance","InTransect",
-  "SeaState","FlySwim"
+  "SeaState","FlySwim",
+  "Latdec", "Londec", "ColonyID", "Platform", "Colony_size", "Data_location", "Species_code",
+  "Observer1", "Observer2", "Source", "ColonyId", "locality", "code_fr", "taxonomy",
+  "Unite", "Espece_code", "ObsLat", "ObsLong", "Observer", "alpha"
 ))
 
-### espèces d'intérêt du Québec--------
-spQc <- readxl::read_excel(system.file("exdata/Taxonomy/Taxo_vulnerabilite.xlsx", package = "urgenceAviR"), sheet = "Feuil1", guess_max = 1048576)
-
-### espèces ECCC-----------
-taxo <- readxl::read_excel(system.file("inst/exdata/Taxonomy/ECCC Avian Core 20241025.xlsx", package = "urgenceAviR"), sheet = "ECCC Avian Core 20241025", guess_max = 1048576)
-
-#ajouter code_id à spQc
-spQc$code_id<-taxo$Species_ID[match(spQc$NomFR,taxo$French_Name)]
-
+taxonomy <<- get_taxonomy()
 
 equivalences <- c(
   "ARL" = "HADU",
@@ -134,7 +132,7 @@ equivalences <- c(
   "cormoran sp." = "CORM_UNI",
   "Larus smithsonianus" = "HEGU",
   "Larus sp." = "UNLG",
-  "Goélands" = "UNLG",
+  "Go\u00e9lands" = "UNLG",
   "Sternes" = "TERN_UNI",
   "Cormorans" = "CORM_UNI",
   "bernache cravant" ="BRAN",
@@ -262,76 +260,91 @@ equivalences <- c(
   "LISP" = "SHOR_UNI",
   "PLON" = "LOON_UNI")
 
-# Base path for datasets folder - must be set before using load_all_datasets()
-datasets_folder <- NULL
 
-# List of external files with paths and required column names
-external_files <- list(
+# List of external files with file names and required column names
+.pkg_env$external_files <- list(
   ebird_data = list(
-    path = paste0(datasets_folder, "eBird.gdb"),
+    file = "eBird.gdb",
+    path = NULL,
     check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
   ),
   canards_de_mer = list(
-    path = paste0(datasets_folder, "ConsultationCanardsDeMer.csv"),
+    file = "ConsultationCanardsDeMer.csv",
+    path = NULL,
     check_columns = c("NomLieu", "LATITUDE", "LONGITUDE", "Annee", "Mois", "Jour", "NombreTotal", "Nom_FR")
   ),
   eider_hiver = list(
-    path = paste0(datasets_folder, "ConsultationEiderHiver.csv"),
+    file = "ConsultationEiderHiver.csv",
+    path = NULL,
     check_columns = c("Region", "An", "Mois", "Jour", "Species", "visuelblancs", "visuelbruns", "inconnus", "LatDec", "LongDec")
   ),
   garrot = list(
-    path = paste0(datasets_folder, "ConsultationGarrot.csv"),
+    file = "ConsultationGarrot.csv",
+    path = NULL,
     check_columns = c("annee", "mois", "jour", "CodeSp", "N", "Observateurs", "Lat", "Long", "loc_ID")
   ),
   macreuse = list(
-    path = paste0(datasets_folder, "ConsultationMacreuses.csv"),
+    file = "ConsultationMacreuses.csv",
+    path = NULL,
     check_columns = c("Date", "Observateur", "Espece", "Nombre", "Longitude", "Latitude")
   ),
   oies = list(
-    path = paste0(datasets_folder, "ConsultationOieDesNeigesPrintemps.csv"),
+    file = "ConsultationOieDesNeigesPrintemps.csv",
+    path = NULL,
     check_columns = c("Date", "Observateur", "Code", "Count", "Longitude", "Latitude")
   ),
   sauvagine_fleuve = list(
-    path = paste0(datasets_folder, "ConsultationSauvagineFleuve.csv"),
+    file = "ConsultationSauvagineFleuve.csv",
+    path = NULL,
     check_columns = c("Date", "Latitude", "Longitude", "Nombre", "Observateur")
   ),
   sriv = list(
-    path = paste0(datasets_folder, "ConsultationSRIV.csv"),
+    file = "ConsultationSRIV.csv",
+    path = NULL,
     check_columns = c("debut", "obslat", "obslong", "total", "obsdro")
   ),
   somec = list(
-    path = paste0(datasets_folder, "ConsultationSOMEC.csv"),
+    file = "ConsultationSOMEC.csv",
+    path = NULL,
     check_columns = c("CruiseID","Alpha","StartDate", "LatStart", "LongStart", "Alpha", "Count", "ObserverName")
   ),
   biomq = list(
-    path = paste0(datasets_folder, "consultationBIOMQ.xlsx"),
+    file = "consultationBIOMQ.xlsx",
+    path = NULL,
     check_columns = c(
       "NomCol", "CentroideX", "CentroideY", "NomFR",
-      "nb_nicheur", "methode", "nomRef", "AnneeDebut",
+      "nb_nicheur", "methode", "nomRef", "Ann\u00e9e",
       "MoisDebut", "JourDebut"
     )
   ),
-  Iles_Nunavik = list(
-    path = paste0(datasets_folder, "consultationIles_Nunavik.csv"),
+  iles_nunavik = list(
+    file = "ConsultationIles_Nunavik.csv",
+    path = NULL,
     check_columns = c(
       "Nom_Ile", "Longitude", "Latitude", "Nom_francais",
       "Nb_compte", "Methode_descriptif", "Annee",
       "Mois", "Jour")
   ),
-  Inventaire_aerien_Nunavik = list(
-    path = paste0(datasets_folder,"consultationInventaire_aerien_Nunavik.csv"),
+  inventaire_aerien_nunavik = list(
+    file = "ConsultationInventaire_aerien_Nunavik.csv",
+    path = NULL,
     check_columns = c(
-      "Obs_ID", "Nom_français", "Longitude", "Latitude",
+      "Obs_ID", "Nom_fran\u00e7ais", "Longitude", "Latitude",
       "Nb_total_ind",  "Date","Observateur")
-    ),
+  ),
   atlantic_colonies = list(
-    path = paste0(datasets_folder,"all_atlantic_colonies_obs.csv"),
+    file = "all_atlantic_colonies_obs.csv",
+    path = NULL,
     check_columns = c(
       "ColonyId", "Species_code.full", "Long", "Lat",
       "Colony_size",  "Date","Source","CensusId")
   )
-
 )
+
+# Accessor function for external_files
+external_files <- function() {
+  .pkg_env$external_files
+}
 
 #' Set datasets folder path
 #'
@@ -341,11 +354,9 @@ set_datasets_folder <- function(path) {
   if (!endsWith(path, "/")) {
     path <- paste0(path, "/")
   }
-  datasets_folder <<- path
   # Update all file paths with new base path
-  for (i in names(external_files)) {
-    filename <- basename(external_files[[i]]$path)
-    external_files[[i]]$path <<- paste0(path, filename)
+  for (i in names(.pkg_env$external_files)) {
+    .pkg_env$external_files[[i]]$path <- file.path(path, .pkg_env$external_files[[i]]$file)
   }
 }
 
@@ -359,6 +370,8 @@ final_cols <- c(
   "obs",
   "inv_type",
   "source",
-  "colony",
-  "link"
+  "nom_francais",
+  "nom_latin",
+  "milieu_marin",
+  "groupe_fonctionnel"
 )

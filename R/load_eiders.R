@@ -44,14 +44,15 @@ load_eider_hiver <- function() {
             inv_type = "aeronef",
             locality = Region,
             obs = NA,
-            colony = FALSE,
             sampling_id = as.character(An)
         ) |>
         dplyr::select(!c(visuelblancs, visuelbruns, inconnus, An, Mois, Jour, LatDec, LongDec, Region)) |>
         dplyr::rename(
             abondance = n_obs,
             code_id = Species
-        )
+        ) |>
+        dplyr::left_join(taxonomy, by = "code_id")
+    
     # Re-order cols
     eiderhiver <- dplyr::select(eiderhiver, dplyr::all_of(final_cols))
 

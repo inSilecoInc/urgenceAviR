@@ -49,18 +49,16 @@ load_canards <- function() {
         dplyr::mutate(
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
-            nom_fr = stringi::stri_trans_general(gsub("sp", "sp\\.", nom_fr, ignore.case = TRUE), "latin-ascii") |> 
+            code_fr = stringi::stri_trans_general(gsub("sp", "sp\\.", nom_fr, ignore.case = TRUE), "latin-ascii") |> 
                 tolower(),
-            source = "Canards de mer",
-            colony = FALSE,
-            link = external_files()$canards_de_mer$path
+            source = "Canards de mer"
         )
 
     # Join TAXO - Match code_id using nom_fr
     canards <- canards |>
         dplyr::left_join(
-            dplyr::select(get_species_codes(), code_id, nom_fr) |> dplyr::distinct(),
-            by = "nom_fr",
+            taxonomy,
+            by = "code_fr",
             na_matches = "never"
         ) |>
         dplyr::mutate(

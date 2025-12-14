@@ -20,7 +20,7 @@ load_biomq <- function() {
     }
 
     # Load data from the second sheet
-    biomq <- readxl::read_excel(path = external_files()$biomq$path, sheet = 2) |> tibble::as_tibble()
+    biomq <- readxl::read_excel(path = external_files()$biomq$path, sheet = 1) |> tibble::as_tibble()
 
     # Assert columns exist
     missing_cols <- setdiff(external_files()$biomq$check_columns, names(biomq))
@@ -37,7 +37,7 @@ load_biomq <- function() {
     biomq <- biomq |>
         dplyr::select(
             NomCol, CentroideX, CentroideY, NomFR,
-            nb_nicheur, methode, nomRef, AnneeDebut,
+            nb_nicheur, methode, nomRef, "Ann\u00e9e",
             MoisDebut, JourDebut
         ) |>
         dplyr::rename(
@@ -47,26 +47,20 @@ load_biomq <- function() {
             abondance = nb_nicheur,
             inv_type = methode,
             obs = nomRef,
-            year = AnneeDebut,
+            year = "Ann\u00e9e",
             month = MoisDebut,
             day = JourDebut
         ) |>
         dplyr::mutate(
             date = lubridate::make_date(year, month, day),
             source = "BIOMQ",
-            nom_fr = tolower(NomFR),
-            link = external_files()$biomq$path,
-            colony = TRUE
+            code_fr = stringi::stri_trans_general(tolower(NomFR), "latin-ascii")
         )
 
-    # Enforce sp. 
-    biomq$code_id<-taxo$Species_ID[match(biomq$NomFR,taxo$French_Name)]
-    
-    
     biomq <- biomq |>
         dplyr::mutate(
-            nom_fr = stringr::str_replace_all(
-             stringi::stri_trans_general(nom_fr, "latin-ascii") |> tolower(), 
+            code_fr = stringr::str_replace_all(
+              code_fr, 
                 c(
                     "goelands" = "goeland sp.",
                     "sternes" = "sterne sp.",
@@ -74,19 +68,17 @@ load_biomq <- function() {
                 ))
         )
 
-    # Join TAXO - Match CODE_ID using Nom_FR
+    # Join TAXO - Match CODE_ID using code_fr
     biomq <- biomq |>
         dplyr::left_join(
-            dplyr::select(get_species_codes(), code_id, nom_fr) |> 
-            dplyr::mutate(nom_fr = tolower(nom_fr)) |>
-            dplyr::distinct(),
-            by = "nom_fr",
+            taxonomy,
+            by = "code_fr",
             na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                nom_fr %in% names(equivalences),
-                equivalences[nom_fr],
+                code_fr %in% names(equivalences),
+                equivalences[code_fr],
                 code_id
             )
         )

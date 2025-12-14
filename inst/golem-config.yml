@@ -10,4 +10,4 @@ production:
 
 dev:
   golem_wd: !expr golem::pkg_path()
-  datasets_folder: "/home/steve/Documents/inSileco/UrgenceAviR/"
+  datasets_folder: "/home/steve/Nextcloud/insileco_internal/contrats/ECCC-MatthieuBeaumont/contrat_2025/data"
