@@ -21,9 +21,7 @@ mod_datasets_config_server <- function(id, app_values){
 
     # Reactive values
     values <- reactiveValues(
-      folder_configured = all(external_files() |>
-            purrr::map("path") |>
-            sapply(is.null)),
+      folder_configured = all(sapply(external_files(), function(x) is.null(x$path))),
       selected_folder_path = NULL
     )
 
@@ -32,9 +30,7 @@ mod_datasets_config_server <- function(id, app_values){
     
     # Check if datasets folder needs to be configured on startup
     observe({
-      if (all(external_files() |>
-            purrr::map("path") |>
-            sapply(is.null))) {
+      if (all(sapply(external_files(), function(x) is.null(x$path)))) {
         cli::cli_alert_warning("Datasets folder not set, showing configuration modal")
         show_config_modal()
       } else {
