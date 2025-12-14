@@ -4,10 +4,6 @@
 
 - [`get_ebird()`](http://insileco.io/urgenceAviR/reference/get_ebird.md)
   : Retrieve eBird Data
-- [`get_species_codes()`](http://insileco.io/urgenceAviR/reference/get_species_codes.md)
-  : Clean and Process Species Codes
-- [`get_species_rank()`](http://insileco.io/urgenceAviR/reference/get_species_rank.md)
-  : Get species rank
 - [`load_all_datasets()`](http://insileco.io/urgenceAviR/reference/load_all_datasets.md)
   : Load and process all datasets
 - [`load_atlantic_colonies()`](http://insileco.io/urgenceAviR/reference/load_atlantic_colonies.md)
@@ -20,6 +16,10 @@
   : Load and process the Eider Hiver dataset
 - [`load_garrot()`](http://insileco.io/urgenceAviR/reference/load_garrot.md)
   : Load and process the Garrot dataset
+- [`load_iles_nunavik()`](http://insileco.io/urgenceAviR/reference/load_iles_nunavik.md)
+  : Load and process iles_nunavik.gdb dataset
+- [`load_inventaire_aerien_nunavik()`](http://insileco.io/urgenceAviR/reference/load_inventaire_aerien_nunavik.md)
+  : Load and process inventaire_aerien_nunavik.csv dataset
 - [`load_macreuse()`](http://insileco.io/urgenceAviR/reference/load_macreuse.md)
   : Load and process the Macreuse dataset
 - [`load_oies()`](http://insileco.io/urgenceAviR/reference/load_oies.md)
