@@ -49,9 +49,6 @@ app_server <- function(input, output, session) {
         dplyr::filter(!is.na(.data$code_id)) |>
         dplyr::filter(.data$abondance > 0)
 
-      # Enrich with taxonomy information
-      all_data <- enrich_with_taxonomy(all_data)
-
       app_values$all_df <- all_data
       app_values$datasets_loaded <- TRUE
       

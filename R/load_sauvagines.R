@@ -51,23 +51,22 @@ load_sauvagine_fleuve <- function() {
             colony = FALSE
         ) 
 
-    # Join TAXO - Match CODE_ID using Code4_FR via left_join
+    # Join TAXO
     sauvagine_fleuve <- sauvagine_fleuve |>
-        dplyr::left_join(
-            dplyr::select(
-                get_species_codes(),
-                code_id,
-                code4_fr
-            ) |> dplyr::distinct(),
-            by = c("Espece" = "code4_fr"),
-            na_matches = "never"
+        dplyr::rename(
+            code_id = Espece
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                Espece %in% names(equivalences_garrots),
-                equivalences_garrots[Espece],
+                code_id %in% names(equivalences),
+                equivalences[code_id],
                 code_id
             )
+        ) |>
+        dplyr::left_join(
+            taxonomy,
+            by = "code_id",
+            na_matches = "never"
         )
     
     # Re-order cols

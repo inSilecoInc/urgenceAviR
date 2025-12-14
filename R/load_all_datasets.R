@@ -14,7 +14,7 @@
 load_all_datasets <- function(combine = TRUE) {
     
     # Check if datasets folder is set
-    if (is.null(datasets_folder())) {
+    if (all(sapply(external_files(), function(x) is.null(x$path)))){
         stop("Datasets folder not set. Please run set_datasets_folder() first.")
     }
     
@@ -27,7 +27,9 @@ load_all_datasets <- function(combine = TRUE) {
         oies = load_oies,
         sauvagine_fleuve = load_sauvagine_fleuve,
         biomq = load_biomq,
-        somec = load_somec
+        somec = load_somec,
+        iles_nunavik = load_iles_nunavik,
+        inventaire_aerien_nunavik = load_inventaire_aerien_nunavik
         #load_atlantic_colonies = load_atlantic_colonies
     )
     

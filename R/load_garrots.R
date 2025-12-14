@@ -36,12 +36,11 @@ load_garrot <- function() {
         dplyr::select(annee, no_seance, mois, jour, CodeSp, N, Observateurs, Lat, Long, loc_ID, CodeSp) |>
         dplyr::mutate(
             latitude = as.numeric(Lat),
-            longitude = as.numeric(Long),            
+            longitude = as.numeric(Long),
             date = lubridate::make_date(annee, mois, jour),
-            link = external_files()$garrot$path,
-            source = "Garrot",
             locality = NA,
-            colony = FALSE
+            source = "Garrot",
+            link = external_files()$garrot$path
         ) |>
         dplyr::select(!c(annee, mois, jour)) |>
         dplyr::rename(
@@ -53,23 +52,13 @@ load_garrot <- function() {
 
     # Join TAXO - Match code_id using nom_fr
     garrot <- garrot |>
-        dplyr::left_join(
-            dplyr::select(
-                    get_species_codes(), 
-                    code_id, 
-                    code4_fr
-                ) |>
-                dplyr::distinct(),
-            by = c("code_sp" = "code4_fr"),
-            na_matches = "never"
-        ) |>
         dplyr::mutate(
             code_id = ifelse(
-                code_sp %in% names(equivalences_garrots),
-                equivalences_garrots[code_sp],
-                code_id
+                code_sp %in% names(equivalences),
+                equivalences[code_sp],
+                code_sp
             )
-        )
+        ) |> dplyr::left_join(taxonomy, by = "code_id")
     
     # Re-order cols
     garrot <- dplyr::select(garrot, dplyr::all_of(final_cols))

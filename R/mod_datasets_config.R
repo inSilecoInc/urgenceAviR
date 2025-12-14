@@ -21,19 +21,16 @@ mod_datasets_config_server <- function(id, app_values){
 
     # Reactive values
     values <- reactiveValues(
-      folder_configured = !is.null(datasets_folder()),
+      folder_configured = all(sapply(external_files(), function(x) is.null(x$path))),
       selected_folder_path = NULL
     )
 
-    # Initialize app_values
-    app_values$datasets_folder_configured <- !is.null(datasets_folder())
-    
     # Initialize shinyFiles for directory selection
     volumes <- c(Home = fs::path_home(), "Root" = "/")
     
     # Check if datasets folder needs to be configured on startup
     observe({
-      if (is.null(datasets_folder())) {
+      if (all(sapply(external_files(), function(x) is.null(x$path)))) {
         cli::cli_alert_warning("Datasets folder not set, showing configuration modal")
         show_config_modal()
       } else {

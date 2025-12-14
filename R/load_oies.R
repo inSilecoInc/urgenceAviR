@@ -45,33 +45,32 @@ load_oies <- function() {
             date = lubridate::ymd(date),
             latitude = as.numeric(latitude),
             longitude = as.numeric(longitude),
-            inv_type = NA,  # Est-ce qu'il y a un type d'inventaire ?
+            inv_type = "aeronef",
             link = external_files()$oies$path,
             source = "oies",
             locality = NA,
             abondance = as.numeric(abondance),
             colony = FALSE
-        ) 
+        )
 
-    # Join TAXO - Match CODE_ID using Code4_FR via right_join
+    # Join TAXO
     oies <- oies |>
-        dplyr::left_join(
-            dplyr::select(
-                get_species_codes(),
-                code_id,
-                code4_fr
-            ) |> dplyr::distinct(),
-            by = c("Code" = "code4_fr"),
-            na_matches = "never"
+        dplyr::rename(
+            code_id = Code
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                Code %in% names(equivalences_garrots),
-                equivalences_garrots[Code],
+                code_id %in% names(equivalences),
+                equivalences[code_id],
                 code_id
             )
+        ) |>
+        dplyr::left_join(
+            taxonomy,
+            by = "code_id",
+            na_matches = "never"
         )
-
+    
     # Correct longitudes
     oies <- oies |>
         dplyr::mutate(longitude = -(abs(longitude)))
