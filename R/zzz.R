@@ -263,11 +263,6 @@ equivalences <- c(
 
 # List of external files with file names and required column names
 .pkg_env$external_files <- list(
-  ebird_data = list(
-    file = "eBird.gdb",
-    path = NULL,
-    check_columns = c("OBSERVATION_DATE", "COMMON_NAME", "OBSERVATION_COUNT")
-  ),
   canards_de_mer = list(
     file = "ConsultationCanardsDeMer.csv",
     path = NULL,
