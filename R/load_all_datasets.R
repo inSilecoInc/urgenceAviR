@@ -14,10 +14,7 @@
 load_all_datasets <- function(combine = TRUE) {
     
     # Check if datasets folder is set
-    if (all(external_files() |>
-            purrr::map("path") |>
-            sapply(is.null)
-    )){
+    if (all(sapply(external_files(), function(x) is.null(x$path)))){
         stop("Datasets folder not set. Please run set_datasets_folder() first.")
     }
     
