@@ -11,15 +11,15 @@
 show_folder_modal <- function(ns) {
   showModal(
     modalDialog(
-      title = "Configurer le dossier de données",
+      title = "Configurer le dossier de donn\u00e9es",
       size = "m",
 
-      p("Bienvenue dans UrgenceAviR ! Veuillez définir le chemin vers votre dossier de données pour continuer."),
+      p("Bienvenue dans UrgenceAviR ! Veuillez d\u00e9finir le chemin vers votre dossier de donn\u00e9es pour continuer."),
 
       shinyFiles::shinyDirButton(
         ns("datasets_folder_input"),
-        "Choisir le dossier de données",
-        "Sélectionnez le dossier contenant vos données",
+        "Choisir le dossier de donn\u00e9es",
+        "S\u00e9lectionnez le dossier contenant vos donn\u00e9es",
         icon = icon("folder-open"),
         class = "btn-outline-primary"
       ),
@@ -27,12 +27,12 @@ show_folder_modal <- function(ns) {
       br(), br(),
       htmlOutput(ns("selected_folder_display")),
 
-      helpText("Ce devrait être le dossier contenant des fichiers comme eBird.gdb, ConsultationCanardsDeMer.csv, etc."),
+      helpText("Ce devrait \u00eatre le dossier contenant des fichiers comme eBird.gdb, ConsultationCanardsDeMer.csv, etc."),
 
       footer = tagList(
         actionButton(
           ns("confirm_datasets_folder"),
-          "Définir le dossier et continuer",
+          "D\u00e9finir le dossier et continuer",
           class = "btn-primary"
         )
       ),
@@ -70,13 +70,13 @@ setup_folder_modal_observers <- function(input, output, session, ns, values, app
   output$selected_folder_display <- renderUI({
     if (!is.null(values$selected_folder_path)) {
       p(
-        strong("Dossier sélectionné : "),
+        strong("Dossier s\u00e9lectionn\u00e9 : "),
         code(values$selected_folder_path),
         class = "text-success"
       )
     } else {
       p(
-        em("Aucun dossier sélectionné"),
+        em("Aucun dossier s\u00e9lectionn\u00e9"),
         class = "text-muted"
       )
     }
@@ -87,12 +87,12 @@ setup_folder_modal_observers <- function(input, output, session, ns, values, app
     folder_path <- values$selected_folder_path
 
     if (is.null(folder_path) || length(folder_path) == 0) {
-      showNotification("Veuillez d'abord sélectionner un dossier", type = "error")
+      showNotification("Veuillez d'abord s\u00e9lectionner un dossier", type = "error")
       return()
     }
 
     if (!dir.exists(folder_path)) {
-      showNotification("Le dossier sélectionné n'existe pas. Veuillez choisir un autre dossier.", type = "error")
+      showNotification("Le dossier s\u00e9lectionn\u00e9 n'existe pas. Veuillez choisir un autre dossier.", type = "error")
       return()
     }
 
@@ -104,13 +104,13 @@ setup_folder_modal_observers <- function(input, output, session, ns, values, app
       app_values$datasets_folder_path <- folder_path
 
       cli::cli_alert_success("Datasets folder set to: {folder_path}")
-      showNotification("Dossier de données défini avec succès !", type = "message")
+      showNotification("Dossier de donn\u00e9es d\u00e9fini avec succ\u00e8s !", type = "message")
 
       removeModal()
 
     }, error = function(e) {
       cli::cli_alert_danger("Error setting datasets folder: {e$message}")
-      showNotification(paste("Erreur lors de la définition du dossier :", e$message), type = "error")
+      showNotification(paste("Erreur lors de la d\u00e9finition du dossier :", e$message), type = "error")
     })
   })
 }
