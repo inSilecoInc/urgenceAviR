@@ -11,10 +11,10 @@ show_upload_modal <- function(ns) {
 
   showModal(
     modalDialog(
-      title = "Téléverser les fichiers de données",
+      title = "T\u00e9l\u00e9verser les fichiers de donn\u00e9es",
       size = "xl",
 
-      p("Bienvenue dans UrgenceAviR ! Veuillez téléverser les fichiers de données requis."),
+      p("Bienvenue dans UrgenceAviR ! Veuillez t\u00e9l\u00e9verser les fichiers de donn\u00e9es requis."),
 
       tags$div(
         class = "table-responsive mt-3",
@@ -77,7 +77,7 @@ show_upload_modal <- function(ns) {
           tags$span(
             id = ns("upload_summary"),
             class = "text-muted",
-            "0 fichier(s) téléversé(s) sur ",
+            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ",
             length(files_info)
           ),
           actionButton(
@@ -160,7 +160,7 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
         paste0("status_", dataset_name),
         as.character(tags$span(
           icon("check-circle", class = "text-success"),
-          " Téléversé",
+          " T\u00e9l\u00e9vers\u00e9",
           class = "text-success"
         ))
       )
@@ -170,7 +170,7 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
       total_count <- length(files_info)
       shinyjs::html(
         "upload_summary",
-        paste0(upload_count, " fichier(s) téléversé(s) sur ", total_count)
+        paste0(upload_count, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", total_count)
       )
     })
   })
@@ -206,7 +206,7 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
       app_values$datasets_folder_path <- temp_folder
 
       cli::cli_alert_success("Datasets folder set to temp folder: {temp_folder}")
-      showNotification("Fichiers téléversés avec succès !", type = "message")
+      showNotification("Fichiers t\u00e9l\u00e9vers\u00e9s avec succ\u00e8s !", type = "message")
 
       removeModal()
 
