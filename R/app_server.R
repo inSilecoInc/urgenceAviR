@@ -4,10 +4,13 @@
 #'
 #' @noRd
 app_server <- function(input, output, session) {
-  
+
   # Initialize CLI logging
   cli::cli_alert_info("UrgenceAviR Shiny application started")
-  
+
+  # Set max upload size to 50MB
+  options(shiny.maxRequestSize = 50 * 1024^2)
+
   # Reactive values for cross-module communication
   app_values <- reactiveValues(
     datasets_loaded = FALSE,

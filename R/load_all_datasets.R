@@ -32,8 +32,8 @@ load_all_datasets <- function(combine = TRUE) {
         biomq = load_biomq,
         somec = load_somec,
         iles_nunavik = load_iles_nunavik,
-        inventaire_aerien_nunavik = load_inventaire_aerien_nunavik
-        #load_atlantic_colonies = load_atlantic_colonies
+        inventaire_aerien_nunavik = load_inventaire_aerien_nunavik,
+        load_atlantic_colonies = load_atlantic_colonies
     )
     
     cli::cli_h1("Loading all datasets")
