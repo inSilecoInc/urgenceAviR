@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   assessThreat: assessThreat.html
-last_built: 2025-12-16T00:47Z
+last_built: 2025-12-16T04:40Z
 urls:
   reference: http://insileco.io/urgenceAviR/reference
   article: http://insileco.io/urgenceAviR/articles
