@@ -6,3 +6,5 @@
 ^vignettes/
 ^dev$
 ^app.R
+^\.rscignore$
+^manifest\.json$
