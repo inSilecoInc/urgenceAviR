@@ -19,7 +19,7 @@ show_upload_modal <- function(ns) {
       title = "T\u00e9l\u00e9verser les fichiers de donn\u00e9es",
       size = "xl",
 
-      p("Bienvenue dans UrgenceAviR ! Veuillez s\u00e9lectionner les jeux de donn\u00e9es \u00e0 t\u00e9l\u00e9verser."),
+      p("Bienvenue dans UrgenceAviR ! Veuillez t\u00e9l\u00e9verser les fichiers de donn\u00e9es requis."),
 
       # Dataset selection
       tags$div(
@@ -47,7 +47,8 @@ show_upload_modal <- function(ns) {
           tags$span(
             id = ns("upload_summary"),
             class = "text-muted",
-            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur 0"
+            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ",
+            length(files_info)
           ),
           actionButton(
             ns("confirm_uploads"),
