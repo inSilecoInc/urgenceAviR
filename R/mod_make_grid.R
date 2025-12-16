@@ -26,11 +26,10 @@ mod_make_grid_ui <- function(id){
             HTML("<i class='fa fa-arrow-left'></i> &nbsp;Filtrer sur les esp\u00e8ces et le temps"),
             class = "btn-primary me-2"
           ),
-          actionButton(
-            ns("export_grid"),
-            HTML("<i class='fa fa-download'></i> &nbsp;Exporter la visualisation"),
-            class = "btn-success",
-            disabled = TRUE
+          downloadButton(
+            ns("download_export"),
+            label = HTML("&nbsp;Exporter la grille"),
+            class = "btn-success"
           )
         )
       )
@@ -357,12 +356,20 @@ mod_make_grid_server <- function(id, app_values){
 
       tryCatch({
         grid_wgs84 <- values$variable_selected
-        var_label <- values$var_label
+
+        # Get base label based on variable type
+        if (input$variable_type == "sum_abundance") {
+          base_label <- "Abondance totale"
+        } else {
+          base_label <- "Nombre d'observations"
+        }
 
         # Apply transformation
         if (input$transform_log10) {
           grid_wgs84$display_value <- log10(grid_wgs84$display_value)
-          var_label <- paste0(var_label, " (log10)")
+          var_label <- paste0(base_label, " (log10)")
+        } else {
+          var_label <- base_label
         }
 
         # Update label
@@ -466,7 +473,7 @@ mod_make_grid_server <- function(id, app_values){
           )
 
         # Enable export button
-        shinyjs::enable("export_grid")
+        shinyjs::enable("download_export")
 
         if (show_loading) {
           shinyjs::runjs(paste0("$('#", ns("map_loading"), "').css('display', 'none');"))
@@ -514,11 +521,28 @@ mod_make_grid_server <- function(id, app_values){
       }
     }, ignoreInit = FALSE)
 
-    # Export grid
-    observeEvent(input$export_grid, {
+    # Download handler for grid export
+    output$download_export <- downloadHandler(
+      filename = function() {
+        paste0("urgenceAviR_export_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".zip")
+      },
+      content = function(file) {
+        req(values$grid_with_data)
+        req(app_values$filtered_df)
+        req(app_values$target_area_geometry)
 
-      # TODO: Add actual export functionality here (e.g., download as shapefile, GeoJSON, etc.)
-    })
+        # Call the export function
+        export_grid_data(
+          grid_with_data = values$grid_with_data,
+          filtered_df = app_values$filtered_df,
+          target_area_geometry = app_values$target_area_geometry,
+          grid_size = input$grid_size,
+          grid_type = input$grid_type,
+          output_file = file
+        )
+      },
+      contentType = "application/zip"
+    )
 
     # Handle back to filters button
     observeEvent(input$back_to_filters, {

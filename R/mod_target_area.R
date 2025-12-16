@@ -55,15 +55,14 @@ mod_target_area_ui <- function(id){
               fileInput(
                 ns("spatial_file"),
                 "T\u00e9l\u00e9verser un fichier spatial",
-                accept = c(".shp", ".kml", ".kmz", ".geojson"),
-                multiple = FALSE
+                accept = c(".shp", ".shx", ".dbf", ".prj", ".geojson"),
+                multiple = TRUE
               ),
               helpText(
                 HTML("
                   <strong>Formats support\u00e9s :</strong><br/>
-                  \u2022 <strong>KML/KMZ :</strong> Fichiers Google Earth<br/>
-                  \u2022 <strong>GeoJSON :</strong> Format spatial web<br/>
-                  \u2022 <strong>Shapefile :</strong> Fichier .shp unique (sans composants)
+                  \u2022 <strong>GeoJSON :</strong> Fichier unique .geojson<br/>
+                  \u2022 <strong>Shapefile :</strong> S\u00e9lectionnez TOUS les fichiers (.shp, .shx, .dbf, .prj)
                 ")
               )
             )
@@ -182,96 +181,144 @@ mod_target_area_server <- function(id, app_values){
     # Handle file upload
     observeEvent(input$spatial_file, {
       req(input$spatial_file)
-      
-      cli::cli_alert_info("Processing uploaded spatial file: {input$spatial_file$name}")
-      
+
+      uploaded_files <- input$spatial_file
+      file_names <- uploaded_files$name
+      file_exts <- tools::file_ext(file_names)
+
+      cli::cli_alert_info("Processing uploaded spatial file(s): {paste(file_names, collapse = ', ')}")
+
       tryCatch({
-        file_path <- input$spatial_file$datapath
-        file_ext <- tools::file_ext(input$spatial_file$name)
-        
-        # Handle different file types
-        if (file_ext %in% c("shp", "kml", "kmz", "geojson")) {
-          
-          cli::cli_alert_info("Processing {toupper(file_ext)} file: {input$spatial_file$name}")
-          # Read spatial file directly (single layer, single file)
+        # Determine file type
+        if ("geojson" %in% file_exts) {
+          # GeoJSON - single file
+          if (length(file_names) > 1) {
+            showNotification(
+              "Pour GeoJSON, veuillez t\u00e9l\u00e9verser un seul fichier.",
+              type = "error"
+            )
+            return()
+          }
+          file_path <- uploaded_files$datapath[1]
+          cli::cli_alert_info("Processing GeoJSON file: {file_names[1]}")
           spatial_data <- sf::st_read(file_path, quiet = TRUE)
-          
-          # Transform to WGS84 if needed - with robust error handling
-          tryCatch({
-            current_crs <- sf::st_crs(spatial_data)
 
-            # Safe CRS handling - check if CRS is valid
-            has_valid_crs <- FALSE
-            tryCatch({
-              has_valid_crs <- !is.null(current_crs) && !is.na(current_crs$input) && current_crs$input != ""
-            }, error = function(e) {
-              has_valid_crs <- FALSE
-            })
+        } else if ("shp" %in% file_exts) {
+          # Shapefile - multiple files required
+          required_exts <- c("shp", "shx", "dbf")
+          missing_exts <- setdiff(required_exts, file_exts)
 
-            if (!has_valid_crs) {
-              cli::cli_alert_warning("No valid CRS defined, setting to WGS84 (EPSG:4326)")
-              sf::st_crs(spatial_data) <- 4326
-            } else {
-              cli::cli_alert_info("Current CRS: {current_crs$input}")
-
-              # Check if transformation is needed
-              tryCatch({
-                is_longlat <- sf::st_is_longlat(spatial_data)
-                if (isTRUE(is_longlat)) {
-                  cli::cli_alert_info("Data already in geographic coordinates")
-                } else {
-                  cli::cli_alert_info("Transforming from {current_crs$input} to WGS84")
-                  spatial_data <- sf::st_transform(spatial_data, 4326)
-                }
-              }, error = function(e) {
-                cli::cli_alert_warning("CRS check failed: {e$message}. Setting to WGS84")
-                sf::st_crs(spatial_data) <- 4326
-              })
-            }
-          }, error = function(e) {
-            cli::cli_alert_warning("CRS processing failed: {e$message}. Proceeding with original data")
-          })
-          
-
-          # If multiple features, take the union
-          n_features <- nrow(spatial_data)
-          if (!is.na(n_features) && n_features > 1) {
-            cli::cli_alert_info("Multiple polygon features found, creating union")
-            tryCatch({
-              spatial_data <- sf::st_union(spatial_data)
-            }, error = function(e) {
-              cli::cli_alert_warning("Union failed: {e$message}. Using first feature only.")
-              spatial_data <- spatial_data[1, ]
-            })
+          if (length(missing_exts) > 0) {
+            showNotification(
+              paste0(
+                "Fichiers shapefile manquants: .",
+                paste(missing_exts, collapse = ", .")
+              ),
+              type = "error"
+            )
+            return()
           }
 
-          # Extract geometry
-          values$target_area <- sf::st_geometry(spatial_data)
-          values$area_source <- "uploaded"
-          
-          # Add to map
-          bounds <- sf::st_bbox(values$target_area)
-          
-          leaflet::leafletProxy("area_map") |>
-            leaflet::clearGroup("uploaded") |>
-            leaflet::addPolygons(
-              data = sf::st_as_sf(values$target_area),
-              group = "uploaded",
-              color = "blue",
-              weight = 2,
-              fillOpacity = 0.3
-            ) |>
-            leaflet::fitBounds(bounds[1], bounds[2], bounds[3], bounds[4])
-          
-          # Enable lock button
-          shinyjs::enable("lock_area")
-          
-          cli::cli_alert_success("Spatial file successfully loaded")
-          
+          # Create temp directory for shapefile components
+          temp_dir <- tempfile()
+          dir.create(temp_dir)
+
+          # Get base name from .shp file
+          shp_name <- file_names[file_exts == "shp"][1]
+          base_name <- tools::file_path_sans_ext(shp_name)
+
+          # Copy all uploaded files to temp directory with correct names
+          for (i in seq_along(uploaded_files$name)) {
+            ext <- tools::file_ext(uploaded_files$name[i])
+            dest_file <- file.path(temp_dir, paste0(base_name, ".", ext))
+            file.copy(uploaded_files$datapath[i], dest_file)
+            cli::cli_alert_info("Copied {ext} component to temp directory")
+          }
+
+          # Read shapefile from temp directory
+          shp_path <- file.path(temp_dir, shp_name)
+          cli::cli_alert_info("Processing Shapefile: {shp_name}")
+          spatial_data <- sf::st_read(shp_path, quiet = TRUE)
+
         } else {
-          cli::cli_alert_danger("Unsupported file format: {file_ext}")
-          showNotification("Format de fichier non pris en charge. Veuillez T\u00e9l\u00e9verser des fichiers .shp, .kml, .kmz ou .geojson.", type = "error")
+          cli::cli_alert_danger("Unsupported file format")
+          showNotification(
+            "Format de fichier non pris en charge. Veuillez t\u00e9l\u00e9verser des fichiers .shp (avec .shx, .dbf) ou .geojson.",
+            type = "error"
+          )
+          return()
         }
+
+        # Transform to WGS84 if needed - with robust error handling
+        tryCatch({
+          current_crs <- sf::st_crs(spatial_data)
+
+          # Safe CRS handling - check if CRS is valid
+          has_valid_crs <- FALSE
+          tryCatch({
+            has_valid_crs <- !is.null(current_crs) && !is.na(current_crs$input) && current_crs$input != ""
+          }, error = function(e) {
+            has_valid_crs <- FALSE
+          })
+
+          if (!has_valid_crs) {
+            cli::cli_alert_warning("No valid CRS defined, setting to WGS84 (EPSG:4326)")
+            sf::st_crs(spatial_data) <- 4326
+          } else {
+            cli::cli_alert_info("Current CRS: {current_crs$input}")
+
+            # Check if transformation is needed
+            tryCatch({
+              is_longlat <- sf::st_is_longlat(spatial_data)
+              if (isTRUE(is_longlat)) {
+                cli::cli_alert_info("Data already in geographic coordinates")
+              } else {
+                cli::cli_alert_info("Transforming from {current_crs$input} to WGS84")
+                spatial_data <- sf::st_transform(spatial_data, 4326)
+              }
+            }, error = function(e) {
+              cli::cli_alert_warning("CRS check failed: {e$message}. Setting to WGS84")
+              sf::st_crs(spatial_data) <- 4326
+            })
+          }
+        }, error = function(e) {
+          cli::cli_alert_warning("CRS processing failed: {e$message}. Proceeding with original data")
+        })
+
+        # If multiple features, take the union
+        n_features <- nrow(spatial_data)
+        if (!is.na(n_features) && n_features > 1) {
+          cli::cli_alert_info("Multiple polygon features found, creating union")
+          tryCatch({
+            spatial_data <- sf::st_union(spatial_data)
+          }, error = function(e) {
+            cli::cli_alert_warning("Union failed: {e$message}. Using first feature only.")
+            spatial_data <- spatial_data[1, ]
+          })
+        }
+
+        # Extract geometry
+        values$target_area <- sf::st_geometry(spatial_data)
+        values$area_source <- "uploaded"
+
+        # Add to map
+        bounds <- sf::st_bbox(values$target_area)
+
+        leaflet::leafletProxy("area_map") |>
+          leaflet::clearGroup("uploaded") |>
+          leaflet::addPolygons(
+            data = sf::st_as_sf(values$target_area),
+            group = "uploaded",
+            color = "blue",
+            weight = 2,
+            fillOpacity = 0.3
+          ) |>
+          leaflet::fitBounds(bounds[1], bounds[2], bounds[3], bounds[4])
+
+        # Enable lock button
+        shinyjs::enable("lock_area")
+
+        cli::cli_alert_success("Spatial file successfully loaded")
         
       }, error = function(e) {
         cli::cli_alert_danger("Error reading spatial file: {e$message}")
