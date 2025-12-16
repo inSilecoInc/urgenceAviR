@@ -9,67 +9,37 @@ show_upload_modal <- function(ns) {
   # Get list of expected files
   files_info <- external_files()
 
+  # Helper function to format dataset names
+  format_dataset_name <- function(name) {
+    tools::toTitleCase(gsub("_", " ", name))
+  }
+
   showModal(
     modalDialog(
       title = "T\u00e9l\u00e9verser les fichiers de donn\u00e9es",
       size = "xl",
 
-      p("Bienvenue dans UrgenceAviR ! Veuillez t\u00e9l\u00e9verser les fichiers de donn\u00e9es requis."),
+      p("Bienvenue dans UrgenceAviR ! Veuillez s\u00e9lectionner les jeux de donn\u00e9es \u00e0 t\u00e9l\u00e9verser."),
 
+      # Dataset selection
       tags$div(
-        class = "table-responsive mt-3",
-        tags$table(
-          class = "table table-striped table-hover",
-          tags$thead(
-            tags$tr(
-              tags$th("Fichier requis", style = "width: 40%;"),
-              tags$th("Action", style = "width: 30%;"),
-              tags$th("Statut", style = "width: 30%;")
-            )
+        class = "mb-4",
+        selectizeInput(
+          ns("selected_datasets"),
+          "S\u00e9lection des jeux de donn\u00e9es",
+          choices = setNames(names(files_info), sapply(names(files_info), format_dataset_name)),
+          selected = names(files_info),
+          multiple = TRUE,
+          options = list(
+            plugins = list("remove_button"),
+            placeholder = "S\u00e9lectionnez les jeux de donn\u00e9es..."
           ),
-          tags$tbody(
-            id = ns("upload_table_body"),
-            lapply(names(files_info), function(dataset_name) {
-              file_name <- files_info[[dataset_name]]$file
-              tags$tr(
-                id = ns(paste0("row_", dataset_name)),
-                tags$td(
-                  tags$code(file_name),
-                  tags$br(),
-                  tags$small(
-                    class = "text-muted",
-                    paste("Dataset:", dataset_name)
-                  )
-                ),
-                tags$td(
-                  fileInput(
-                    ns(paste0("upload_", dataset_name)),
-                    NULL,
-                    accept = c(".csv", ".xlsx", ".gdb"),
-                    buttonLabel = "Choisir...",
-                    placeholder = "Aucun fichier",
-                    width = "100%"
-                  )
-                ),
-                tags$td(
-                  id = ns(paste0("status_", dataset_name)),
-                  tags$span(
-                    icon("clock", class = "text-muted"),
-                    " En attente",
-                    class = "text-muted"
-                  )
-                )
-              )
-            })
-          )
+          width = "60%"
         )
       ),
 
-      tags$div(
-        class = "alert alert-info mt-3",
-        icon("info-circle"),
-        " Taille maximale par fichier : 50 MB"
-      ),
+      # Upload table (will be populated dynamically)
+      uiOutput(ns("upload_table_ui")),
 
       footer = tagList(
         tags$div(
@@ -77,8 +47,7 @@ show_upload_modal <- function(ns) {
           tags$span(
             id = ns("upload_summary"),
             class = "text-muted",
-            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ",
-            length(files_info)
+            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur 0"
           ),
           actionButton(
             ns("confirm_uploads"),
@@ -113,9 +82,87 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
   temp_folder_path <- tempdir()
   cli::cli_alert_info("Created temp folder: {temp_folder_path}")
 
-  # Create observers for each dataset file upload
   files_info <- external_files()
 
+  # Helper function to format dataset names
+  format_dataset_name <- function(name) {
+    tools::toTitleCase(gsub("_", " ", name))
+  }
+
+  # Render dynamic upload table based on selected datasets
+  output$upload_table_ui <- renderUI({
+    req(input$selected_datasets)
+
+    selected <- input$selected_datasets
+
+    if (length(selected) == 0) {
+      return(tags$div(
+        class = "alert alert-warning",
+        icon("exclamation-triangle"),
+        " Veuillez s\u00e9lectionner au moins un jeu de donn\u00e9es."
+      ))
+    }
+
+    tags$div(
+      class = "table-responsive mt-3",
+      tags$table(
+        class = "table table-sm",
+        tags$thead(
+          tags$tr(
+            tags$th("Jeu de donn\u00e9es", style = "width: 40%;"),
+            tags$th("", style = "width: 30%;"),
+            tags$th("Statut", style = "width: 30%;")
+          )
+        ),
+        tags$tbody(
+          id = ns("upload_table_body"),
+          lapply(selected, function(dataset_name) {
+            file_name <- files_info[[dataset_name]]$file
+            tags$tr(
+              id = ns(paste0("row_", dataset_name)),
+              tags$td(
+                tags$strong(format_dataset_name(dataset_name))
+              ),
+              tags$td(
+                fileInput(
+                  ns(paste0("upload_", dataset_name)),
+                  NULL,
+                  accept = c(".csv", ".xlsx", ".gdb"),
+                  buttonLabel = "Choisir...",
+                  placeholder = "Aucun fichier",
+                  width = "100%"
+                )
+              ),
+              tags$td(
+                id = ns(paste0("status_", dataset_name)),
+                tags$span(
+                  icon("clock", class = "text-muted"),
+                  " En attente",
+                  class = "text-muted"
+                )
+              )
+            )
+          })
+        )
+      )
+    )
+  })
+
+  # Update summary when selection changes
+  observe({
+    req(input$selected_datasets)
+    selected_count <- length(input$selected_datasets)
+
+    # Count how many of the selected datasets have been uploaded
+    uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
+
+    shinyjs::html(
+      "upload_summary",
+      paste0(uploaded_selected, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", selected_count)
+    )
+  })
+
+  # Create observers for each dataset file upload
   lapply(names(files_info), function(dataset_name) {
     observeEvent(input[[paste0("upload_", dataset_name)]], {
       req(input[[paste0("upload_", dataset_name)]])
@@ -125,30 +172,101 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
 
       cli::cli_alert_info("File uploaded for {dataset_name}: {uploaded$name}")
 
-      # Validate file name matches expected
-      if (uploaded$name != expected_file_name) {
+      # Get expected extension
+      expected_ext <- tools::file_ext(expected_file_name)
+      uploaded_ext <- tools::file_ext(uploaded$name)
+
+      # Validate file extension
+      if (tolower(uploaded_ext) != tolower(expected_ext)) {
         # Update status to error
         shinyjs::html(
           paste0("status_", dataset_name),
           as.character(tags$span(
             icon("exclamation-triangle", class = "text-danger"),
-            " Nom de fichier incorrect",
+            tags$strong(" Extension incorrecte"),
             tags$br(),
-            tags$small(paste("Attendu:", expected_file_name)),
+            tags$small(paste("Attendu:"), expected_ext),
             class = "text-danger"
           ))
         )
         showNotification(
-          paste0("Erreur: Le fichier doit s'appeler '", expected_file_name, "'"),
+          paste0(
+            "Erreur: Le fichier doit avoir l'extension '.",
+            expected_ext, "' (re\u00e7u: .", uploaded_ext, ")"
+          ),
           type = "error",
           duration = 5
         )
         return()
       }
 
-      # Copy file to temp folder with correct name
+      # Validate columns
+      required_cols <- files_info[[dataset_name]]$check_columns
+      tryCatch({
+        # Read file to check columns
+        file_data <- if (tolower(uploaded_ext) == "csv") {
+          read.csv2(uploaded$datapath, nrows = 1)
+        } else if (tolower(uploaded_ext) == "xlsx") {
+          readxl::read_excel(uploaded$datapath, n_max = 1)
+        } else {
+          NULL
+        }
+
+        if (!is.null(file_data)) {
+          file_cols <- names(file_data)
+          missing_cols <- setdiff(required_cols, file_cols)
+
+          if (length(missing_cols) > 0) {
+            # Update status to error
+            shinyjs::html(
+              paste0("status_", dataset_name),
+              as.character(tags$span(
+                icon("exclamation-triangle", class = "text-danger"),
+                tags$strong(" Colonnes manquantes"),
+                tags$br(),
+                tags$small(paste(
+                  paste(missing_cols, collapse = ", "))),
+                class = "text-danger"
+              ))
+            )
+            showNotification(
+              paste0(
+                "Erreur: Colonnes manquantes dans le fichier: ",
+                paste(missing_cols, collapse = ", ")
+              ),
+              type = "error",
+              duration = 10
+            )
+            return()
+          }
+        }
+      }, error = function(e) {
+        # Update status to error
+        shinyjs::html(
+          paste0("status_", dataset_name),
+          as.character(tags$span(
+            icon("exclamation-triangle", class = "text-danger"),
+            " Erreur de lecture",
+            tags$br(),
+            tags$small(paste("Erreur:", e$message)),
+            class = "text-danger"
+          ))
+        )
+        showNotification(
+          paste0("Erreur lors de la validation: ", e$message),
+          type = "error",
+          duration = 5
+        )
+        return()
+      })
+
+      # Copy file to temp folder with correct name (automatically renaming if needed)
       dest_path <- file.path(values$temp_folder, expected_file_name)
       file.copy(uploaded$datapath, dest_path, overwrite = TRUE)
+
+      if (uploaded$name != expected_file_name) {
+        cli::cli_alert_info("File renamed from '{uploaded$name}' to '{expected_file_name}'")
+      }
 
       # Store in uploaded_files
       values$uploaded_files[[dataset_name]] <- dest_path
@@ -166,21 +284,22 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
       )
 
       # Update summary count
-      upload_count <- length(values$uploaded_files)
-      total_count <- length(files_info)
+      selected_count <- length(input$selected_datasets)
+      uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
       shinyjs::html(
         "upload_summary",
-        paste0(upload_count, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", total_count)
+        paste0(uploaded_selected, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", selected_count)
       )
     })
   })
 
   # Enable/disable confirm button based on uploaded files
   observe({
-    files_info <- external_files()
-    uploaded_count <- length(values$uploaded_files)
-    total_count <- length(files_info)
-    all_uploaded <- uploaded_count == total_count
+    req(input$selected_datasets)
+
+    selected_count <- length(input$selected_datasets)
+    uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
+    all_uploaded <- uploaded_selected == selected_count && selected_count > 0
 
     if (all_uploaded) {
       shinyjs::enable("confirm_uploads")
