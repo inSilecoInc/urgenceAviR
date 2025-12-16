@@ -26,6 +26,10 @@ run_app <- function(
     enableBookmarking = "url",
     uiPattern = "/",
     ...) {
+
+    # Set maximum file upload size to 250 MB
+    options(shiny.maxRequestSize = 250 * 1024^2)
+
     golem::with_golem_options(
       app = shinyApp(
         ui = app_ui,
