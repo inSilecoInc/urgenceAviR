@@ -53,7 +53,7 @@ export_grid_data <- function(grid_with_data, filtered_df, target_area_geometry,
 
       # Write CSV
       csv_path <- file.path(temp_dir, "observations.csv")
-      write.csv(export_df, csv_path, row.names = FALSE)
+      utils::write.csv(export_df, csv_path, row.names = FALSE)
       cli::cli_alert_success("Observations CSV created")
     }
 
@@ -130,7 +130,7 @@ export_grid_data <- function(grid_with_data, filtered_df, target_area_geometry,
     # Create ZIP file
     cli::cli_alert_info("Creating ZIP archive")
     zip_files <- list.files(temp_dir, full.names = TRUE)
-    zip::zip(output_file, files = basename(zip_files), root = temp_dir)
+    utils::zip(output_file, files = zip_files)
 
     cli::cli_alert_success("Export completed successfully")
 
