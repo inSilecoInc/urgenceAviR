@@ -60,7 +60,7 @@ load_iles_nunavik <- function() {
   
   iles_nunavik <- iles_nunavik |>
     dplyr::left_join(
-      .pkg_env$taxonomy,
+      get("taxonomy"),
       by = "code_fr",
       na_matches = "never"
     )

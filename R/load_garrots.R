@@ -54,11 +54,11 @@ load_garrot <- function() {
     garrot <- garrot |>
         dplyr::mutate(
             code_id = ifelse(
-                code_sp %in% names(.pkg_env$equivalences),
-                .pkg_env$equivalences[code_sp],
+                code_sp %in% names(get_equivalences()),
+                get_equivalences()[code_sp],
                 code_sp
             )
-        ) |> dplyr::left_join(.pkg_env$taxonomy, by = "code_id")
+        ) |> dplyr::left_join(get("taxonomy"), by = "code_id")
     
     # Re-order cols
     garrot <- dplyr::select(garrot, dplyr::all_of(final_cols))

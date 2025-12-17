@@ -364,7 +364,7 @@ mod_target_area_server <- function(id, app_values){
         # Create spatial points from the dataset
         if ("longitude" %in% names(all_data) && "latitude" %in% names(all_data)) {
           # Remove records with missing coordinates
-          complete_coords <- complete.cases(all_data[c("longitude", "latitude")])
+          complete_coords <- stats::complete.cases(all_data[c("longitude", "latitude")])
           data_with_coords <- all_data[complete_coords, ]
 
           # Create sf points

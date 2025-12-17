@@ -36,8 +36,6 @@ load_canards <- function() {
     
     cli::cli_alert_info("Applying transformation on { nrow(canards) } rows")
     
-    print(.pkg_env$taxonomy)
-
     canards <- canards |>
         dplyr::mutate(date_obs = lubridate::make_date(Annee, Mois, Jour)) |>
         dplyr::select(
@@ -61,14 +59,14 @@ load_canards <- function() {
     # Join TAXO - Match code_id using nom_fr
     canards <- canards |>
         dplyr::left_join(
-            .pkg_env$taxonomy,
+            get("taxonomy"),
             by = "code_fr",
             na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                nom_fr %in% names(.pkg_env$equivalences),
-                .pkg_env$equivalences[nom_fr],
+                nom_fr %in% names(get_equivalences()),
+                get_equivalences()[nom_fr],
                 code_id
             )
         )

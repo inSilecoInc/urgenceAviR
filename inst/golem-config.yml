@@ -12,5 +12,5 @@ production:
 
 dev:
   golem_wd: !expr golem::pkg_path()
-  datasets_folder: "/home/steve/Nextcloud/insileco_internal/contrats/ECCC-MatthieuBeaumont/contrat_2025/data"
-  file_upload: false
+  datasets_folder: null
+  file_upload: true
