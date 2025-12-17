@@ -57,13 +57,13 @@ load_inventaire_aerien_nunavik <- function() {
     )|>
     dplyr::mutate(
         code_id = ifelse(
-            code_id %in% names(equivalences),
-            equivalences[code_id],
+            code_id %in% names(.pkg_env$equivalences),
+            .pkg_env$equivalences[code_id],
             code_id
         )
     ) |>
     dplyr::left_join(
-      taxonomy,
+      .pkg_env$taxonomy,
       by = "code_id",
       na_matches = "never"
     )

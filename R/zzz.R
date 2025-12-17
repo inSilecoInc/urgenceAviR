@@ -21,9 +21,9 @@ globalVariables(c(
   "Unite", "Espece_code", "ObsLat", "ObsLong", "Observer", "alpha"
 ))
 
-taxonomy <<- get_taxonomy()
+.pkg_env$taxonomy <- get_taxonomy()
 
-equivalences <- c(
+.pkg_env$equivalences <- c(
   "ARL" = "HADU",
   "AROY" = "GOEA",
   "AUTO" = "NOGO",

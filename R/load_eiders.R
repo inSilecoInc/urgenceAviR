@@ -51,7 +51,7 @@ load_eider_hiver <- function() {
             abondance = n_obs,
             code_id = Species
         ) |>
-        dplyr::left_join(taxonomy, by = "code_id")
+        dplyr::left_join(.pkg_env$taxonomy, by = "code_id")
     
     # Re-order cols
     eiderhiver <- dplyr::select(eiderhiver, dplyr::all_of(final_cols))

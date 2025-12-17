@@ -57,14 +57,14 @@ load_canards <- function() {
     # Join TAXO - Match code_id using nom_fr
     canards <- canards |>
         dplyr::left_join(
-            taxonomy,
+            .pkg_env$taxonomy,
             by = "code_fr",
             na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                nom_fr %in% names(equivalences),
-                equivalences[nom_fr],
+                nom_fr %in% names(.pkg_env$equivalences),
+                .pkg_env$equivalences[nom_fr],
                 code_id
             )
         )

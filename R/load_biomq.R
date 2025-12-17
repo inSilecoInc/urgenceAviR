@@ -71,14 +71,14 @@ load_biomq <- function() {
     # Join TAXO - Match CODE_ID using code_fr
     biomq <- biomq |>
         dplyr::left_join(
-            taxonomy,
+            .pkg_env$taxonomy,
             by = "code_fr",
             na_matches = "never"
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                code_fr %in% names(equivalences),
-                equivalences[code_fr],
+                code_fr %in% names(.pkg_env$equivalences),
+                .pkg_env$equivalences[code_fr],
                 code_id
             )
         )
