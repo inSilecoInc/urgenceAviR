@@ -23,6 +23,8 @@ load_canards <- function() {
     # Read file
     canards <- data.table::fread(external_files()$canards_de_mer$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
+    print(canards)
+
     # assert columns exist
     missing_cols <- setdiff(external_files()$canards_de_mer$check_columns, names(canards))
     if (length(missing_cols) > 0) {
@@ -33,6 +35,8 @@ load_canards <- function() {
     }
     
     cli::cli_alert_info("Applying transformation on { nrow(canards) } rows")
+    
+    print(.pkg_env$taxonomy)
 
     canards <- canards |>
         dplyr::mutate(date_obs = lubridate::make_date(Annee, Mois, Jour)) |>

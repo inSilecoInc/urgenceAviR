@@ -60,7 +60,8 @@ get_taxonomy <- function() {
     taxonomy_df <- avian_info |>
       dplyr::left_join(taxo_info, by = "code_id") |>
       dplyr::mutate(code_fr = stringi::stri_trans_general(tolower(nom_francais), "latin-ascii")) |>
-      dplyr::mutate(code_fr = stringr::str_replace_all(code_fr, "non identifiee?", "sp."))
+      dplyr::mutate(code_fr = stringr::str_replace_all(code_fr, "non identifiee?", "sp.")) |>
+      tibble::as_tibble()
 
     cli::cli_alert_success("Taxonomy table created with {nrow(taxonomy_df)} species")
     return(taxonomy_df)
