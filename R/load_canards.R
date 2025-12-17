@@ -23,8 +23,6 @@ load_canards <- function() {
     # Read file
     canards <- data.table::fread(external_files()$canards_de_mer$path, dec = ",", sep = ";") |> tibble::as_tibble()
 
-    print(canards)
-
     # assert columns exist
     missing_cols <- setdiff(external_files()$canards_de_mer$check_columns, names(canards))
     if (length(missing_cols) > 0) {

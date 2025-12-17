@@ -1,6 +1,6 @@
 Package: urgenceAviR
 Title: urgenceAviR
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c( 
         person("Clara", "Casabona", role = "ctb"),
         person("Matthieu", "Beaumont", email = "matthieu.beaumont@ec.gc.ca", role = "aut"),
