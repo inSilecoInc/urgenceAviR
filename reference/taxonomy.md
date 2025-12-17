@@ -8,7 +8,7 @@ observation data with taxonomic information.
 ## Usage
 
 ``` r
-data(taxonomy)
+taxonomy
 ```
 
 ## Format
