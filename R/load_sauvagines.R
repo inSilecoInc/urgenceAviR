@@ -58,13 +58,13 @@ load_sauvagine_fleuve <- function() {
         ) |>
         dplyr::mutate(
             code_id = ifelse(
-                code_id %in% names(.pkg_env$equivalences),
-                .pkg_env$equivalences[code_id],
+                code_id %in% names(get_equivalences()),
+                get_equivalences()[code_id],
                 code_id
             )
         ) |>
         dplyr::left_join(
-            .pkg_env$taxonomy,
+            get("taxonomy"),
             by = "code_id",
             na_matches = "never"
         )
