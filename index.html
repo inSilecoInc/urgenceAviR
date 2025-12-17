@@ -72,61 +72,99 @@
 <p>Le package intègre les jeux de données suivants :</p>
 <table class="table">
 <colgroup>
-<col width="57%">
-<col width="42%">
+<col width="38%">
+<col width="28%">
+<col width="33%">
 </colgroup>
 <thead><tr class="header">
 <th>Nom du jeu de données</th>
 <th>Fichier source</th>
+<th>Colonnes requises</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>eBird</td>
-<td><code>eBird.gdb</code></td>
-</tr>
-<tr class="even">
 <td>Canards de mer</td>
 <td><code>ConsultationCanardsDeMer.csv</code></td>
+<td>
+<code>NomLieu</code>, <code>LATITUDE</code>, <code>LONGITUDE</code>, <code>Annee</code>, <code>Mois</code>, <code>Jour</code>, <code>NombreTotal</code>, <code>Nom_FR</code>
+</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Eider en hiver</td>
 <td><code>ConsultationEiderHiver.csv</code></td>
+<td>
+<code>Region</code>, <code>An</code>, <code>Mois</code>, <code>Jour</code>, <code>Species</code>, <code>visuelblancs</code>, <code>visuelbruns</code>, <code>inconnus</code>, <code>LatDec</code>, <code>LongDec</code>
+</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Garrot</td>
 <td><code>ConsultationGarrot.csv</code></td>
+<td>
+<code>annee</code>, <code>mois</code>, <code>jour</code>, <code>CodeSp</code>, <code>N</code>, <code>Observateurs</code>, <code>Lat</code>, <code>Long</code>, <code>loc_ID</code>
+</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Macreuses</td>
 <td><code>ConsultationMacreuses.csv</code></td>
+<td>
+<code>Date</code>, <code>Observateur</code>, <code>Espece</code>, <code>Nombre</code>, <code>Longitude</code>, <code>Latitude</code>
+</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Oies des neiges au printemps</td>
 <td><code>ConsultationOieDesNeigesPrintemps.csv</code></td>
+<td>
+<code>Date</code>, <code>Observateur</code>, <code>Code</code>, <code>Count</code>, <code>Longitude</code>, <code>Latitude</code>
+</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Sauvagine du fleuve Saint-Laurent</td>
 <td><code>ConsultationSauvagineFleuve.csv</code></td>
+<td>
+<code>Date</code>, <code>Latitude</code>, <code>Longitude</code>, <code>Nombre</code>, <code>Observateur</code>
+</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>SRIV</td>
 <td><code>ConsultationSRIV.csv</code></td>
+<td>
+<code>debut</code>, <code>obslat</code>, <code>obslong</code>, <code>total</code>, <code>obsdro</code>
+</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>SOMEC</td>
 <td><code>ConsultationSOMEC.csv</code></td>
-</tr>
-<tr class="even">
-<td>BIOMQ</td>
-<td><code>consultationBIOMQ.xlsx</code></td>
+<td>
+<code>CruiseID</code>, <code>Alpha</code>, <code>StartDate</code>, <code>LatStart</code>, <code>LongStart</code>, <code>Count</code>, <code>ObserverName</code>
+</td>
 </tr>
 <tr class="odd">
-<td>Îles du Nunavik</td>
-<td><code>consultationIles_Nunavik.csv</code></td>
+<td>BIOMQ</td>
+<td><code>consultationBIOMQ.xlsx</code></td>
+<td>
+<code>NomCol</code>, <code>CentroideX</code>, <code>CentroideY</code>, <code>NomFR</code>, <code>nb_nicheur</code>, <code>methode</code>, <code>nomRef</code>, <code>Année</code>, <code>MoisDebut</code>, <code>JourDebut</code>
+</td>
 </tr>
 <tr class="even">
+<td>Îles du Nunavik</td>
+<td><code>ConsultationIles_Nunavik.csv</code></td>
+<td>
+<code>Nom_Ile</code>, <code>Longitude</code>, <code>Latitude</code>, <code>Nom_francais</code>, <code>Nb_compte</code>, <code>Methode_descriptif</code>, <code>Annee</code>, <code>Mois</code>, <code>Jour</code>
+</td>
+</tr>
+<tr class="odd">
 <td>Inventaire aérien du Nunavik</td>
-<td><code>consultationInventaire_aerien_Nunavik.csv</code></td>
+<td><code>ConsultationInventaire_aerien_Nunavik.csv</code></td>
+<td>
+<code>Obs_ID</code>, <code>Nom_français</code>, <code>Longitude</code>, <code>Latitude</code>, <code>Nb_total_ind</code>, <code>Date</code>, <code>Observateur</code>
+</td>
+</tr>
+<tr class="even">
+<td>Atlantic colonies</td>
+<td><code>all_atlantic_colonies_obs.csv</code></td>
+<td>
+<code>ColonyId</code>, <code>Species_code.full</code>, <code>Long</code>, <code>Lat</code>, <code>Colony_size</code>, <code>Date</code>, <code>Source</code>, <code>CensusId</code>
+</td>
 </tr>
 </tbody>
 </table>
@@ -134,10 +172,41 @@
 <div class="section level2">
 <h2 id="lancement-de-lapplication">Lancement de l’application<a class="anchor" aria-label="anchor" href="#lancement-de-lapplication"></a>
 </h2>
-<p>Pour lancer l’application Shiny permettant l’exploration interactive des données:</p>
+<p>L’application peut être lancée selon trois modes différents:</p>
+<div class="section level3">
+<h3 id="mode-1-local-avec-dossier-de-données-préconfiguré">Mode 1: Local avec dossier de données préconfiguré<a class="anchor" aria-label="anchor" href="#mode-1-local-avec-dossier-de-donn%C3%A9es-pr%C3%A9configur%C3%A9"></a>
+</h3>
+<p>Utilisez ce mode pour travailler en local avec un dossier de données spécifique:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Lancer l'application</span></span>
+<code class="sourceCode R"><span><span class="co"># Définir le dossier contenant les fichiers de données</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/set_datasets_folder.html">set_datasets_folder</a></span><span class="op">(</span><span class="st">"path/to/files"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application</span></span>
 <span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mode-2-local-avec-configuration-du-dossier-de-données-production">Mode 2: Local avec configuration du dossier de données (production)<a class="anchor" aria-label="anchor" href="#mode-2-local-avec-configuration-du-dossier-de-donn%C3%A9es-production"></a>
+</h3>
+<p>Utilisez ce mode pour un déploiement local en production où le dossier de données est configuré dans <code>inst/golem-config.yml</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application sans téléversement de fichiers</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span>file_upload <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mode-3-cloud-avec-téléversement-de-fichiers">Mode 3: Cloud avec téléversement de fichiers<a class="anchor" aria-label="anchor" href="#mode-3-cloud-avec-t%C3%A9l%C3%A9versement-de-fichiers"></a>
+</h3>
+<p>Utilisez ce mode pour un déploiement cloud où les utilisateurs téléversent leurs propres fichiers:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application avec téléversement de fichiers</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Note</strong>: La taille maximale des fichiers téléversés est de 250 MB.</p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
