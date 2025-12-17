@@ -19,7 +19,7 @@ A data frame with 2474 rows and 6 variables:
 Environment and Climate Change Canada (ECCC) Avian Core Database
 }
 \usage{
-data(taxonomy)
+taxonomy
 }
 \description{
 A reference table combining avian core data (French/Latin names) and taxonomy

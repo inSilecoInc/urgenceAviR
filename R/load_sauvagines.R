@@ -64,7 +64,7 @@ load_sauvagine_fleuve <- function() {
             )
         ) |>
         dplyr::left_join(
-            get("taxonomy"),
+            taxonomy,
             by = "code_id",
             na_matches = "never"
         )

@@ -71,7 +71,7 @@ load_biomq <- function() {
     # Join TAXO - Match CODE_ID using code_fr
     biomq <- biomq |>
         dplyr::left_join(
-            get("taxonomy"),
+            taxonomy,
             by = "code_fr",
             na_matches = "never"
         ) |>

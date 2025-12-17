@@ -63,7 +63,7 @@ load_inventaire_aerien_nunavik <- function() {
         )
     ) |>
     dplyr::left_join(
-      get("taxonomy"),
+      taxonomy,
       by = "code_id",
       na_matches = "never"
     )

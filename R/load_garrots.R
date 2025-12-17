@@ -58,7 +58,7 @@ load_garrot <- function() {
                 get_equivalences()[code_sp],
                 code_sp
             )
-        ) |> dplyr::left_join(get("taxonomy"), by = "code_id")
+        ) |> dplyr::left_join(taxonomy, by = "code_id")
     
     # Re-order cols
     garrot <- dplyr::select(garrot, dplyr::all_of(final_cols))

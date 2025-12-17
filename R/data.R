@@ -44,5 +44,5 @@
 #' # Find a specific species
 #' taxonomy[taxonomy$code_id == "MALL", ]
 #' }
-#' @usage data(taxonomy)
+#' @usage taxonomy
 NULL

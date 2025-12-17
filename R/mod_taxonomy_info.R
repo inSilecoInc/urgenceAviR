@@ -30,8 +30,8 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
 
       # Prepare data grouped by functional group
       taxo_grouped <- taxo |>
-        dplyr::select(groupe_fonctionnel, nomfr, nomla, species_id) |>
-        dplyr::arrange(groupe_fonctionnel, nomfr)
+        dplyr::select(groupe_fonctionnel, nom_francais, nom_latin, code_id) |>
+        dplyr::arrange(groupe_fonctionnel, nom_francais)
 
       showModal(
         modalDialog(
@@ -70,16 +70,16 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
               minWidth = 150,
               filterable = TRUE
             ),
-            nomfr = reactable::colDef(
+            nom_francais = reactable::colDef(
               name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
-            nomla = reactable::colDef(
+            nom_latin = reactable::colDef(
               name = "Nom latin",
               minWidth = 150,
               style = list(fontStyle = "italic")
             ),
-            species_id = reactable::colDef(
+            code_id = reactable::colDef(
               name = "Code",
               minWidth = 80
             )
@@ -101,8 +101,8 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
 
       # Prepare data grouped by habitat
       taxo_grouped <- taxo |>
-        dplyr::select(milieu_marin, nomfr, nomla, species_id) |>
-        dplyr::arrange(milieu_marin, nomfr)
+        dplyr::select(milieu_marin, nom_francais, nom_latin, code_id) |>
+        dplyr::arrange(milieu_marin, nom_francais)
 
       showModal(
         modalDialog(
@@ -141,16 +141,16 @@ mod_taxonomy_info_server <- function(id, taxo_vuln_data){
               minWidth = 120,
               filterable = TRUE
             ),
-            nomfr = reactable::colDef(
+            nom_francais = reactable::colDef(
               name = "Nom fran\u00e7ais",
               minWidth = 150
             ),
-            nomla = reactable::colDef(
+            nom_latin = reactable::colDef(
               name = "Nom latin",
               minWidth = 150,
               style = list(fontStyle = "italic")
             ),
-            species_id = reactable::colDef(
+            code_id = reactable::colDef(
               name = "Code",
               minWidth = 80
             )

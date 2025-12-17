@@ -57,7 +57,7 @@ load_canards <- function() {
     # Join TAXO - Match code_id using nom_fr
     canards <- canards |>
         dplyr::left_join(
-            get("taxonomy"),
+            taxonomy,
             by = "code_fr",
             na_matches = "never"
         ) |>

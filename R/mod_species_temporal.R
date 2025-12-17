@@ -223,46 +223,14 @@ mod_species_temporal_server <- function(id, app_values){
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Load taxonomy data
-    taxo_vuln <- reactive({
-      tryCatch({
-        readr::read_delim(
-          system.file("exdata/Taxonomy/taxo_vulnerabilite.csv", package = "urgenceAviR"),
-          delim = ";",
-          locale = readr::locale(encoding = "UTF-8"),
-          show_col_types = FALSE
-        )
-      }, error = function(e) {
-        cli::cli_alert_warning("Could not load taxonomy file: {e$message}")
-        NULL
-      })
-    })
-
-    # Load Avian Core data for French names
-    avian_core <- reactive({
-      tryCatch({
-        readr::read_delim(
-          system.file("exdata/Taxonomy/ECCC_Avian_Core_20241025.csv", package = "urgenceAviR"),
-          delim = ";",
-          locale = readr::locale(encoding = "UTF-8"),
-          show_col_types = FALSE
-        )
-      }, error = function(e) {
-        cli::cli_alert_warning("Could not load Avian Core file: {e$message}")
-        NULL
-      })
-    })
-
     # Helper function to create species choices with French names
     create_species_choices <- function(species_codes) {
-      avian <- avian_core()
-
-      if (!is.null(avian) && length(species_codes) > 0) {
+      if (length(species_codes) > 0) {
         species_choices <- setNames(species_codes, species_codes)
 
-        # Add French names to labels
+        # Add French names to labels using taxonomy data
         for (sp in species_codes) {
-          french_name <- avian$French_Name[avian$Species_ID == sp]
+          french_name <- taxonomy$nom_francais[taxonomy$code_id == sp]
           if (length(french_name) > 0 && !is.na(french_name[1]) && french_name[1] != "") {
             names(species_choices)[species_choices == sp] <- paste0(sp, " - ", french_name[1])
           }
@@ -313,11 +281,8 @@ mod_species_temporal_server <- function(id, app_values){
     })
 
     observe({
-      taxo <- taxo_vuln()
-      req(taxo)
-
-      functional_groups <- sort(unique(taxo$groupe_fonctionnel))
-      habitats <- sort(unique(taxo$milieu_marin))
+      functional_groups <- sort(unique(taxonomy$groupe_fonctionnel[!is.na(taxonomy$groupe_fonctionnel)]))
+      habitats <- sort(unique(taxonomy$milieu_marin[!is.na(taxonomy$milieu_marin)]))
 
       updateSelectInput(
         session, "functional_groups",
@@ -333,7 +298,7 @@ mod_species_temporal_server <- function(id, app_values){
     })
 
     # Initialize taxonomy info module
-    taxonomy_info <- mod_taxonomy_info_server("taxonomy_info", taxo_vuln)
+    taxonomy_info <- mod_taxonomy_info_server("taxonomy_info", reactive(taxonomy))
 
     # Info button for functional groups
     observeEvent(input$info_functional_group, {
@@ -348,16 +313,14 @@ mod_species_temporal_server <- function(id, app_values){
     # observeEvent for functional group selection changes
     observeEvent(input$functional_groups, {
       req(app_values$spatially_filtered_data)
-      taxo <- taxo_vuln()
-      req(taxo)
 
       cli::cli_alert_info("Functional group selection changed: {length(input$functional_groups)} groups selected")
 
       if (length(input$functional_groups) > 0) {
         # Get species codes for selected functional groups
-        selected_species_codes <- taxo |>
+        selected_species_codes <- taxonomy |>
           dplyr::filter(groupe_fonctionnel %in% input$functional_groups) |>
-          dplyr::pull(species_id) |>
+          dplyr::pull(code_id) |>
           unique()
 
         cli::cli_alert_info("Found {length(selected_species_codes)} species for selected functional groups")
@@ -386,16 +349,14 @@ mod_species_temporal_server <- function(id, app_values){
     # observeEvent for habitat selection changes
     observeEvent(input$habitats, {
       req(app_values$spatially_filtered_data)
-      taxo <- taxo_vuln()
-      req(taxo)
 
       cli::cli_alert_info("Habitat selection changed: {length(input$habitats)} habitats selected")
 
       if (length(input$habitats) > 0) {
         # Get species codes for selected habitats
-        selected_species_codes <- taxo |>
+        selected_species_codes <- taxonomy |>
           dplyr::filter(milieu_marin %in% input$habitats) |>
-          dplyr::pull(species_id) |>
+          dplyr::pull(code_id) |>
           unique()
 
         cli::cli_alert_info("Found {length(selected_species_codes)} species for selected habitats")

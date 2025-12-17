@@ -113,3 +113,7 @@ final_cols <- c(
   "milieu_marin",
   "groupe_fonctionnel"
 )
+
+.onLoad <- function(libname, pkgname) {
+  taxonomy <- utils::data(taxonomy)
+}

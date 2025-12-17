@@ -65,7 +65,7 @@ load_somec <- function() {
             )
         ) |>
         dplyr::left_join(
-            get("taxonomy"),
+            taxonomy,
             by = "code_id",
             na_matches = "never"
         )
