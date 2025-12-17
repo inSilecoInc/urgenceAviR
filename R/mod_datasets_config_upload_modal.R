@@ -19,45 +19,71 @@ show_upload_modal <- function(ns) {
       title = "T\u00e9l\u00e9verser les fichiers de donn\u00e9es",
       size = "xl",
 
-      p("Bienvenue dans UrgenceAviR ! Veuillez t\u00e9l\u00e9verser les fichiers de donn\u00e9es requis."),
-
-      # Dataset selection
-      tags$div(
-        class = "mb-4",
-        selectizeInput(
-          ns("selected_datasets"),
-          "S\u00e9lection des jeux de donn\u00e9es",
-          choices = setNames(names(files_info), sapply(names(files_info), format_dataset_name)),
-          selected = names(files_info),
-          multiple = TRUE,
-          options = list(
-            plugins = list("remove_button"),
-            placeholder = "S\u00e9lectionnez les jeux de donn\u00e9es..."
-          ),
-          width = "60%"
-        )
-      ),
-
-      # Upload table (will be populated dynamically)
-      uiOutput(ns("upload_table_ui")),
-
-      footer = tagList(
-        tags$div(
-          class = "d-flex justify-content-between align-items-center w-100",
-          tags$span(
-            id = ns("upload_summary"),
-            class = "text-muted",
-            "0 fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ",
-            length(files_info)
-          ),
+      # Welcome message and button in fluid row
+      fluidRow(
+        column(
+          width = 8,
+          p("Bienvenue dans UrgenceAviR ! Veuillez t\u00e9l\u00e9verser les fichiers de donn\u00e9es requis.")
+        ),
+        column(
+          width = 4,
+          class = "text-end",
           actionButton(
             ns("confirm_uploads"),
             "Confirmer et continuer",
-            class = "btn-primary",
-            disabled = "disabled"
+            class = "btn-primary"
           )
         )
       ),
+
+      # Upload table with all datasets
+      tags$div(
+        class = "table-responsive mt-3",
+        tags$table(
+          class = "table table-sm",
+          tags$thead(
+            tags$tr(
+              tags$th("Jeu de donn\u00e9es", style = "width: 40%;"),
+              tags$th("Fichier", style = "width: 30%;"),
+              tags$th("Statut", style = "width: 30%;")
+            )
+          ),
+          tags$tbody(
+            id = ns("upload_table_body"),
+            lapply(names(files_info), function(dataset_name) {
+              file_name <- files_info[[dataset_name]]$file
+              tags$tr(
+                id = ns(paste0("row_", dataset_name)),
+                tags$td(
+                  tags$strong(format_dataset_name(dataset_name))
+                ),
+                tags$td(
+                  tags$div(
+                    fileInput(
+                      ns(paste0("upload_", dataset_name)),
+                      NULL,
+                      accept = c(".csv", ".xlsx", ".gdb"),
+                      buttonLabel = "Choisir...",
+                      placeholder = "Aucun fichier",
+                      width = "100%"
+                    )
+                  )
+                ),
+                tags$td(
+                  id = ns(paste0("status_", dataset_name)),
+                  tags$span(
+                    icon("clock", class = "text-muted"),
+                    " En attente",
+                    class = "text-muted"
+                  )
+                )
+              )
+            })
+          )
+        )
+      ),
+
+      footer = NULL,
       easyClose = FALSE
     )
   )
@@ -90,78 +116,6 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
     tools::toTitleCase(gsub("_", " ", name))
   }
 
-  # Render dynamic upload table based on selected datasets
-  output$upload_table_ui <- renderUI({
-    req(input$selected_datasets)
-
-    selected <- input$selected_datasets
-
-    if (length(selected) == 0) {
-      return(tags$div(
-        class = "alert alert-warning",
-        icon("exclamation-triangle"),
-        " Veuillez s\u00e9lectionner au moins un jeu de donn\u00e9es."
-      ))
-    }
-
-    tags$div(
-      class = "table-responsive mt-3",
-      tags$table(
-        class = "table table-sm",
-        tags$thead(
-          tags$tr(
-            tags$th("Jeu de donn\u00e9es", style = "width: 40%;"),
-            tags$th("", style = "width: 30%;"),
-            tags$th("Statut", style = "width: 30%;")
-          )
-        ),
-        tags$tbody(
-          id = ns("upload_table_body"),
-          lapply(selected, function(dataset_name) {
-            file_name <- files_info[[dataset_name]]$file
-            tags$tr(
-              id = ns(paste0("row_", dataset_name)),
-              tags$td(
-                tags$strong(format_dataset_name(dataset_name))
-              ),
-              tags$td(
-                fileInput(
-                  ns(paste0("upload_", dataset_name)),
-                  NULL,
-                  accept = c(".csv", ".xlsx", ".gdb"),
-                  buttonLabel = "Choisir...",
-                  placeholder = "Aucun fichier",
-                  width = "100%"
-                )
-              ),
-              tags$td(
-                id = ns(paste0("status_", dataset_name)),
-                tags$span(
-                  icon("clock", class = "text-muted"),
-                  " En attente",
-                  class = "text-muted"
-                )
-              )
-            )
-          })
-        )
-      )
-    )
-  })
-
-  # Update summary when selection changes
-  observe({
-    req(input$selected_datasets)
-    selected_count <- length(input$selected_datasets)
-
-    # Count how many of the selected datasets have been uploaded
-    uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
-
-    shinyjs::html(
-      "upload_summary",
-      paste0(uploaded_selected, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", selected_count)
-    )
-  })
 
   # Create observers for each dataset file upload
   lapply(names(files_info), function(dataset_name) {
@@ -283,30 +237,7 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
           class = "text-success"
         ))
       )
-
-      # Update summary count
-      selected_count <- length(input$selected_datasets)
-      uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
-      shinyjs::html(
-        "upload_summary",
-        paste0(uploaded_selected, " fichier(s) t\u00e9l\u00e9vers\u00e9(s) sur ", selected_count)
-      )
     })
-  })
-
-  # Enable/disable confirm button based on uploaded files
-  observe({
-    req(input$selected_datasets)
-
-    selected_count <- length(input$selected_datasets)
-    uploaded_selected <- sum(names(values$uploaded_files) %in% input$selected_datasets)
-    all_uploaded <- uploaded_selected == selected_count && selected_count > 0
-
-    if (all_uploaded) {
-      shinyjs::enable("confirm_uploads")
-    } else {
-      shinyjs::disable("confirm_uploads")
-    }
   })
 
   # Confirm uploads and set temp folder as datasets folder

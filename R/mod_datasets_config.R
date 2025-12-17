@@ -35,14 +35,18 @@ mod_datasets_config_server <- function(id, app_values){
       volumes <- c(Home = fs::path_home(), "Root" = "/")
     }
 
-    # Check if datasets folder needs to be configured on startup
+    # Check if datasets folder needs to be configured
     observe({
-      if (all(sapply(external_files(), function(x) is.null(x$path)))) {
-        cli::cli_alert_warning("Datasets folder not set, showing configuration modal")
-        if (file_upload_mode) {
-          show_upload_modal(ns)
-        } else {
-          show_folder_modal(ns)
+      # Watch for changes in datasets_folder_configured
+      if (!isTRUE(app_values$datasets_folder_configured)) {
+        # Check if external files are configured
+        if (all(sapply(external_files(), function(x) is.null(x$path)))) {
+          cli::cli_alert_warning("Datasets folder not set, showing configuration modal")
+          if (file_upload_mode) {
+            show_upload_modal(ns)
+          } else {
+            show_folder_modal(ns)
+          }
         }
       } else {
         values$folder_configured <- TRUE
