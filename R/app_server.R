@@ -29,6 +29,22 @@ app_server <- function(input, output, session) {
   # Initialize datasets configuration module
   mod_datasets_config_server("datasets_config", app_values)
 
+  # Handle reset datasources button
+  observeEvent(input$reset_datasources, {
+    cli::cli_alert_info("Resetting datasources")
+
+    # Reset datasets folder
+    set_datasets_folder(NULL)
+
+    # Reset reactive values
+    app_values$datasets_folder_configured <- FALSE
+    app_values$datasets_loaded <- FALSE
+    app_values$target_area_locked <- FALSE
+
+    # Navigate back to target area tab
+    bslib::nav_select("main_nav", "target_area")
+  })
+
   # Load datasets when folder is configured
   observe({
     req(app_values$datasets_folder_configured)

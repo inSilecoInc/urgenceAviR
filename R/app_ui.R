@@ -51,7 +51,20 @@ app_ui <- function(request) {
       value = "make_grid",
       id = "nav_make_grid",
       mod_make_grid_ui("make_grid")
+    ),
+
+    # Spacer to push reset button to the right
+    bslib::nav_spacer(),
+
+    # Reset datasources button
+    bslib::nav_item(
+      shiny::actionButton(
+        inputId = "reset_datasources",
+        label = "Reset datasources",
+        icon = bsicons::bs_icon("database-slash"),
+        class = "btn-primary"
+      )
     )
-    
+
   )
 }
