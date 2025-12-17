@@ -32,3 +32,5 @@
   Run the Shiny Application
 - [`set_datasets_folder()`](http://insileco.io/urgenceAviR/reference/set_datasets_folder.md)
   : Set datasets folder path
+- [`taxonomy`](http://insileco.io/urgenceAviR/reference/taxonomy.md) :
+  Taxonomy Reference Table
