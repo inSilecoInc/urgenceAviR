@@ -57,7 +57,7 @@
 
 <p>Un package conçu pour rassembler et intégrer des relevés d’oiseaux. Il facilite l’exploration interactive des données et l’évaluation des menaces pesant sur les populations d’oiseaux aquatiques au Québec à la suite d’un incident de déversement.</p>
 <div class="section level2">
-<h2 id="démarrage">Démarrage<a class="anchor" aria-label="anchor" href="#d%C3%A9marrage"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Installer devtools si ce n'est pas déjà fait</span></span>
@@ -65,6 +65,98 @@
 <span></span>
 <span><span class="co"># Installer urgenceAviR depuis GitHub</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"insileco/urgenceAviR"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="lancement-de-lapplication">Lancement de l’application<a class="anchor" aria-label="anchor" href="#lancement-de-lapplication"></a>
+</h2>
+<p>L’application peut être lancée selon trois modes différents:</p>
+<div class="section level3">
+<h3 id="mode-1-local-avec-dossier-de-données-préconfiguré">Mode 1: Local avec dossier de données préconfiguré<a class="anchor" aria-label="anchor" href="#mode-1-local-avec-dossier-de-donn%C3%A9es-pr%C3%A9configur%C3%A9"></a>
+</h3>
+<p>Utilisez ce mode pour travailler en local avec un dossier de données spécifique:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Définir le dossier contenant les fichiers de données</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/set_datasets_folder.html">set_datasets_folder</a></span><span class="op">(</span><span class="st">"path/to/files"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mode-2-local-avec-configuration-du-dossier-de-données-production">Mode 2: Local avec configuration du dossier de données (production)<a class="anchor" aria-label="anchor" href="#mode-2-local-avec-configuration-du-dossier-de-donn%C3%A9es-production"></a>
+</h3>
+<p>Utilisez ce mode pour un déploiement local en production où le dossier de données est configuré dans <code>inst/golem-config.yml</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application sans téléversement de fichiers</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span>file_upload <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mode-3-cloud-avec-téléversement-de-fichiers">Mode 3: Cloud avec téléversement de fichiers<a class="anchor" aria-label="anchor" href="#mode-3-cloud-avec-t%C3%A9l%C3%A9versement-de-fichiers"></a>
+</h3>
+<p>Utilisez ce mode pour un déploiement cloud où les utilisateurs téléversent leurs propres fichiers:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lancer l'application avec téléversement de fichiers</span></span>
+<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Note</strong>: La taille maximale des fichiers téléversés est de 250 MB.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="chargement-des-données">Chargement des données<a class="anchor" aria-label="anchor" href="#chargement-des-donn%C3%A9es"></a>
+</h2>
+<p>Une fois le dossier de données configuré avec <code><a href="reference/set_datasets_folder.html">set_datasets_folder()</a></code>, vous pouvez charger les données de deux façons :</p>
+<div class="section level3">
+<h3 id="charger-tous-les-jeux-de-données">Charger tous les jeux de données<a class="anchor" aria-label="anchor" href="#charger-tous-les-jeux-de-donn%C3%A9es"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Charger et combiner tous les jeux de données en un seul data.frame</span></span>
+<span><span class="va">all_data</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_all_datasets.html">load_all_datasets</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Ou charger les jeux de données séparément dans une liste</span></span>
+<span><span class="va">datasets_list</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_all_datasets.html">load_all_datasets</a></span><span class="op">(</span>combine <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="charger-un-jeu-de-données-spécifique">Charger un jeu de données spécifique<a class="anchor" aria-label="anchor" href="#charger-un-jeu-de-donn%C3%A9es-sp%C3%A9cifique"></a>
+</h3>
+<p>Vous pouvez également charger les jeux de données individuellement :</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Charger les canards de mer</span></span>
+<span><span class="va">canards</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_canards.html">load_canards</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les eiders en hiver</span></span>
+<span><span class="va">eiders</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_eider_hiver.html">load_eider_hiver</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les garrots</span></span>
+<span><span class="va">garrots</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_garrot.html">load_garrot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les macreuses</span></span>
+<span><span class="va">macreuses</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_macreuse.html">load_macreuse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les oies</span></span>
+<span><span class="va">oies</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_oies.html">load_oies</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger la sauvagine du fleuve</span></span>
+<span><span class="va">sauvagine</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_sauvagine_fleuve.html">load_sauvagine_fleuve</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger SOMEC</span></span>
+<span><span class="va">somec</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_somec.html">load_somec</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger BIOMQ</span></span>
+<span><span class="va">biomq</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_biomq.html">load_biomq</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les îles du Nunavik</span></span>
+<span><span class="va">iles</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_iles_nunavik.html">load_iles_nunavik</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger l'inventaire aérien du Nunavik</span></span>
+<span><span class="va">inventaire</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_inventaire_aerien_nunavik.html">load_inventaire_aerien_nunavik</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Charger les colonies atlantiques</span></span>
+<span><span class="va">atlantic</span> <span class="op">&lt;-</span> <span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/load_atlantic_colonies.html">load_atlantic_colonies</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="jeux-de-données-intégrés">Jeux de données intégrés<a class="anchor" aria-label="anchor" href="#jeux-de-donn%C3%A9es-int%C3%A9gr%C3%A9s"></a>
@@ -168,45 +260,6 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section level2">
-<h2 id="lancement-de-lapplication">Lancement de l’application<a class="anchor" aria-label="anchor" href="#lancement-de-lapplication"></a>
-</h2>
-<p>L’application peut être lancée selon trois modes différents:</p>
-<div class="section level3">
-<h3 id="mode-1-local-avec-dossier-de-données-préconfiguré">Mode 1: Local avec dossier de données préconfiguré<a class="anchor" aria-label="anchor" href="#mode-1-local-avec-dossier-de-donn%C3%A9es-pr%C3%A9configur%C3%A9"></a>
-</h3>
-<p>Utilisez ce mode pour travailler en local avec un dossier de données spécifique:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Définir le dossier contenant les fichiers de données</span></span>
-<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/set_datasets_folder.html">set_datasets_folder</a></span><span class="op">(</span><span class="st">"path/to/files"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Lancer l'application</span></span>
-<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mode-2-local-avec-configuration-du-dossier-de-données-production">Mode 2: Local avec configuration du dossier de données (production)<a class="anchor" aria-label="anchor" href="#mode-2-local-avec-configuration-du-dossier-de-donn%C3%A9es-production"></a>
-</h3>
-<p>Utilisez ce mode pour un déploiement local en production où le dossier de données est configuré dans <code>inst/golem-config.yml</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Lancer l'application sans téléversement de fichiers</span></span>
-<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span>file_upload <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mode-3-cloud-avec-téléversement-de-fichiers">Mode 3: Cloud avec téléversement de fichiers<a class="anchor" aria-label="anchor" href="#mode-3-cloud-avec-t%C3%A9l%C3%A9versement-de-fichiers"></a>
-</h3>
-<p>Utilisez ce mode pour un déploiement cloud où les utilisateurs téléversent leurs propres fichiers:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Activer le mode production</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_CONFIG_ACTIVE <span class="op">=</span> <span class="st">"production"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Lancer l'application avec téléversement de fichiers</span></span>
-<span><span class="fu">urgenceAviR</span><span class="fu">::</span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Note</strong>: La taille maximale des fichiers téléversés est de 250 MB.</p>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
