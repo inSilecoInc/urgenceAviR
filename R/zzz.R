@@ -346,12 +346,15 @@ external_files <- function() {
 #' @param path Path to the datasets folder (must end with "/")
 #' @export
 set_datasets_folder <- function(path) {
-  if (!endsWith(path, "/")) {
-    path <- paste0(path, "/")
-  }
-  # Update all file paths with new base path
-  for (i in names(.pkg_env$external_files)) {
-    .pkg_env$external_files[[i]]$path <- file.path(path, .pkg_env$external_files[[i]]$file)
+  if(is.null(path)){
+    for (i in names(.pkg_env$external_files)) {
+      .pkg_env$external_files[[i]]$path <- NULL
+    }
+  } else {
+    # Update all file paths with new base path
+    for (i in names(.pkg_env$external_files)) {
+      .pkg_env$external_files[[i]]$path <- file.path(path, .pkg_env$external_files[[i]]$file)
+    }
   }
 }
 

@@ -148,4 +148,9 @@ app_server <- function(input, output, session) {
     app_values$navigate_to_tab <- NULL
   })
 
+  onSessionEnded({
+    cli::cli_alert_info("UrgenceAviR Shiny session ended")
+    set_datasets_folder(NULL)
+  })
+
 }
