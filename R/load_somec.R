@@ -38,7 +38,7 @@ load_somec <- function() {
             longitude = ObsLong,
             date = Date,
             abondance = Count,
-            obs = Observer
+            obs = ObserverName
         ) |>
         dplyr::select(latitude, longitude, date, abondance, obs, alpha = Alpha) |>
         dplyr::mutate(

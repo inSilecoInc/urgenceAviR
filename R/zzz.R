@@ -41,7 +41,7 @@
   somec = list(
     file = "ConsultationSOMEC.csv",
     path = NULL,
-    check_columns = c("CruiseID","Alpha","StartDate", "LatStart", "LongStart", "Alpha", "Count", "ObserverName")
+    check_columns = c("Alpha", "ObsLat", "ObsLong", "Date", "Count", "ObserverName")
   ),
   biomq = list(
     file = "consultationBIOMQ.xlsx",

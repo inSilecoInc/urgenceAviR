@@ -60,7 +60,7 @@ app_ui <- function(request) {
     bslib::nav_item(
       shiny::actionButton(
         inputId = "reset_datasources",
-        label = "Reset datasources",
+        label = "Réinitialiser les jeux de données",
         icon = bsicons::bs_icon("database-slash"),
         class = "btn-primary"
       )

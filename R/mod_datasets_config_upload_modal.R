@@ -160,7 +160,7 @@ setup_upload_modal_observers <- function(input, output, session, ns, values, app
       tryCatch({
         # Read file to check columns
         file_data <- if (tolower(uploaded_ext) == "csv") {
-          read.csv2(uploaded$datapath, nrows = 1)
+          data.table::fread(uploaded$datapath, nrows = 1)
         } else if (tolower(uploaded_ext) == "xlsx") {
           readxl::read_excel(uploaded$datapath, n_max = 1)
         } else {
